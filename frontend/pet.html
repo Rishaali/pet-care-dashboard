@@ -1,0 +1,1513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Petzi – Pet Care &amp; Log Dashboard</title>
+    <meta name="description" content="View comprehensive health records, individual feeding, walking, and medication logs for your pet.">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!-- Shared Styles -->
+    <link rel="stylesheet" href="petzi.css">
+
+    <style>
+        /* Pet Switcher Bar */
+        .pet-switcher-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            overflow-x: auto;
+            padding: 8px 0 16px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .pet-switcher-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .pet-switch-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            border-radius: 100px;
+            background: #FFFFFF;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            font-size: 0.88rem;
+            font-weight: 500;
+            text-decoration: none;
+            cursor: pointer;
+            transition: var(--transition-fast);
+            white-space: nowrap;
+        }
+
+        .pet-switch-pill:hover {
+            border-color: var(--brand-primary);
+            color: var(--brand-primary);
+        }
+
+        .pet-switch-pill.active {
+            background: var(--brand-primary-light);
+            border-color: var(--brand-primary);
+            color: var(--brand-primary);
+            font-weight: 700;
+        }
+
+        /* Profile Hero (Crisp White Card with subtle cream backdrop) */
+        .profile-hero {
+            background: #FFFFFF;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .profile-hero-left {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+
+        .profile-hero-name {
+            font-family: 'Outfit', sans-serif;
+            font-size: clamp(1.6rem, 3.5vw, 2.2rem);
+            font-weight: 800;
+            color: var(--text-primary);
+        }
+
+        .profile-hero-sub {
+            color: var(--text-secondary);
+            font-size: 0.92rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 4px;
+        }
+
+        .profile-hero-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        /* Summary Stats Cards Grid */
+        .summary-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 14px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: #FFFFFF;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 16px 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition-fast);
+        }
+
+        .stat-card:hover {
+            border-color: #D6CCC0;
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .stat-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .stat-card-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+        }
+
+        .stat-card-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+
+        .stat-card-icon.feeding { background: #FEF3C7; color: #D97706; }
+        .stat-card-icon.walking { background: #DCFCE7; color: #16A34A; }
+        .stat-card-icon.medication { background: #E0F2FE; color: #0284C7; }
+        .stat-card-icon.info { background: var(--bg-card-alt); color: var(--text-secondary); }
+
+        .stat-card-val {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            line-height: 1.1;
+        }
+
+        .stat-card-sub {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            line-height: 1.3;
+        }
+
+        /* Two Column Main Content */
+        .pet-content-layout {
+            display: grid;
+            grid-template-columns: 1fr 340px;
+            gap: 20px;
+        }
+
+        @media (max-width: 960px) {
+            .pet-content-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Log Section & Tabs */
+        .logs-container-card {
+            background: #FFFFFF;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .logs-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 14px;
+            border-bottom: 1px solid var(--border-light);
+            padding-bottom: 14px;
+        }
+
+        .logs-title-group h2 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .logs-title-group p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .log-action-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .btn-log-action {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 13px;
+            border-radius: var(--radius-sm);
+            font-size: 0.85rem;
+            font-weight: 600;
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: var(--transition-fast);
+        }
+
+        .btn-log-feed {
+            background: #FEF3C7;
+            border-color: #FDE68A;
+            color: #92400E;
+        }
+        .btn-log-feed:hover { background: #FDE68A; }
+
+        .btn-log-walk {
+            background: #DCFCE7;
+            border-color: #BBF7D0;
+            color: #14532D;
+        }
+        .btn-log-walk:hover { background: #BBF7D0; }
+
+        .btn-log-med {
+            background: #E0F2FE;
+            border-color: #BAE6FD;
+            color: #0369A1;
+        }
+        .btn-log-med:hover { background: #BAE6FD; }
+
+        /* Log Filter Tabs */
+        .log-tabs {
+            display: flex;
+            gap: 4px;
+            background: var(--bg-card-alt);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 3px;
+            overflow-x: auto;
+        }
+
+        .log-tab {
+            padding: 6px 14px;
+            border-radius: calc(var(--radius-sm) - 2px);
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition-fast);
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            white-space: nowrap;
+        }
+
+        .log-tab:hover {
+            color: var(--brand-primary);
+            background: rgba(0, 0, 0, 0.03);
+        }
+
+        .log-tab.active {
+            background: #FFFFFF;
+            color: var(--brand-primary);
+            box-shadow: var(--shadow-sm);
+        }
+
+        /* Log Entries List */
+        .logs-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .log-entry-card {
+            background: var(--bg-card-alt);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 14px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            transition: var(--transition-fast);
+        }
+
+        .log-entry-card:hover {
+            background: #FFFFFF;
+            border-color: #D6CCC0;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .log-entry-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .log-entry-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .log-entry-title {
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: var(--text-primary);
+        }
+
+        .log-entry-notes {
+            font-size: 0.83rem;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+
+        .log-entry-right {
+            text-align: right;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 3px;
+            flex-shrink: 0;
+        }
+
+        .log-entry-time {
+            font-size: 0.83rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .log-entry-rel {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .btn-delete-log {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            opacity: 0.6;
+            transition: var(--transition-fast);
+            padding: 4px;
+        }
+
+        .btn-delete-log:hover {
+            color: #DC2626;
+            opacity: 1;
+        }
+
+        /* Empty State */
+        .log-empty-state {
+            text-align: center;
+            padding: 36px 20px;
+            color: var(--text-muted);
+        }
+
+        .log-empty-state .empty-icon {
+            font-size: 2.8rem;
+            margin-bottom: 8px;
+            color: #CBD5E1;
+        }
+
+        .log-empty-state h4 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.05rem;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .log-empty-state p {
+            font-size: 0.88rem;
+            margin-bottom: 14px;
+        }
+
+        /* Modals */
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.45);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+        }
+
+        .modal-backdrop.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-content {
+            background: #FFFFFF;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            width: 100%;
+            max-width: 580px;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: var(--shadow-lg);
+            transform: translateY(16px) scale(0.98);
+            transition: transform 0.2s ease;
+            overflow: hidden;
+        }
+
+        .modal-backdrop.open .modal-content {
+            transform: translateY(0) scale(1);
+        }
+
+        .modal-header {
+            padding: 18px 22px;
+            border-bottom: 1px solid var(--border-light);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--bg-card-alt);
+        }
+
+        .modal-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-modal-close {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+        }
+
+        .btn-modal-close:hover {
+            background: rgba(0, 0, 0, 0.05);
+            color: var(--text-primary);
+        }
+
+        .modal-body {
+            padding: 22px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .modal-footer {
+            padding: 16px 22px;
+            border-top: 1px solid var(--border-light);
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 10px;
+            background: var(--bg-card-alt);
+        }
+
+        .btn-danger {
+            background: #FEE2E2;
+            border: 1px solid #FECACA;
+            color: #B91C1C;
+            padding: 8px 16px;
+            border-radius: var(--radius-sm);
+            font-size: 0.88rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: var(--transition-fast);
+        }
+
+        .btn-danger:hover {
+            background: #FECACA;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Navigation -->
+<nav class="petzi-nav" id="petzi-nav">
+    <a href="home.html" class="nav-brand">
+        <div class="nav-brand-icon">🐾</div>
+        <span class="nav-brand-name">Petzi</span>
+    </a>
+    <div class="nav-links" id="nav-links">
+        <a href="home.html" class="nav-link"><span class="material-icons">home</span><span>Home</span></a>
+        <a href="pets.html" class="nav-link"><span class="material-icons">pets</span><span>My Pets</span></a>
+        <div class="nav-user-pill" id="nav-user-pill">
+            <span class="material-icons" style="font-size:1rem;">account_circle</span>
+            <span id="nav-username">User</span>
+        </div>
+        <button class="nav-link nav-logout" id="btn-logout">
+            <span class="material-icons">logout</span><span>Logout</span>
+        </button>
+    </div>
+</nav>
+
+<main class="page-wrapper">
+    <div class="section">
+
+        <!-- Top Pet Switcher Bar -->
+        <div class="pet-switcher-bar" id="pet-switcher-bar">
+            <div class="pet-switcher-label">
+                <span class="material-icons" style="font-size:1rem;">pets</span>
+                Your Pets:
+            </div>
+            <div id="pet-switcher-pills" style="display:flex; gap:8px; align-items:center;">
+                <!-- Dynamically populated pills -->
+            </div>
+            <a href="pets.html" class="pet-switch-pill" style="border-style:dashed;">
+                <span class="material-icons" style="font-size:1rem;">add</span> Add Pet
+            </a>
+        </div>
+
+        <!-- Main Pet Profile Container -->
+        <div id="pet-main-container">
+            <div style="text-align:center; padding: 60px 0;">
+                <div class="spinner"></div>
+                <p style="color:var(--text-muted); margin-top: 16px;">Loading pet details &amp; care logs...</p>
+            </div>
+        </div>
+
+    </div>
+</main>
+
+<!-- LOG MODAL: Quick Add Activity (Feeding, Walking, Medication) -->
+<div class="modal-backdrop" id="log-activity-modal" aria-hidden="true">
+    <div class="modal-content">
+        <div class="modal-header">
+            <div class="modal-title" id="log-modal-title">
+                <span class="material-icons" id="log-modal-icon">restaurant</span>
+                <span id="log-modal-heading">Log Feeding</span>
+            </div>
+            <button class="btn-modal-close" onclick="closeLogModal()" aria-label="Close modal">
+                <span class="material-icons">close</span>
+            </button>
+        </div>
+
+        <form id="log-activity-form" novalidate>
+            <div class="modal-body">
+                <div class="form-alert" id="log-modal-alert"></div>
+                <input type="hidden" id="log-activity-type" value="Feeding">
+
+                <!-- Dynamic inputs based on activity type -->
+                <div id="dynamic-log-fields">
+                    <!-- Injected per type -->
+                </div>
+
+                <div class="form-field">
+                    <label for="log-time">Time</label>
+                    <input type="datetime-local" id="log-time">
+                </div>
+
+                <div class="form-field">
+                    <label for="log-notes">Additional Notes</label>
+                    <textarea id="log-notes" rows="2" placeholder="e.g., Ate full portion, energetic, etc."></textarea>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary btn-sm" onclick="closeLogModal()">Cancel</button>
+                <button type="submit" class="btn-primary btn-sm" id="btn-submit-log">
+                    <span class="material-icons" style="font-size:1rem;">check_circle</span>
+                    Save Record
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- EDIT PET PROFILE MODAL -->
+<div class="modal-backdrop" id="edit-pet-modal" aria-hidden="true">
+    <div class="modal-content" style="max-width:760px;">
+        <div class="modal-header">
+            <div class="modal-title">
+                <span class="material-icons" style="color:var(--brand-primary)">edit</span>
+                Edit Pet Profile
+            </div>
+            <button class="btn-modal-close" onclick="closeEditModal()" aria-label="Close modal">
+                <span class="material-icons">close</span>
+            </button>
+        </div>
+
+        <form id="edit-pet-form" novalidate>
+            <div class="modal-body">
+                <div class="form-alert" id="edit-modal-alert"></div>
+
+                <div class="profile-section-block" style="padding:16px;">
+                    <div class="form-section-heading">Basic Information</div>
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label for="edit-pet-name">Pet Name <span class="req">*</span></label>
+                            <input type="text" id="edit-pet-name" required>
+                        </div>
+                        <div class="form-field">
+                            <label for="edit-pet-species">Species</label>
+                            <select id="edit-pet-species">
+                                <option value="Dog">Dog</option>
+                                <option value="Cat">Cat</option>
+                                <option value="Rabbit">Rabbit</option>
+                                <option value="Bird">Bird</option>
+                                <option value="Fish">Fish</option>
+                                <option value="Hamster">Hamster</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row-3" style="margin-top:12px;">
+                        <div class="form-field">
+                            <label for="edit-pet-breed">Breed</label>
+                            <input type="text" id="edit-pet-breed">
+                        </div>
+                        <div class="form-field">
+                            <label for="edit-pet-age">Age (years)</label>
+                            <input type="number" id="edit-pet-age" min="0">
+                        </div>
+                        <div class="form-field">
+                            <label for="edit-pet-gender">Gender</label>
+                            <select id="edit-pet-gender">
+                                <option value="">Select</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Unknown">Unknown</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row" style="margin-top:12px;">
+                        <div class="form-field">
+                            <label for="edit-pet-weight">Weight (kg)</label>
+                            <input type="number" id="edit-pet-weight" step="0.1" min="0">
+                        </div>
+                        <div class="form-field">
+                            <label for="edit-pet-color">Color / Markings</label>
+                            <input type="text" id="edit-pet-color">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="profile-section-block" style="padding:16px;">
+                    <div class="form-section-heading">Health &amp; Medical</div>
+                    <div class="form-row-3">
+                        <div class="form-field">
+                            <label for="edit-pet-vac-status">Vaccination Status</label>
+                            <select id="edit-pet-vac-status">
+                                <option value="Vaccinated">Vaccinated</option>
+                                <option value="Not Vaccinated">Not Vaccinated</option>
+                                <option value="Partially Vaccinated">Partially Vaccinated</option>
+                                <option value="Unknown">Unknown</option>
+                            </select>
+                        </div>
+                        <div class="form-field">
+                            <label for="edit-pet-last-vac">Last Vaccination</label>
+                            <input type="date" id="edit-pet-last-vac">
+                        </div>
+                        <div class="form-field">
+                            <label for="edit-pet-next-vac">Next Vaccination Due</label>
+                            <input type="date" id="edit-pet-next-vac">
+                        </div>
+                    </div>
+                    <div class="form-row" style="margin-top:12px;">
+                        <div class="form-field">
+                            <label for="edit-pet-health">Health Conditions</label>
+                            <input type="text" id="edit-pet-health">
+                        </div>
+                        <div class="form-field">
+                            <label for="edit-pet-allergies">Allergies</label>
+                            <input type="text" id="edit-pet-allergies">
+                        </div>
+                    </div>
+                    <div class="form-field" style="margin-top:12px;">
+                        <label for="edit-pet-diet">Diet &amp; Feeding Routine</label>
+                        <input type="text" id="edit-pet-diet">
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary btn-sm" onclick="closeEditModal()">Cancel</button>
+                <button type="submit" class="btn-primary btn-sm" id="btn-save-edit-pet">
+                    <span class="material-icons" style="font-size:1rem;">save</span>
+                    Save Changes
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="petzi-toast-container" id="toast-container"></div>
+
+<script>
+    // ----------------------------------------------------
+    // API Base URL
+    // ----------------------------------------------------
+    const API_BASE = 'http://localhost:5000/api';
+
+    // ----------------------------------------------------
+    // Authentication & State Setup
+    // ----------------------------------------------------
+    const currentUser = JSON.parse(localStorage.getItem('petziUser') || 'null');
+    if (!currentUser || !currentUser.id) {
+        window.location.replace('auth.html?mode=login');
+    }
+
+    document.getElementById('nav-username').textContent = currentUser.name.split(' ')[0];
+    document.getElementById('btn-logout').addEventListener('click', () => {
+        localStorage.removeItem('petziUser');
+        window.location.replace('home.html');
+    });
+
+    const urlParams = new URLSearchParams(window.location.search);
+    let currentPetId = urlParams.get('id');
+
+    let currentPet = null;
+    let userPets = [];
+    let currentPetLogs = [];
+    let currentActiveTab = 'all';
+
+    const speciesEmojiMap = {
+        'dog': '🐶', 'cat': '🐱', 'rabbit': '🐰', 'bird': '🐦',
+        'fish': '🐠', 'hamster': '🐹', 'other': '🐾'
+    };
+
+    function getSpeciesEmoji(species) {
+        if (!species) return '🐾';
+        return speciesEmojiMap[species.toLowerCase().trim()] || '🐾';
+    }
+
+    function escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    function formatTime(isoString) {
+        if (!isoString) return '';
+        const d = new Date(isoString);
+        return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
+
+    function formatNiceDate(isoString) {
+        if (!isoString) return '';
+        const d = new Date(isoString);
+        const today = new Date();
+        const yesterday = new Date();
+        yesterday.setDate(today.getDate() - 1);
+
+        if (d.toDateString() === today.toDateString()) return 'Today';
+        if (d.toDateString() === yesterday.toDateString()) return 'Yesterday';
+        return d.toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
+    }
+
+    function formatRelativeTime(isoString) {
+        if (!isoString) return 'Never';
+        const d = new Date(isoString);
+        const now = new Date();
+        const diffMs = now - d;
+        const diffMins = Math.floor(diffMs / 60000);
+        const diffHours = Math.floor(diffMs / 3600000);
+
+        if (diffMins < 1) return 'Just now';
+        if (diffMins < 60) return `${diffMins}m ago`;
+        if (diffHours < 24) return `${diffHours}h ago`;
+        return formatNiceDate(isoString);
+    }
+
+    // ----------------------------------------------------
+    // Load All Pets for Switcher Bar
+    // ----------------------------------------------------
+    async function loadUserPetsSwitcher() {
+        try {
+            const res = await fetch(`${API_BASE}/pets?user_id=${currentUser.id}`);
+            if (!res.ok) return;
+            userPets = await res.json();
+
+            const pillsContainer = document.getElementById('pet-switcher-pills');
+            pillsContainer.innerHTML = '';
+
+            if (userPets.length === 0) {
+                pillsContainer.innerHTML = '<span style="color:var(--text-muted);font-size:0.85rem;">No pets yet</span>';
+                return;
+            }
+
+            // If no petId in URL or invalid, select first pet
+            if (!currentPetId || !userPets.some(p => p.id == currentPetId)) {
+                currentPetId = userPets[0].id;
+                const newUrl = new URL(window.location);
+                newUrl.searchParams.set('id', currentPetId);
+                window.history.replaceState({}, '', newUrl);
+            }
+
+            userPets.forEach(pet => {
+                const isActive = pet.id == currentPetId;
+                const pill = document.createElement('button');
+                pill.className = `pet-switch-pill ${isActive ? 'active' : ''}`;
+                pill.innerHTML = `<span>${getSpeciesEmoji(pet.species)}</span> <span>${escapeHtml(pet.name)}</span>`;
+                pill.onclick = () => switchPet(pet.id);
+                pillsContainer.appendChild(pill);
+            });
+
+        } catch (err) {
+            console.error('Error loading pets for switcher:', err);
+        }
+    }
+
+    function switchPet(newPetId) {
+        currentPetId = newPetId;
+        const newUrl = new URL(window.location);
+        newUrl.searchParams.set('id', newPetId);
+        window.history.pushState({}, '', newUrl);
+
+        // Update active class on pills
+        document.querySelectorAll('.pet-switch-pill').forEach(pill => {
+            pill.classList.remove('active');
+        });
+        loadUserPetsSwitcher();
+        loadPetDashboard();
+    }
+
+    // ----------------------------------------------------
+    // Load Pet Dashboard (Details + Metrics + Care Logs)
+    // ----------------------------------------------------
+    async function loadPetDashboard() {
+        const container = document.getElementById('pet-main-container');
+        try {
+            // 1. Fetch pet details
+            const petRes = await fetch(`${API_BASE}/pets/${currentPetId}`);
+            if (!petRes.ok) throw new Error('Pet not found');
+            currentPet = await petRes.json();
+
+            // Verify pet belongs to user (Security / Isolation)
+            if (currentPet.user_id && currentPet.user_id != currentUser.id) {
+                container.innerHTML = `
+                    <div class="log-empty-state" style="padding:60px 20px;">
+                        <div class="empty-icon" style="color:#ff6b6b;">🔒</div>
+                        <h3>Access Denied</h3>
+                        <p>You do not have permission to view this pet's profile.</p>
+                        <a href="pets.html" class="btn-primary">Back to My Pets</a>
+                    </div>
+                `;
+                return;
+            }
+
+            // 2. Fetch pet summary metrics
+            const summaryRes = await fetch(`${API_BASE}/pets/${currentPetId}/summary`);
+            const summary = summaryRes.ok ? await summaryRes.json() : { counts: {}, last_feeding: null, last_walking: null, medications: [] };
+
+            // 3. Fetch pet logs
+            const logsRes = await fetch(`${API_BASE}/pets/${currentPetId}/logs`);
+            currentPetLogs = logsRes.ok ? await logsRes.json() : [];
+
+            // Compute next medication info
+            let nextMedText = 'None scheduled';
+            if (summary.medications && summary.medications.length > 0) {
+                const nextM = summary.medications[0];
+                nextMedText = `${nextM.medication_name} (${nextM.dosage}) @ ${nextM.reminder_time}`;
+            }
+
+            const emoji = getSpeciesEmoji(currentPet.species);
+            const vacBadgeClass = currentPet.vaccination_status === 'Vaccinated' ? 'vaccinated' : (currentPet.vaccination_status === 'Not Vaccinated' ? 'not-vaccinated' : 'unknown');
+
+            // Render Hero + Summary Cards + Two-column logs
+            container.innerHTML = `
+                <!-- Pet Profile Hero -->
+                <div class="profile-hero">
+                    <div class="profile-hero-left">
+                        <div class="pet-avatar-display">
+                            <span>${emoji}</span>
+                        </div>
+                        <div>
+                            <div class="profile-hero-name">${escapeHtml(currentPet.name)}</div>
+                            <div class="profile-hero-sub">
+                                <span>${escapeHtml(currentPet.species || 'Pet')}</span>
+                                <span>•</span>
+                                <span>${escapeHtml(currentPet.breed || 'Breed not specified')}</span>
+                                <span>•</span>
+                                <span>${currentPet.age ? currentPet.age + ' years' : 'Age unspecified'}</span>
+                                <span>•</span>
+                                <span>${currentPet.weight ? currentPet.weight + ' kg' : 'Weight not set'}</span>
+                                <span>•</span>
+                                <span class="pet-status-badge ${vacBadgeClass}">
+                                    ${escapeHtml(currentPet.vaccination_status || 'Vaccination Unknown')}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="profile-hero-actions">
+                        <a href="dashboard?pet_id=${currentPet.id}" class="btn-secondary btn-sm">
+                            <span class="material-icons">dashboard</span> Full Dashboard
+                        </a>
+                        <button class="btn-secondary btn-sm" onclick="openEditModal()">
+                            <span class="material-icons">edit</span> Edit Pet
+                        </button>
+                        <button class="btn-danger btn-sm" onclick="deletePet(${currentPet.id})">
+                            <span class="material-icons">delete</span> Delete
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Today's Activity Summary Metrics (100% Pet-Specific) -->
+                <div class="summary-stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <span class="stat-card-title">Today's Feeding</span>
+                            <div class="stat-card-icon feeding"><span class="material-icons">restaurant</span></div>
+                        </div>
+                        <div class="stat-card-val">${summary.counts.feeding || 0}</div>
+                        <div class="stat-card-sub">
+                            Last: ${summary.last_feeding ? formatRelativeTime(summary.last_feeding.timestamp) : 'Never'}
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <span class="stat-card-title">Today's Walks</span>
+                            <div class="stat-card-icon walking"><span class="material-icons">directions_walk</span></div>
+                        </div>
+                        <div class="stat-card-val">${summary.counts.walking || 0}</div>
+                        <div class="stat-card-sub">
+                            Last: ${summary.last_walking ? formatRelativeTime(summary.last_walking.timestamp) : 'Never'}
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <span class="stat-card-title">Today's Meds</span>
+                            <div class="stat-card-icon medication"><span class="material-icons">medication</span></div>
+                        </div>
+                        <div class="stat-card-val">${summary.counts.medication || 0}</div>
+                        <div class="stat-card-sub">
+                            Next: ${escapeHtml(nextMedText)}
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <span class="stat-card-title">Health Status</span>
+                            <div class="stat-card-icon info"><span class="material-icons">health_and_safety</span></div>
+                        </div>
+                        <div class="stat-card-val" style="font-size:1.1rem; padding-top:4px;">
+                            ${escapeHtml(currentPet.health_condition || 'Healthy')}
+                        </div>
+                        <div class="stat-card-sub">
+                            Allergies: ${escapeHtml(currentPet.allergies || 'None recorded')}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Content Layout -->
+                <div class="pet-content-layout">
+
+                    <!-- Left: Pet-Specific Care Log Section -->
+                    <div class="logs-container-card">
+                        <div class="logs-header">
+                            <div class="logs-title-group">
+                                <h2>
+                                    <span class="material-icons" style="color:var(--brand-primary)">history_edu</span>
+                                    ${escapeHtml(currentPet.name)}'s Care Log
+                                </h2>
+                                <p>Independent, isolated daily care records for ${escapeHtml(currentPet.name)}.</p>
+                            </div>
+                            <div class="log-action-buttons">
+                                <button class="btn-log-action btn-log-feed" onclick="openLogModal('Feeding')">
+                                    <span class="material-icons" style="font-size:1rem;">add</span> Add Feeding
+                                </button>
+                                <button class="btn-log-action btn-log-walk" onclick="openLogModal('Walking')">
+                                    <span class="material-icons" style="font-size:1rem;">add</span> Add Walk
+                                </button>
+                                <button class="btn-log-action btn-log-med" onclick="openLogModal('Medication')">
+                                    <span class="material-icons" style="font-size:1rem;">add</span> Add Medication
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Log Filter Tabs -->
+                        <div class="log-tabs">
+                            <button class="log-tab ${currentActiveTab === 'all' ? 'active' : ''}" onclick="setLogTab('all')">
+                                <span class="material-icons" style="font-size:1rem;">list_alt</span> All Records
+                            </button>
+                            <button class="log-tab ${currentActiveTab === 'feeding' ? 'active' : ''}" onclick="setLogTab('feeding')">
+                                <span class="material-icons" style="font-size:1rem;">restaurant</span> Feeding
+                            </button>
+                            <button class="log-tab ${currentActiveTab === 'walking' ? 'active' : ''}" onclick="setLogTab('walking')">
+                                <span class="material-icons" style="font-size:1rem;">directions_walk</span> Walking
+                            </button>
+                            <button class="log-tab ${currentActiveTab === 'medication' ? 'active' : ''}" onclick="setLogTab('medication')">
+                                <span class="material-icons" style="font-size:1rem;">medication</span> Medication
+                            </button>
+                        </div>
+
+                        <!-- Log Items Render Area -->
+                        <div id="pet-logs-list" class="logs-list">
+                            <!-- Populated by renderCurrentPetLogs() -->
+                        </div>
+                    </div>
+
+                    <!-- Right: Health & Info Quick View -->
+                    <div>
+                        <div class="profile-section-block">
+                            <h3><span class="material-icons">badge</span> Pet Details</h3>
+                            <div style="display:flex; flex-direction:column; gap:12px; font-size:0.9rem;">
+                                <div>
+                                    <span class="profile-info-label">Gender</span>
+                                    <div>${escapeHtml(currentPet.gender || 'Not specified')}</div>
+                                </div>
+                                <div>
+                                    <span class="profile-info-label">Date of Birth</span>
+                                    <div>${escapeHtml(currentPet.date_of_birth || 'Not recorded')}</div>
+                                </div>
+                                <div>
+                                    <span class="profile-info-label">Color / Coat</span>
+                                    <div>${escapeHtml(currentPet.color || 'Not specified')}</div>
+                                </div>
+                                <div>
+                                    <span class="profile-info-label">Microchip ID</span>
+                                    <div>${escapeHtml(currentPet.microchip_number || 'None')}</div>
+                                </div>
+                                <div>
+                                    <span class="profile-info-label">Emergency Vet</span>
+                                    <div>${escapeHtml(currentPet.emergency_contact || 'None')}</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="profile-section-block">
+                            <h3><span class="material-icons">restaurant_menu</span> Diet &amp; Routine</h3>
+                            <div style="display:flex; flex-direction:column; gap:12px; font-size:0.9rem;">
+                                <div>
+                                    <span class="profile-info-label">Feeding Routine</span>
+                                    <div>${escapeHtml(currentPet.diet || 'Regular diet')}</div>
+                                </div>
+                                <div>
+                                    <span class="profile-info-label">Activity Level</span>
+                                    <div>${escapeHtml(currentPet.activity_level || 'Moderate')}</div>
+                                </div>
+                                <div>
+                                    <span class="profile-info-label">Special Instructions</span>
+                                    <div style="color:var(--text-secondary);">${escapeHtml(currentPet.special_instructions || 'None')}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            `;
+
+            renderCurrentPetLogs();
+
+        } catch (err) {
+            console.error('Error loading pet dashboard:', err);
+            container.innerHTML = `
+                <div class="log-empty-state" style="padding:60px 20px;">
+                    <div class="empty-icon" style="color:#ff6b6b;">⚠️</div>
+                    <h3>Pet Profile Not Found</h3>
+                    <p>Could not load details for this pet. It may have been removed.</p>
+                    <a href="pets.html" class="btn-primary">Return to My Pets</a>
+                </div>
+            `;
+        }
+    }
+
+    // ----------------------------------------------------
+    // Filter & Render Current Pet's Logs
+    // ----------------------------------------------------
+    function setLogTab(tab) {
+        currentActiveTab = tab;
+        document.querySelectorAll('.log-tab').forEach(b => b.classList.remove('active'));
+        const activeBtn = document.querySelector(`.log-tab[onclick="setLogTab('${tab}')"]`);
+        if (activeBtn) activeBtn.classList.add('active');
+        renderCurrentPetLogs();
+    }
+
+    function renderCurrentPetLogs() {
+        const listContainer = document.getElementById('pet-logs-list');
+        if (!listContainer) return;
+
+        let filtered = currentPetLogs;
+        if (currentActiveTab !== 'all') {
+            filtered = currentPetLogs.filter(l => l.activity_type.toLowerCase() === currentActiveTab.toLowerCase());
+        }
+
+        if (filtered.length === 0) {
+            const petName = currentPet ? currentPet.name : 'your pet';
+            let emptyIcon = 'history';
+            let emptyTitle = `No care records yet`;
+            let emptyMsg = `Start logging daily activities for ${escapeHtml(petName)}.`;
+
+            if (currentActiveTab === 'feeding') {
+                emptyIcon = 'restaurant';
+                emptyTitle = `No feeding records yet`;
+                emptyMsg = `Start tracking ${escapeHtml(petName)}'s feeding routine.`;
+            } else if (currentActiveTab === 'walking') {
+                emptyIcon = 'directions_walk';
+                emptyTitle = `No walking records yet`;
+                emptyMsg = `Start tracking ${escapeHtml(petName)}'s daily walks and exercise.`;
+            } else if (currentActiveTab === 'medication') {
+                emptyIcon = 'medication';
+                emptyTitle = `No medication records yet`;
+                emptyMsg = `Keep track of ${escapeHtml(petName)}'s prescriptions and doses.`;
+            }
+
+            listContainer.innerHTML = `
+                <div class="log-empty-state">
+                    <div class="empty-icon"><span class="material-icons" style="font-size:3rem;">${emptyIcon}</span></div>
+                    <h4>${emptyTitle}</h4>
+                    <p>${emptyMsg}</p>
+                    <button class="btn-secondary btn-sm" onclick="openLogModal('${currentActiveTab === 'all' ? 'Feeding' : capitalize(currentActiveTab)}')">
+                        <span class="material-icons" style="font-size:0.9rem;">add</span> Add Record
+                    </button>
+                </div>
+            `;
+            return;
+        }
+
+        let html = '';
+        filtered.forEach(log => {
+            let icon = 'restaurant';
+            let iconClass = 'feeding';
+            if (log.activity_type.toLowerCase() === 'walking') {
+                icon = 'directions_walk';
+                iconClass = 'walking';
+            } else if (log.activity_type.toLowerCase() === 'medication') {
+                icon = 'medication';
+                iconClass = 'medication';
+            }
+
+            const dayLabel = formatNiceDate(log.timestamp);
+            const timeLabel = formatTime(log.timestamp);
+            const relLabel = formatRelativeTime(log.timestamp);
+
+            html += `
+                <div class="log-entry-card">
+                    <div class="log-entry-left">
+                        <div class="stat-card-icon ${iconClass} log-entry-icon">
+                            <span class="material-icons">${icon}</span>
+                        </div>
+                        <div>
+                            <div class="log-entry-title">${escapeHtml(log.activity_type)}</div>
+                            <div class="log-entry-notes">${escapeHtml(log.notes || 'Logged successfully')}</div>
+                        </div>
+                    </div>
+                    <div class="log-entry-right">
+                        <div class="log-entry-time">${dayLabel}, ${timeLabel}</div>
+                        <div class="log-entry-rel">${relLabel}</div>
+                        <button class="btn-delete-log" title="Delete log" onclick="deleteLogEntry(${log.id})">
+                            <span class="material-icons" style="font-size:1.1rem;">delete_outline</span>
+                        </button>
+                    </div>
+                </div>
+            `;
+        });
+
+        listContainer.innerHTML = html;
+    }
+
+    function capitalize(s) {
+        if (!s) return '';
+        return s.charAt(0).toUpperCase() + s.slice(1);
+    }
+
+    // ----------------------------------------------------
+    // Quick Add Activity Modal Handlers
+    // ----------------------------------------------------
+    const logModal = document.getElementById('log-activity-modal');
+
+    function openLogModal(type = 'Feeding') {
+        const heading = document.getElementById('log-modal-heading');
+        const icon = document.getElementById('log-modal-icon');
+        const typeInput = document.getElementById('log-activity-type');
+        const dynamicFields = document.getElementById('dynamic-log-fields');
+        const timeInput = document.getElementById('log-time');
+        const notesInput = document.getElementById('log-notes');
+        const alertBox = document.getElementById('log-modal-alert');
+
+        alertBox.className = 'form-alert';
+        alertBox.textContent = '';
+        notesInput.value = '';
+
+        // Default to current local time in datetime-local input format
+        const now = new Date();
+        now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+        timeInput.value = now.toISOString().slice(0, 16);
+
+        typeInput.value = type;
+        heading.textContent = `Log ${type} for ${currentPet ? currentPet.name : 'Pet'}`;
+
+        if (type === 'Feeding') {
+            icon.textContent = 'restaurant';
+            dynamicFields.innerHTML = `
+                <div class="form-row">
+                    <div class="form-field">
+                        <label for="feed-food">Food Type</label>
+                        <input type="text" id="feed-food" placeholder="e.g., Dry Kibble / Wet Salmon">
+                    </div>
+                    <div class="form-field">
+                        <label for="feed-qty">Quantity</label>
+                        <input type="text" id="feed-qty" placeholder="e.g., 150g / 1 bowl">
+                    </div>
+                </div>
+            `;
+        } else if (type === 'Walking') {
+            icon.textContent = 'directions_walk';
+            dynamicFields.innerHTML = `
+                <div class="form-row">
+                    <div class="form-field">
+                        <label for="walk-duration">Duration</label>
+                        <input type="text" id="walk-duration" placeholder="e.g., 30 minutes / 2 km">
+                    </div>
+                    <div class="form-field">
+                        <label for="walk-route">Route / Park</label>
+                        <input type="text" id="walk-route" placeholder="e.g., Neighborhood park">
+                    </div>
+                </div>
+            `;
+        } else if (type === 'Medication') {
+            icon.textContent = 'medication';
+            dynamicFields.innerHTML = `
+                <div class="form-row">
+                    <div class="form-field">
+                        <label for="med-name">Medication Name <span class="req">*</span></label>
+                        <input type="text" id="med-name" placeholder="e.g., Antibiotic / Vitamin">
+                    </div>
+                    <div class="form-field">
+                        <label for="med-dose">Dosage</label>
+                        <input type="text" id="med-dose" placeholder="e.g., 5 ml / 1 tablet">
+                    </div>
+                </div>
+            `;
+        }
+
+        logModal.classList.add('open');
+        logModal.setAttribute('aria-hidden', 'false');
+    }
+
+    function closeLogModal() {
+        logModal.classList.remove('open');
+        logModal.setAttribute('aria-hidden', 'true');
+    }
+
+    logModal.addEventListener('click', (e) => {
+        if (e.target === logModal) closeLogModal();
+    });
+
+    // Submit Log Form
+    document.getElementById('log-activity-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const alertBox = document.getElementById('log-modal-alert');
+        alertBox.className = 'form-alert';
+        alertBox.textContent = '';
+
+        const type = document.getElementById('log-activity-type').value;
+        const timeVal = document.getElementById('log-time').value;
+        const extraNotes = document.getElementById('log-notes').value.trim();
+
+        let details = [];
+
+        if (type === 'Feeding') {
+            const food = document.getElementById('feed-food') ? document.getElementById('feed-food').value.trim() : '';
+            const qty = document.getElementById('feed-qty') ? document.getElementById('feed-qty').value.trim() : '';
+            if (food) details.push(food);
+            if (qty) details.push(qty);
+        } else if (type === 'Walking') {
+            const dur = document.getElementById('walk-duration') ? document.getElementById('walk-duration').value.trim() : '';
+            const route = document.getElementById('walk-route') ? document.getElementById('walk-route').value.trim() : '';
+            if (dur) details.push(dur);
+            if (route) details.push(`at ${route}`);
+        } else if (type === 'Medication') {
+            const medName = document.getElementById('med-name') ? document.getElementById('med-name').value.trim() : '';
+            const medDose = document.getElementById('med-dose') ? document.getElementById('med-dose').value.trim() : '';
+            if (!medName) {
+                alertBox.className = 'form-alert show error';
+                alertBox.innerHTML = '<span class="material-icons">error_outline</span> Medication name is required.';
+                return;
+            }
+            details.push(medName);
+            if (medDose) details.push(`(${medDose})`);
+        }
+
+        if (extraNotes) details.push(`- ${extraNotes}`);
+        const finalNotes = details.join(' • ') || `${type} recorded.`;
+
+        const btn = document.getElementById('btn-submit-log');
+        btn.disabled = true;
+        btn.innerHTML = `<div class="spinner" style="width:16px;height:16px;border-width:2px;"></div> Saving...`;
+
+        try {
+            const res = await fetch(`${API_BASE}/activities`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    pet_id: currentPetId,
+                    activity_type: type,
+                    notes: finalNotes,
+                    timestamp: timeVal ? new Date(timeVal).toISOString() : new Date().toISOString()
+                })
+            });
+
+            if (!res.ok) throw new Error('Failed to log activity');
+
+            closeLogModal();
+            showToast(`${type} logged for ${currentPet.name}! 🐾`);
+            
+            // Dynamic refresh without reloading the page
+            await loadPetDashboard();
+
+        } catch (err) {
+            console.error(err);
+            alertBox.className = 'form-alert show error';
+            alertBox.innerHTML = '<span class="material-icons">error_outline</span> Failed to save record.';
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = `<span class="material-icons" style="font-size:1rem;">check_circle</span> Save Record`;
+        }
+    });
+
+    // Delete Log Entry
+    async function deleteLogEntry(id) {
+        if (!confirm('Delete this care record?')) return;
+        try {
+            const res = await fetch(`${API_BASE}/activities/${id}`, { method: 'DELETE' });
+            if (!res.ok) throw new Error('Failed to delete');
+            showToast('Care record deleted.');
+            await loadPetDashboard();
+        } catch (err) {
+            alert('Failed to delete log entry.');
+        }
+    }
+
+    // ----------------------------------------------------
+    // Edit Pet Modal Handlers
+    // ----------------------------------------------------
+    const editModal = document.getElementById('edit-pet-modal');
+
+    function openEditModal() {
+        if (!currentPet) return;
+        document.getElementById('edit-pet-name').value = currentPet.name || '';
+        document.getElementById('edit-pet-species').value = currentPet.species || 'Dog';
+        document.getElementById('edit-pet-breed').value = currentPet.breed || '';
+        document.getElementById('edit-pet-age').value = currentPet.age || '';
+        document.getElementById('edit-pet-gender').value = currentPet.gender || '';
+        document.getElementById('edit-pet-weight').value = currentPet.weight || '';
+        document.getElementById('edit-pet-color').value = currentPet.color || '';
+        document.getElementById('edit-pet-vac-status').value = currentPet.vaccination_status || 'Vaccinated';
+        document.getElementById('edit-pet-last-vac').value = currentPet.last_vaccination_date || '';
+        document.getElementById('edit-pet-next-vac').value = currentPet.next_vaccination_date || '';
+        document.getElementById('edit-pet-health').value = currentPet.health_condition || '';
+        document.getElementById('edit-pet-allergies').value = currentPet.allergies || '';
+        document.getElementById('edit-pet-diet').value = currentPet.diet || '';
+
+        editModal.classList.add('open');
+        editModal.setAttribute('aria-hidden', 'false');
+    }
+
+    function closeEditModal() {
+        editModal.classList.remove('open');
+        editModal.setAttribute('aria-hidden', 'true');
+    }
+
+    editModal.addEventListener('click', (e) => {
+        if (e.target === editModal) closeEditModal();
+    });
+
+    document.getElementById('edit-pet-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const alertBox = document.getElementById('edit-modal-alert');
+        alertBox.className = 'form-alert';
+
+        const name = document.getElementById('edit-pet-name').value.trim();
+        if (!name) {
+            alertBox.className = 'form-alert show error';
+            alertBox.innerHTML = '<span class="material-icons">error_outline</span> Pet name is required.';
+            return;
+        }
+
+        const payload = {
+            ...currentPet,
+            name: name,
+            species: document.getElementById('edit-pet-species').value,
+            breed: document.getElementById('edit-pet-breed').value.trim(),
+            age: document.getElementById('edit-pet-age').value.trim(),
+            gender: document.getElementById('edit-pet-gender').value,
+            weight: document.getElementById('edit-pet-weight').value.trim(),
+            color: document.getElementById('edit-pet-color').value.trim(),
+            vaccination_status: document.getElementById('edit-pet-vac-status').value,
+            last_vaccination_date: document.getElementById('edit-pet-last-vac').value || null,
+            next_vaccination_date: document.getElementById('edit-pet-next-vac').value || null,
+            health_condition: document.getElementById('edit-pet-health').value.trim(),
+            allergies: document.getElementById('edit-pet-allergies').value.trim(),
+            diet: document.getElementById('edit-pet-diet').value.trim()
+        };
+
+        try {
+            const res = await fetch(`${API_BASE}/pets/${currentPetId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            if (!res.ok) throw new Error('Failed to update');
+
+            closeEditModal();
+            showToast('Pet profile updated! 🐾');
+            loadUserPetsSwitcher();
+            loadPetDashboard();
+        } catch (err) {
+            alertBox.className = 'form-alert show error';
+            alertBox.innerHTML = '<span class="material-icons">error_outline</span> Failed to update profile.';
+        }
+    });
+
+    async function deletePet(id) {
+        if (!confirm('Are you sure you want to delete this pet and its log history? This action cannot be undone.')) {
+            return;
+        }
+
+        try {
+            const res = await fetch(`${API_BASE}/pets/${id}`, { method: 'DELETE' });
+            if (!res.ok) throw new Error('Failed to delete');
+            showToast('Pet profile deleted.');
+            setTimeout(() => {
+                window.location.replace('pets.html');
+            }, 600);
+        } catch (err) {
+            alert('Failed to delete pet.');
+        }
+    }
+
+    function showToast(message, type = 'success') {
+        const container = document.getElementById('toast-container');
+        const toast = document.createElement('div');
+        toast.className = `petzi-toast ${type}`;
+        toast.innerHTML = `<span class="material-icons" style="font-size:1.1rem;">${type === 'success' ? 'check_circle' : 'error'}</span> ${message}`;
+        container.appendChild(toast);
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            toast.style.transition = 'opacity 0.3s';
+            setTimeout(() => toast.remove(), 300);
+        }, 4000);
+    }
+
+    // ----------------------------------------------------
+    // Initialization
+    // ----------------------------------------------------
+    (async function init() {
+        await loadUserPetsSwitcher();
+        await loadPetDashboard();
+    })();
+</script>
+
+</body>
+</html>

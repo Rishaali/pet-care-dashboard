@@ -10,10 +10,11 @@ const petRoutes = require("./routes/petRoutes");
 const activityRoutes = require("./routes/activityRoutes");
 const medicationRoutes = require("./routes/medicationRoutes");
 const userRoutes = require("./routes/userRoutes");
+const notificationRoutes = require("./routes/notificationRoutes");
+const { authenticateToken } = require("./middleware/auth");
 
 const app = express();
-const PORT = 5000;
-
+const PORT = 5502;
 // Enable CORS and JSON parser
 app.use(cors());
 app.use(express.json());
@@ -21,10 +22,11 @@ app.use(express.urlencoded({ extended: true }));
 
 // Register API routes
 app.use("/api/users", userRoutes);
-app.use("/api/pets", petRoutes);
-app.use("/api/activities", activityRoutes);
-app.use("/api/medications", medicationRoutes.medications);
-app.use("/api/medication-logs", medicationRoutes.medicationLogs);
+app.use("/api/notifications", authenticateToken, notificationRoutes);
+app.use("/api/pets", authenticateToken, petRoutes);
+app.use("/api/activities", authenticateToken, activityRoutes);
+app.use("/api/medications", authenticateToken, medicationRoutes.medications);
+app.use("/api/medication-logs", authenticateToken, medicationRoutes.medicationLogs);
 
 // Root route serves landing/home page
 app.get("/", (req, res) => {

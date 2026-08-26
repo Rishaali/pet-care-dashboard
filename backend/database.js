@@ -212,4 +212,19 @@ function seedDatabase() {
     });
 }
 
-module.exports = db;
+module.exports = db;// Notifications table
+db.run(`
+    CREATE TABLE IF NOT EXISTS notifications (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        pet_id INTEGER NOT NULL,
+        title TEXT NOT NULL,
+        message TEXT NOT NULL,
+        type TEXT DEFAULT 'medication',
+        reference_key TEXT UNIQUE,
+        created_at DATETIME NOT NULL,
+        is_read INTEGER DEFAULT 0,
+        FOREIGN KEY (pet_id) REFERENCES pets(id) ON DELETE CASCADE
+    )
+`);
+
+

@@ -11,14 +11,19 @@ const logRouter = express.Router();
 // GET /api/medications - Retrieve medication schedules (optionally filter by pet_id)
 medicationRouter.get("/", (req, res) => {
     const petId = req.query.pet_id;
-    let sql = "SELECT * FROM medications";
-    let params = [];
+    let sql = `
+        SELECT m.*
+        FROM medications m
+        JOIN pets p ON m.pet_id = p.id
+        WHERE p.user_id = ?
+    `;
+    let params = [req.user.id];
 
     if (petId) {
-        sql += " WHERE pet_id = ?";
-        params = [petId];
+        sql += " AND m.pet_id = ?";
+        params.push(petId);
     }
-    sql += " ORDER BY id DESC";
+    sql += " ORDER BY m.id DESC";
 
     db.all(sql, params, (err, rows) => {
         if (err) {
@@ -57,7 +62,7 @@ medicationRouter.post("/", (req, res) => {
     }
 
     // Verify pet exists
-    db.get("SELECT id FROM pets WHERE id = ?", [pet_id], (err, row) => {
+    db.get("SELECT id FROM pets WHERE id = ? AND user_id = ?", [pet_id, req.user.id], (err, row) => {
         if (err) {
             console.error("Error verifying pet existence:", err.message);
             return res.status(500).json({ error: "Database error" });
@@ -122,7 +127,14 @@ medicationRouter.put("/:id", (req, res) => {
         }
     }
 
-    db.get("SELECT id FROM medications WHERE id = ?", [id], (err, row) => {
+    const ownershipSql = `
+        SELECT m.id
+        FROM medications m
+        JOIN pets p ON m.pet_id = p.id
+        WHERE m.id = ? AND p.user_id = ?
+    `;
+
+    db.get(ownershipSql, [id, req.user.id], (err, row) => {
         if (err) {
             console.error("Error checking medication existence:", err.message);
             return res.status(500).json({ error: "Database error" });
@@ -135,6 +147,8 @@ medicationRouter.put("/:id", (req, res) => {
             UPDATE medications
             SET pet_id = ?, medication_name = ?, dosage = ?, frequency = ?, start_date = ?, end_date = ?, reminder_time = ?, notes = ?
             WHERE id = ?
+            AND pet_id IN (SELECT id FROM pets WHERE user_id = ?)
+            AND ? IN (SELECT id FROM pets WHERE user_id = ?)
         `;
         const params = [
             pet_id,
@@ -145,13 +159,19 @@ medicationRouter.put("/:id", (req, res) => {
             end_date || null,
             reminder_time.trim(),
             notes ? notes.trim() : null,
-            id
+            id,
+            req.user.id,
+            pet_id,
+            req.user.id
         ];
 
         db.run(sql, params, function(err) {
             if (err) {
                 console.error("Error updating medication:", err.message);
                 return res.status(500).json({ error: "Failed to update medication schedule" });
+            }
+            if (this.changes === 0) {
+                return res.status(404).json({ error: "Medication schedule not found" });
             }
             res.status(200).json({
                 message: "Medication schedule updated successfully"
@@ -164,7 +184,14 @@ medicationRouter.put("/:id", (req, res) => {
 medicationRouter.delete("/:id", (req, res) => {
     const id = req.params.id;
 
-    db.get("SELECT id FROM medications WHERE id = ?", [id], (err, row) => {
+    const ownershipSql = `
+        SELECT m.id
+        FROM medications m
+        JOIN pets p ON m.pet_id = p.id
+        WHERE m.id = ? AND p.user_id = ?
+    `;
+
+    db.get(ownershipSql, [id, req.user.id], (err, row) => {
         if (err) {
             console.error("Error checking medication existence:", err.message);
             return res.status(500).json({ error: "Database error" });
@@ -173,7 +200,7 @@ medicationRouter.delete("/:id", (req, res) => {
             return res.status(404).json({ error: "Medication schedule not found" });
         }
 
-        db.run("DELETE FROM medications WHERE id = ?", [id], (err) => {
+        db.run("DELETE FROM medications WHERE id = ? AND pet_id IN (SELECT id FROM pets WHERE user_id = ?)", [id, req.user.id], (err) => {
             if (err) {
                 console.error("Error deleting medication:", err.message);
                 return res.status(500).json({ error: "Failed to delete medication schedule" });
@@ -197,12 +224,13 @@ logRouter.get("/", (req, res) => {
         FROM medication_logs ml
         JOIN medications m ON ml.medication_id = m.id
         JOIN pets p ON ml.pet_id = p.id
+        WHERE p.user_id = ?
     `;
-    let params = [];
+    let params = [req.user.id];
 
     if (petId) {
-        sql += " WHERE ml.pet_id = ?";
-        params = [petId];
+        sql += " AND ml.pet_id = ?";
+        params.push(petId);
     }
     sql += " ORDER BY ml.id DESC";
 
@@ -231,7 +259,7 @@ logRouter.post("/", (req, res) => {
     }
 
     // Verify pet and medication exist
-    db.get("SELECT id FROM pets WHERE id = ?", [pet_id], (err, petRow) => {
+    db.get("SELECT id FROM pets WHERE id = ? AND user_id = ?", [pet_id, req.user.id], (err, petRow) => {
         if (err) {
             console.error("Error verifying pet existence:", err.message);
             return res.status(500).json({ error: "Database error" });
@@ -240,7 +268,7 @@ logRouter.post("/", (req, res) => {
             return res.status(404).json({ error: "Pet not found" });
         }
 
-        db.get("SELECT id FROM medications WHERE id = ?", [medication_id], (err, medRow) => {
+        db.get("SELECT id FROM medications WHERE id = ? AND pet_id = ?", [medication_id, pet_id], (err, medRow) => {
             if (err) {
                 console.error("Error verifying medication existence:", err.message);
                 return res.status(500).json({ error: "Database error" });

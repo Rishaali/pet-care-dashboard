@@ -12,6 +12,7 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <!-- Shared Styles -->
     <link rel="stylesheet" href="petzi.css">
+    <link rel="stylesheet" href="notifications.css">
 
     <style>
         .page-header {
@@ -232,6 +233,23 @@
     <div class="nav-links" id="nav-links">
         <a href="home.html" class="nav-link"><span class="material-icons">home</span><span>Home</span></a>
         <a href="pets.html" class="nav-link active"><span class="material-icons">pets</span><span>My Pets</span></a>
+        <div class="notification-wrapper">
+            <button id="notification-bell" class="notification-bell" type="button" data-notification-scope="all" aria-label="Notifications" title="Notifications">
+                <span class="material-icons">notifications</span>
+                <span id="notification-badge" class="notification-badge hidden">0</span>
+            </button>
+            <div id="notification-panel" class="notification-panel hidden">
+                <div class="notification-panel-header">
+                    <div class="notification-panel-title">
+                        <h3>Notifications</h3>
+                        <span id="notification-count-text" class="notification-count-text">No unread notifications</span>
+                    </div>
+                    <button id="btn-mark-notifications-read" class="mark-read-btn" type="button">Mark all read</button>
+                </div>
+                <div id="notification-list" class="notification-list"></div>
+                <div id="notification-empty" class="notification-empty hidden">No unread notifications</div>
+            </div>
+        </div>
         <div class="nav-user-pill" id="nav-user-pill">
             <span class="material-icons" style="font-size:1rem;">account_circle</span>
             <span id="nav-username">User</span>
@@ -445,13 +463,29 @@
 <div class="petzi-toast-container" id="toast-container"></div>
 
 <script>
-    // ---- API Base URL ----
-    const API_BASE = 'http://localhost:5000/api';
-
     // ---- Check Authentication ----
     const currentUser = JSON.parse(localStorage.getItem('petziUser') || 'null');
-    if (!currentUser || !currentUser.id) {
+    const authToken = localStorage.getItem('petziToken');
+    if (!currentUser || !currentUser.id || !authToken) {
         window.location.replace('auth.html?mode=login');
+        throw new Error('Authentication required');
+    }
+
+    function authHeaders(extraHeaders = {}) {
+        return { ...extraHeaders, Authorization: `Bearer ${authToken}` };
+    }
+
+    async function authFetch(url, options = {}) {
+        const response = await fetch(url, {
+            ...options,
+            headers: authHeaders(options.headers || {})
+        });
+        if (response.status === 401 || response.status === 403) {
+            localStorage.removeItem('petziUser');
+            localStorage.removeItem('petziToken');
+            window.location.replace('auth.html?mode=login');
+        }
+        return response;
     }
 
     // Set user info in nav
@@ -460,6 +494,7 @@
     // Logout handler
     document.getElementById('btn-logout').addEventListener('click', () => {
         localStorage.removeItem('petziUser');
+        localStorage.removeItem('petziToken');
         window.location.replace('home.html');
     });
 
@@ -484,7 +519,7 @@
     async function loadPets() {
         const container = document.getElementById('pets-container');
         try {
-            const res = await fetch(`${API_BASE}/pets?user_id=${currentUser.id}`);
+            const res = await authFetch('/api/pets');
             if (!res.ok) throw new Error('Failed to load pets');
             const pets = await res.json();
 
@@ -642,7 +677,6 @@
         btn.innerHTML = `<div class="spinner" style="width:16px;height:16px;border-width:2px;"></div> Saving...`;
 
         const payload = {
-            user_id: currentUser.id,
             name: name,
             species: document.getElementById('pet-species').value,
             breed: document.getElementById('pet-breed').value.trim(),
@@ -667,7 +701,7 @@
         };
 
         try {
-            const res = await fetch(`${API_BASE}/pets`, {
+            const res = await authFetch('/api/pets', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
@@ -699,6 +733,7 @@
     // Initial load
     loadPets();
 </script>
+<script src="notifications.js"></script>
 
 </body>
 </html>

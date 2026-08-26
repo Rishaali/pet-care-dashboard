@@ -1,1073 +1,455 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>Pet Care Log & Medication Reminder</title>
-
+    
     <!-- Google Fonts -->
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap"
-        rel="stylesheet">
-
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
     <!-- Google Material Icons -->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-
+    
     <!-- Custom Style Sheet -->
     <link rel="stylesheet" href="style.css">
-
-    <!-- =========================================================
-         PETZI API CONFIGURATION
-         Backend:
-         http://localhost:5000
-         
-         API:
-         http://localhost:5000/api
-         ========================================================= -->
-    <script>
-        window.API_BASE_URL = "http://localhost:5000/api";
-    </script>
+    <link rel="stylesheet" href="notifications.css">
 </head>
-
 <body>
-
-    <!-- =========================================================
-         APP HEADER & NAVIGATION
-         ========================================================= -->
+    <!-- App Header & Navigation -->
     <header class="app-header">
         <div class="header-container">
-
             <h1 class="app-title">
                 <span class="material-icons title-icon">pets</span>
                 Pet Care Log & Medication Reminder
             </h1>
-
             <nav class="app-nav">
-
-                <!-- Back to Pets -->
-                <a href="pets.html" class="nav-btn"
-                    style="text-decoration:none; display:inline-flex; align-items:center;">
-                    <span class="material-icons">arrow_back</span>
-                    My Pets
+                <a href="pets.html" class="nav-btn" style="text-decoration:none; display:inline-flex; align-items:center;">
+                    <span class="material-icons">arrow_back</span> My Pets
                 </a>
-
-                <!-- Pet Selector -->
                 <select id="header-pet-selector">
                     <option value="">Loading Pets...</option>
                 </select>
-
-                <!-- Dashboard -->
-                <button class="nav-btn active" data-target="dashboard-section" type="button">
-                    <span class="material-icons">dashboard</span>
-                    Dashboard
+                <div class="notification-wrapper">
+                    <button id="notification-bell" class="notification-bell" type="button" aria-label="Notifications" title="Notifications">
+                        <span class="material-icons">notifications</span>
+                        <span id="notification-badge" class="notification-badge hidden">0</span>
+                    </button>
+                    <div id="notification-panel" class="notification-panel hidden">
+                        <div class="notification-panel-header">
+                            <div class="notification-panel-title">
+                                <h3>Notifications</h3>
+                                <span id="notification-count-text" class="notification-count-text">No unread notifications</span>
+                            </div>
+                            <button id="btn-mark-notifications-read" class="mark-read-btn" type="button">Mark all read</button>
+                        </div>
+                        <div id="notification-list" class="notification-list"></div>
+                        <div id="notification-empty" class="notification-empty hidden">No unread notifications</div>
+                    </div>
+                </div>
+                <button class="nav-btn active" data-target="dashboard-section">
+                    <span class="material-icons">dashboard</span> Dashboard
                 </button>
-
-                <!-- Pet Profile -->
-                <button class="nav-btn" data-target="profile-section" type="button">
-                    <span class="material-icons">person</span>
-                    Pet Profile
+                <button class="nav-btn" data-target="profile-section">
+                    <span class="material-icons">person</span> Pet Profile
                 </button>
-
-                <!-- Medications -->
-                <button class="nav-btn" data-target="medications-section" type="button">
-                    <span class="material-icons">vaccines</span>
-                    Medications
+                <button class="nav-btn" data-target="medications-section">
+                    <span class="material-icons">vaccines</span> Medications
                 </button>
-
-                <!-- History -->
-                <button class="nav-btn" data-target="history-section" type="button">
-                    <span class="material-icons">history</span>
-                    History
+                <button class="nav-btn" data-target="history-section">
+                    <span class="material-icons">history</span> History
                 </button>
-
             </nav>
         </div>
     </header>
 
-
-    <!-- =========================================================
-         TOAST CONTAINER
-         ========================================================= -->
+    <!-- Success/Error Alert Banner -->
     <div id="toast-container" class="toast-container"></div>
 
-
-    <!-- =========================================================
-         MEDICATION REMINDER OVERLAY
-         ========================================================= -->
+    <!-- Active Medication Reminder Overlay/Banner (In-app Notification) -->
     <div id="reminder-overlay" class="reminder-overlay hidden">
-
         <div class="reminder-card">
-
             <div class="reminder-header">
-
-                <span class="material-icons reminder-icon animate-pulse">
-                    alarm
-                </span>
-
+                <span class="material-icons reminder-icon animate-pulse">alarm</span>
                 <h3>Medication Reminder</h3>
-
             </div>
-
             <div class="reminder-body">
-
-                <p id="reminder-text">
-                    Bruno needs Antibiotic — 5 ml
-                </p>
-
+                <p id="reminder-text">Bruno needs Antibiotic — 5 ml</p>
             </div>
-
             <div class="reminder-actions">
-
-                <button id="btn-reminder-given" class="btn btn-primary btn-given" type="button">
-                    <span class="material-icons">
-                        check_circle
-                    </span>
-                    Mark as Given
+                <button id="btn-reminder-given" class="btn btn-primary btn-given">
+                    <span class="material-icons">check_circle</span> Mark as Given
                 </button>
-
-                <button id="btn-reminder-snooze" class="btn btn-secondary btn-snooze" type="button">
-                    <span class="material-icons">
-                        snooze
-                    </span>
-                    Snooze (5m)
+                <button id="btn-reminder-snooze" class="btn btn-secondary btn-snooze">
+                    <span class="material-icons">snooze</span> Snooze (5m)
                 </button>
-
             </div>
-
         </div>
-
     </div>
 
-
-    <!-- =========================================================
-         MAIN APPLICATION
-         ========================================================= -->
+    <!-- Main Container -->
     <main class="app-main">
-
-
-        <!-- =====================================================
-             DASHBOARD SECTION
-             ===================================================== -->
+        
+        <!-- SECTION: DASHBOARD -->
         <section id="dashboard-section" class="tab-content active">
-
-            <!-- Dashboard Grid -->
+            <!-- Grid Layout: Profile & Quick Actions -->
             <div class="dashboard-grid">
-
-
-                <!-- ================= PET PROFILE CARD ================= -->
+                
+                <!-- Pet Profile Card -->
                 <div class="card pet-profile-card">
-
                     <div class="card-header">
-
                         <h2>Pet Profile</h2>
-
-                        <button id="btn-edit-pet-quick" class="btn-icon" title="Edit Pet" type="button">
-                            <span class="material-icons">
-                                edit
-                            </span>
+                        <button id="btn-edit-pet-quick" class="btn-icon" title="Edit Pet">
+                            <span class="material-icons">edit</span>
                         </button>
-
                     </div>
-
-
                     <div class="profile-details-wrapper">
-
                         <div class="profile-avatar">
-                            <span class="material-icons">
-                                pets
-                            </span>
+                            <span class="material-icons">pets</span>
                         </div>
-
-
                         <div class="profile-grid">
-
                             <div class="profile-item">
-                                <span class="label">
-                                    Pet Name
-                                </span>
-
-                                <span class="value" id="display-pet-name">
-                                    Bruno
-                                </span>
+                                <span class="label">Pet Name</span>
+                                <span class="value" id="display-pet-name">Bruno</span>
                             </div>
-
-
                             <div class="profile-item">
-                                <span class="label">
-                                    Age
-                                </span>
-
-                                <span class="value" id="display-pet-age">
-                                    3 years
-                                </span>
+                                <span class="label">Age</span>
+                                <span class="value" id="display-pet-age">3 years</span>
                             </div>
-
-
                             <div class="profile-item">
-                                <span class="label">
-                                    Breed
-                                </span>
-
-                                <span class="value" id="display-pet-breed">
-                                    Labrador
-                                </span>
+                                <span class="label">Breed</span>
+                                <span class="value" id="display-pet-breed">Labrador</span>
                             </div>
-
-
                             <div class="profile-item">
-                                <span class="label">
-                                    Gender
-                                </span>
-
-                                <span class="value" id="display-pet-gender">
-                                    Male
-                                </span>
+                                <span class="label">Gender</span>
+                                <span class="value" id="display-pet-gender">Male</span>
                             </div>
-
-
                             <div class="profile-item">
-                                <span class="label">
-                                    Weight
-                                </span>
-
-                                <span class="value" id="display-pet-weight">
-                                    24 kg
-                                </span>
+                                <span class="label">Weight</span>
+                                <span class="value" id="display-pet-weight">24 kg</span>
                             </div>
-
-
                             <div class="profile-item">
-                                <span class="label">
-                                    Owner Name
-                                </span>
-
-                                <span class="value" id="display-pet-owner">
-                                    Pet Owner
-                                </span>
+                                <span class="label">Owner Name</span>
+                                <span class="value" id="display-pet-owner">Pet Owner</span>
                             </div>
-
                         </div>
-
                     </div>
-
                 </div>
 
-
-                <!-- ================= SPECIAL INSTRUCTIONS ================= -->
+                <!-- Special Instructions Card -->
                 <div class="card special-instructions-card">
-
                     <div class="card-header">
-
                         <h2>Special Instructions</h2>
-
-                        <span class="material-icons warning-icon-header">
-                            error_outline
-                        </span>
-
+                        <span class="material-icons warning-icon-header">error_outline</span>
                     </div>
-
                     <div class="instructions-body">
-
-                        <p id="display-special-instructions">
-                            Loading special instructions...
-                        </p>
-
+                        <p id="display-special-instructions">Loading special instructions...</p>
                     </div>
-
                 </div>
 
             </div>
 
-
-            <!-- =====================================================
-                 TODAY'S CARE ACTIVITIES
-                 ===================================================== -->
+            <!-- Quick Action Buttons -->
             <div class="card action-card">
-
-                <h2 class="section-subtitle">
-                    Today's Care Activities
-                </h2>
-
-                <p class="section-description">
-                    Quick log activities performed today.
-                    Each click immediately updates history.
-                </p>
-
-
+                <h2 class="section-subtitle">Today's Care Activities</h2>
+                <p class="section-description">Quick log activities performed today. Each click immediately updates history.</p>
+                
                 <div class="quick-actions-grid">
-
-
-                    <!-- Feeding -->
+                    <!-- Feeding Button -->
                     <div class="action-btn-container">
-
-                        <button class="quick-action-btn feed-btn" data-activity="Feeding" type="button">
-                            <span class="material-icons action-icon">
-                                restaurant
-                            </span>
-
-                            <span class="btn-text">
-                                Logged Feeding
-                            </span>
+                        <button class="quick-action-btn feed-btn" data-activity="Feeding">
+                            <span class="material-icons action-icon">restaurant</span>
+                            <span class="btn-text">Logged Feeding</span>
                         </button>
-
-                        <span class="last-done-timer" id="timer-feeding">
-                            Last Feeding: Loading...
-                        </span>
-
+                        <span class="last-done-timer" id="timer-feeding">Last Feeding: Loading...</span>
                     </div>
 
-
-                    <!-- Walking -->
+                    <!-- Walking Button -->
                     <div class="action-btn-container">
-
-                        <button class="quick-action-btn walk-btn" data-activity="Walking" type="button">
-                            <span class="material-icons action-icon">
-                                directions_walk
-                            </span>
-
-                            <span class="btn-text">
-                                Logged Walk
-                            </span>
+                        <button class="quick-action-btn walk-btn" data-activity="Walking">
+                            <span class="material-icons action-icon">directions_walk</span>
+                            <span class="btn-text">Logged Walk</span>
                         </button>
-
-                        <span class="last-done-timer" id="timer-walking">
-                            Last Walk: Loading...
-                        </span>
-
+                        <span class="last-done-timer" id="timer-walking">Last Walk: Loading...</span>
                     </div>
 
-
-                    <!-- Medication -->
+                    <!-- Medication Button -->
                     <div class="action-btn-container">
-
-                        <button class="quick-action-btn med-btn" id="btn-quick-med" data-activity="Medication"
-                            type="button">
-                            <span class="material-icons action-icon">
-                                medication
-                            </span>
-
-                            <span class="btn-text">
-                                Logged Medication
-                            </span>
+                        <button class="quick-action-btn med-btn" id="btn-quick-med" data-activity="Medication">
+                            <span class="material-icons action-icon">medication</span>
+                            <span class="btn-text">Logged Medication</span>
                         </button>
-
-                        <span class="last-done-timer" id="timer-medication">
-                            Last Medication: Loading...
-                        </span>
-
+                        <span class="last-done-timer" id="timer-medication">Last Medication: Loading...</span>
                     </div>
-
                 </div>
-
             </div>
 
-
-            <!-- =====================================================
-                 TODAY'S TIMELINE
-                 ===================================================== -->
+            <!-- Today's Activity Timeline -->
             <div class="card timeline-card">
-
-                <h2 class="section-subtitle">
-                    Today's Activity Timeline
-                </h2>
-
-                <p class="section-description">
-                    Chronological checklist of activities recorded since midnight.
-                </p>
-
-
+                <h2 class="section-subtitle">Today's Activity Timeline</h2>
+                <p class="section-description">Chronological checklist of activities recorded since midnight.</p>
+                
                 <div id="timeline-empty" class="empty-state">
-                    <span class="material-icons">
-                        history_toggle_off
-                    </span>
-
-                    <p>
-                        No activities logged yet today.
-                    </p>
+                    <span class="material-icons">history_toggle_off</span>
+                    <p>No activities logged yet today.</p>
                 </div>
-
-
+                
                 <div id="timeline-container" class="timeline-container">
-                    <!-- Dynamic timeline -->
+                    <!-- Timeline items will be rendered here dynamically -->
                 </div>
-
             </div>
-
         </section>
 
-
-        <!-- =====================================================
-             PET PROFILE SECTION
-             ===================================================== -->
+        <!-- SECTION: PET PROFILE -->
         <section id="profile-section" class="tab-content">
-
             <div class="card form-card">
-
-                <h2>
-                    Manage Pet Profile
-                </h2>
-
-                <p class="form-description">
-                    Enter pet information stored securely in the database.
-                </p>
-
-
+                <h2>Manage Pet Profile</h2>
+                <p class="form-description">Enter pet information stored securely in the SQLite database.</p>
+                
                 <form id="pet-profile-form">
-
-
-                    <!-- Name + Owner -->
                     <div class="form-group-row">
-
                         <div class="form-group">
-
-                            <label for="pet-name">
-                                Pet Name
-                                <span class="required">*</span>
-                            </label>
-
+                            <label for="pet-name">Pet Name <span class="required">*</span></label>
                             <input type="text" id="pet-name" required placeholder="e.g. Bruno">
-
                         </div>
-
-
                         <div class="form-group">
-
-                            <label for="pet-owner">
-                                Owner Name
-                            </label>
-
+                            <label for="pet-owner">Owner Name</label>
                             <input type="text" id="pet-owner" placeholder="e.g. John Doe">
-
                         </div>
-
                     </div>
 
-
-                    <!-- Breed + Gender -->
                     <div class="form-group-row">
-
                         <div class="form-group">
-
-                            <label for="pet-breed">
-                                Breed
-                            </label>
-
+                            <label for="pet-breed">Breed</label>
                             <input type="text" id="pet-breed" placeholder="e.g. Labrador Retriever">
-
                         </div>
-
-
                         <div class="form-group">
-
-                            <label for="pet-gender">
-                                Gender
-                            </label>
-
+                            <label for="pet-gender">Gender</label>
                             <select id="pet-gender">
-
-                                <option value="">
-                                    Select Gender
-                                </option>
-
-                                <option value="Male">
-                                    Male
-                                </option>
-
-                                <option value="Female">
-                                    Female
-                                </option>
-
-                                <option value="Neutered Male">
-                                    Neutered Male
-                                </option>
-
-                                <option value="Spayed Female">
-                                    Spayed Female
-                                </option>
-
+                                <option value="">Select Gender</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Neutered Male">Neutered Male</option>
+                                <option value="Spayed Female">Spayed Female</option>
                             </select>
-
                         </div>
-
                     </div>
 
-
-                    <!-- Age + Weight -->
                     <div class="form-group-row">
-
                         <div class="form-group">
-
-                            <label for="pet-age">
-                                Age (Years)
-                            </label>
-
+                            <label for="pet-age">Age (Years)</label>
                             <input type="number" id="pet-age" min="0" placeholder="e.g. 3">
-
                         </div>
-
-
                         <div class="form-group">
-
-                            <label for="pet-weight">
-                                Weight (kg)
-                            </label>
-
+                            <label for="pet-weight">Weight (kg)</label>
                             <input type="number" id="pet-weight" step="0.1" min="0" placeholder="e.g. 24.5">
-
                         </div>
-
                     </div>
 
-
-                    <!-- Instructions -->
                     <div class="form-group">
-
-                        <label for="pet-instructions">
-                            Special Instructions
-                            (Allergies, Vet Contacts, Notes)
-                        </label>
-
-                        <textarea id="pet-instructions" rows="4"
-                            placeholder="e.g. Bruno is allergic to chicken. Vet Number: +91 9876543210."></textarea>
-
+                        <label for="pet-instructions">Special Instructions (Allergies, Vet Contacts, Notes)</label>
+                        <textarea id="pet-instructions" rows="4" placeholder="e.g. Bruno is allergic to chicken. Vet Number: +1 (555) 123-4567."></textarea>
                     </div>
 
-
-                    <!-- Submit -->
                     <div class="form-actions">
-
                         <button type="submit" class="btn btn-primary">
-                            <span class="material-icons">
-                                save
-                            </span>
-
-                            Save Changes
+                            <span class="material-icons">save</span> Save Changes
                         </button>
-
                     </div>
-
                 </form>
-
             </div>
-
         </section>
 
-
-        <!-- =====================================================
-             MEDICATION SECTION
-             ===================================================== -->
+        <!-- SECTION: MEDICATIONS -->
         <section id="medications-section" class="tab-content">
-
             <div class="medications-grid">
-
-
-                <!-- ================= MEDICATION FORM ================= -->
+                
+                <!-- Medication Form Card -->
                 <div class="card form-card">
-
-                    <h2 id="med-form-title">
-                        Schedule New Medication
-                    </h2>
-
-                    <p class="form-description">
-                        Set up recurring reminders and instructions.
-                    </p>
-
-
+                    <h2 id="med-form-title">Schedule New Medication</h2>
+                    <p class="form-description">Set up recurring reminders and instructions.</p>
+                    
                     <form id="medication-form">
-
                         <input type="hidden" id="med-id">
-
-
-                        <!-- Medication Name -->
+                        
                         <div class="form-group">
-
-                            <label for="med-name">
-                                Medication Name
-                                <span class="required">*</span>
-                            </label>
-
+                            <label for="med-name">Medication Name <span class="required">*</span></label>
                             <input type="text" id="med-name" required placeholder="e.g. Antibiotic">
-
                         </div>
 
-
-                        <!-- Dosage + Frequency -->
                         <div class="form-group-row">
-
                             <div class="form-group">
-
-                                <label for="med-dosage">
-                                    Dosage
-                                    <span class="required">*</span>
-                                </label>
-
+                                <label for="med-dosage">Dosage <span class="required">*</span></label>
                                 <input type="text" id="med-dosage" required placeholder="e.g. 5 ml or 1 tablet">
-
                             </div>
-
-
                             <div class="form-group">
-
-                                <label for="med-frequency">
-                                    Frequency
-                                </label>
-
+                                <label for="med-frequency">Frequency</label>
                                 <input type="text" id="med-frequency" placeholder="e.g. Twice a day">
-
                             </div>
-
                         </div>
 
-
-                        <!-- Start + End Date -->
                         <div class="form-group-row">
-
                             <div class="form-group">
-
-                                <label for="med-start-date">
-                                    Start Date
-                                </label>
-
+                                <label for="med-start-date">Start Date</label>
                                 <input type="date" id="med-start-date">
-
                             </div>
-
-
                             <div class="form-group">
-
-                                <label for="med-end-date">
-                                    End Date
-                                </label>
-
+                                <label for="med-end-date">End Date</label>
                                 <input type="date" id="med-end-date">
-
                             </div>
-
                         </div>
 
-
-                        <!-- Reminder Time -->
                         <div class="form-group">
-
-                            <label for="med-time">
-                                Reminder Time
-                                <span class="required">*</span>
-                            </label>
-
+                            <label for="med-time">Reminder Time <span class="required">*</span></label>
                             <input type="time" id="med-time" required>
-
-                            <span class="time-format-hint">
-                                Note: System triggers alert daily at this time.
-                            </span>
-
+                            <span class="time-format-hint">Note: System triggers alert daily at this time.</span>
                         </div>
 
-
-                        <!-- Notes -->
                         <div class="form-group">
-
-                            <label for="med-notes">
-                                Notes
-                            </label>
-
+                            <label for="med-notes">Notes</label>
                             <textarea id="med-notes" rows="2" placeholder="e.g. Give after food."></textarea>
-
                         </div>
 
-
-                        <!-- Buttons -->
                         <div class="form-actions">
-
-                            <button type="button" id="btn-med-cancel" class="btn btn-secondary hidden">
-                                Cancel
-                            </button>
-
+                            <button type="button" id="btn-med-cancel" class="btn btn-secondary hidden">Cancel</button>
                             <button type="submit" id="btn-med-submit" class="btn btn-primary">
-
-                                <span class="material-icons">
-                                    add_alarm
-                                </span>
-
-                                Add Schedule
-
+                                <span class="material-icons">add_alarm</span> Add Schedule
                             </button>
-
                         </div>
-
                     </form>
-
                 </div>
 
-
-                <!-- ================= MEDICATION LIST ================= -->
+                <!-- Medication Lists Card -->
                 <div class="card list-card">
-
-                    <h2>
-                        Active Medication Schedules
-                    </h2>
-
-                    <p class="section-description">
-                        Medications for the selected pet.
-                    </p>
-
-
+                    <h2>Active Medication Schedules</h2>
+                    <p class="section-description">Medications Bruno is currently taking.</p>
+                    
                     <div id="medications-empty" class="empty-state">
-
-                        <span class="material-icons">
-                            healing
-                        </span>
-
-                        <p>
-                            No medication schedules set up yet.
-                        </p>
-
+                        <span class="material-icons">healing</span>
+                        <p>No medication schedules set up yet.</p>
                     </div>
-
 
                     <div id="medications-list" class="medications-list">
-                        <!-- Dynamic medication cards -->
+                        <!-- Medication schedule cards will be rendered here dynamically -->
                     </div>
-
                 </div>
 
             </div>
-
         </section>
 
-
-        <!-- =====================================================
-             HISTORY SECTION
-             ===================================================== -->
+        <!-- SECTION: HISTORY -->
         <section id="history-section" class="tab-content">
-
             <div class="card history-main-card">
-
-
-                <!-- History Header -->
                 <div class="history-header">
-
                     <div>
-
-                        <h2>
-                            Activity History
-                        </h2>
-
-                        <p class="section-description">
-                            A searchable record of all logged pet activities.
-                        </p>
-
+                        <h2>Activity History</h2>
+                        <p class="section-description">A searchable record of all logged pet activities.</p>
                     </div>
-
-
-                    <button id="btn-export-history" class="btn btn-secondary" type="button">
-
-                        <span class="material-icons">
-                            content_copy
-                        </span>
-
-                        Export History
-
+                    <button id="btn-export-history" class="btn btn-secondary">
+                        <span class="material-icons">content_copy</span> Export History
                     </button>
-
                 </div>
-
 
                 <!-- Filters -->
                 <div class="filters-panel">
-
-
                     <div class="filter-group">
-
-                        <label for="filter-date">
-                            Date
-                        </label>
-
+                        <label for="filter-date">Date</label>
                         <input type="date" id="filter-date">
-
                     </div>
-
-
                     <div class="filter-group">
-
-                        <label for="filter-type">
-                            Activity Type
-                        </label>
-
+                        <label for="filter-type">Activity Type</label>
                         <select id="filter-type">
-
-                            <option value="">
-                                All Activities
-                            </option>
-
-                            <option value="Feeding">
-                                Feeding
-                            </option>
-
-                            <option value="Walking">
-                                Walking
-                            </option>
-
-                            <option value="Medication">
-                                Medication
-                            </option>
-
+                            <option value="">All Activities</option>
+                            <option value="Feeding">Feeding</option>
+                            <option value="Walking">Walking</option>
+                            <option value="Medication">Medication</option>
                         </select>
-
                     </div>
-
-
-                    <button id="btn-clear-filters" class="btn btn-text" type="button">
-                        Clear
-                    </button>
-
+                    <button id="btn-clear-filters" class="btn btn-text">Clear</button>
                 </div>
 
-
-                <!-- History -->
+                <!-- History Table / Content -->
                 <div class="history-content">
-
                     <div id="history-empty" class="empty-state hidden">
-
-                        <span class="material-icons">
-                            search_off
-                        </span>
-
-                        <p>
-                            No records found matching filters.
-                        </p>
-
+                        <span class="material-icons">search_off</span>
+                        <p>No records found matching filters.</p>
                     </div>
-
 
                     <table class="history-table" id="history-table">
-
                         <thead>
-
                             <tr>
-
-                                <th>
-                                    Date &amp; Time
-                                </th>
-
-                                <th>
-                                    Activity Type
-                                </th>
-
-                                <th>
-                                    Details &amp; Notes
-                                </th>
-
+                                <th>Date & Time</th>
+                                <th>Activity Type</th>
+                                <th>Details & Notes</th>
                             </tr>
-
                         </thead>
-
-
                         <tbody id="history-table-body">
-                            <!-- Dynamic history rows -->
+                            <!-- History rows will be rendered here dynamically -->
                         </tbody>
-
                     </table>
-
                 </div>
-
             </div>
-
         </section>
 
     </main>
 
-
-    <!-- =========================================================
-         EDIT PET MODAL
-         ========================================================= -->
+    <!-- Simple Edit Pet Modal from Dashboard Quick Trigger -->
     <div id="edit-pet-modal" class="modal-overlay hidden">
-
         <div class="modal-content">
-
-
-            <!-- Modal Header -->
             <div class="modal-header">
-
-                <h2>
-                    Quick Edit Pet Profile
-                </h2>
-
-                <button id="btn-close-modal" class="btn-icon" type="button">
-                    <span class="material-icons">
-                        close
-                    </span>
+                <h2>Quick Edit Pet Profile</h2>
+                <button id="btn-close-modal" class="btn-icon">
+                    <span class="material-icons">close</span>
                 </button>
-
             </div>
-
-
-            <!-- Modal Form -->
             <form id="quick-pet-form">
-
-
-                <!-- Name -->
                 <div class="form-group">
-
-                    <label for="quick-pet-name">
-                        Pet Name
-                        <span class="required">*</span>
-                    </label>
-
+                    <label for="quick-pet-name">Pet Name <span class="required">*</span></label>
                     <input type="text" id="quick-pet-name" required>
-
                 </div>
-
-
-                <!-- Age + Weight -->
                 <div class="form-group-row">
-
                     <div class="form-group">
-
-                        <label for="quick-pet-age">
-                            Age (Years)
-                        </label>
-
+                        <label for="quick-pet-age">Age (Years)</label>
                         <input type="number" id="quick-pet-age" min="0">
-
                     </div>
-
-
                     <div class="form-group">
-
-                        <label for="quick-pet-weight">
-                            Weight (kg)
-                        </label>
-
+                        <label for="quick-pet-weight">Weight (kg)</label>
                         <input type="number" id="quick-pet-weight" step="0.1" min="0">
-
                     </div>
-
                 </div>
-
-
-                <!-- Breed + Gender -->
                 <div class="form-group-row">
-
                     <div class="form-group">
-
-                        <label for="quick-pet-breed">
-                            Breed
-                        </label>
-
+                        <label for="quick-pet-breed">Breed</label>
                         <input type="text" id="quick-pet-breed">
-
                     </div>
-
-
                     <div class="form-group">
-
-                        <label for="quick-pet-gender">
-                            Gender
-                        </label>
-
+                        <label for="quick-pet-gender">Gender</label>
                         <select id="quick-pet-gender">
-
-                            <option value="">
-                                Select Gender
-                            </option>
-
-                            <option value="Male">
-                                Male
-                            </option>
-
-                            <option value="Female">
-                                Female
-                            </option>
-
-                            <option value="Neutered Male">
-                                Neutered Male
-                            </option>
-
-                            <option value="Spayed Female">
-                                Spayed Female
-                            </option>
-
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Neutered Male">Neutered Male</option>
+                            <option value="Spayed Female">Spayed Female</option>
                         </select>
-
                     </div>
-
                 </div>
-
-
-                <!-- Owner -->
                 <div class="form-group">
-
-                    <label for="quick-pet-owner">
-                        Owner Name
-                    </label>
-
+                    <label for="quick-pet-owner">Owner Name</label>
                     <input type="text" id="quick-pet-owner">
-
                 </div>
-
-
-                <!-- Instructions -->
                 <div class="form-group">
-
-                    <label for="quick-pet-instructions">
-                        Special Instructions
-                    </label>
-
+                    <label for="quick-pet-instructions">Special Instructions</label>
                     <textarea id="quick-pet-instructions" rows="3"></textarea>
-
                 </div>
-
-
-                <!-- Modal Buttons -->
                 <div class="form-actions">
-
-                    <button type="button" id="btn-cancel-modal" class="btn btn-secondary">
-                        Cancel
-                    </button>
-
-                    <button type="submit" class="btn btn-primary">
-                        Save Profile
-                    </button>
-
+                    <button type="button" id="btn-cancel-modal" class="btn btn-secondary">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Profile</button>
                 </div>
-
             </form>
-
         </div>
-
     </div>
 
-
-    <!-- =========================================================
-         API CONFIG
-         ========================================================= -->
-    <script>
-        /*
-         * Your backend is running on:
-         *
-         * http://localhost:5000
-         *
-         * All API requests should start with:
-         *
-         * http://localhost:5000/api
-         */
-
-        window.API_BASE_URL = "http://localhost:5000/api";
-
-        console.log(
-            "Petzi API:",
-            window.API_BASE_URL
-        );
-    </script>
-
-
-    <!-- =========================================================
-         MAIN JAVASCRIPT
-         ========================================================= -->
+    <!-- Script loading -->
     <script src="script.js"></script>
-
+    <script src="notifications.js"></script>
 </body>
-
 </html>

@@ -1,0 +1,182 @@
+.notification-wrapper {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.notification-bell {
+    position: relative;
+    width: 38px;
+    height: 38px;
+    border: 1px solid var(--border, var(--border-color, #E7E0D5));
+    border-radius: 8px;
+    background: #FFFFFF;
+    color: var(--text-secondary, #475569);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition-fast, all 0.15s ease-in-out);
+}
+
+.notification-bell:hover,
+.notification-bell.open {
+    color: var(--brand-primary, var(--primary, #0284C7));
+    background: var(--brand-primary-soft, var(--primary-soft, #F0F9FF));
+    border-color: var(--brand-primary, var(--primary, #0284C7));
+}
+
+.notification-bell .material-icons {
+    font-size: 1.25rem;
+}
+
+.notification-badge {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    border-radius: 999px;
+    background: #DC2626;
+    color: #FFFFFF;
+    border: 2px solid #FFFFFF;
+    font-size: 0.68rem;
+    line-height: 14px;
+    font-weight: 800;
+    text-align: center;
+}
+
+.notification-panel {
+    position: fixed;
+    top: 76px;
+    right: 24px;
+    width: min(360px, calc(100vw - 24px));
+    max-height: 430px;
+    overflow: auto;
+    background: #FFFFFF;
+    border: 1px solid var(--border, var(--border-color, #E7E0D5));
+    border-radius: 8px;
+    box-shadow: var(--shadow-lg, 0 12px 28px rgba(30, 41, 59, 0.08));
+    z-index: 3000;
+}
+
+.notification-panel-header {
+    position: sticky;
+    top: 0;
+    background: #FFFFFF;
+    border-bottom: 1px solid var(--border-light, #F0ECE3);
+    padding: 14px 16px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.notification-panel-title {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.notification-panel-title h3 {
+    font-family: var(--font-heading, 'Outfit', sans-serif);
+    font-size: 1rem;
+    line-height: 1.2;
+    color: var(--text-primary, #1E293B);
+}
+
+.notification-count-text {
+    color: var(--text-muted, #8C9BAE);
+    font-size: 0.78rem;
+    font-weight: 600;
+}
+
+.mark-read-btn {
+    border: 1px solid var(--border, var(--border-color, #E7E0D5));
+    background: var(--bg-card-alt, #F8F5EE);
+    color: var(--text-secondary, #475569);
+    border-radius: 8px;
+    padding: 7px 10px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.mark-read-btn:hover {
+    color: var(--brand-primary, var(--primary, #0284C7));
+    border-color: var(--brand-primary, var(--primary, #0284C7));
+    background: var(--brand-primary-soft, var(--primary-soft, #F0F9FF));
+}
+
+.notification-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.notification-item {
+    display: grid;
+    grid-template-columns: 34px 1fr;
+    gap: 10px;
+    padding: 13px 16px;
+    border-bottom: 1px solid var(--border-light, #F0ECE3);
+}
+
+.notification-item:last-child {
+    border-bottom: 0;
+}
+
+.notification-item-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    background: var(--brand-primary-light, var(--primary-light, #E0F2FE));
+    color: var(--brand-primary, var(--primary, #0284C7));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.notification-item-icon .material-icons {
+    font-size: 1.05rem;
+}
+
+.notification-title {
+    color: var(--text-primary, #1E293B);
+    font-size: 0.9rem;
+    font-weight: 800;
+}
+
+.notification-message {
+    color: var(--text-secondary, #475569);
+    font-size: 0.84rem;
+    line-height: 1.4;
+    margin-top: 2px;
+}
+
+.notification-time {
+    color: var(--text-muted, #8C9BAE);
+    font-size: 0.76rem;
+    font-weight: 600;
+    margin-top: 5px;
+}
+
+.notification-empty {
+    padding: 24px 16px;
+    color: var(--text-muted, #8C9BAE);
+    text-align: center;
+    font-weight: 600;
+}
+
+@media (max-width: 768px) {
+    .notification-panel {
+        top: 76px;
+        right: 12px;
+        width: calc(100vw - 24px);
+    }
+}

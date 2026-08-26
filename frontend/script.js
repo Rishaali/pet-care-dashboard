@@ -1,15 +1,22 @@
 // Pet Care Log & Medication Reminder - Application Logic
 document.addEventListener("DOMContentLoaded", () => {
-
+    
     // API Endpoints Base URL
-    const API_BASE = "http://localhost:5000/api";
+    const API_BASE = "/api";
+    const authToken = localStorage.getItem("petziToken");
+
+    if (!authToken) {
+        localStorage.removeItem("petziUser");
+        window.location.replace("auth.html?mode=login");
+        return;
+    }
 
     // Application State Cache
     let currentPet = null;
     let medicationsList = [];
     let activitiesToday = [];
     let activitiesAll = [];
-
+    
     // Reminders state
     const triggeredReminders = {}; // Key: medId_dateStr_time -> 'given' | 'pending'
     const snoozeUntil = {};       // Key: medId -> timestamp
@@ -18,7 +25,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const navButtons = document.querySelectorAll(".nav-btn");
     const tabContents = document.querySelectorAll(".tab-content");
     const toastContainer = document.getElementById("toast-container");
-
+    
     // Pet Profile Elements
     const displayPetName = document.getElementById("display-pet-name");
     const displayPetAge = document.getElementById("display-pet-age");
@@ -27,13 +34,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const displayPetWeight = document.getElementById("display-pet-weight");
     const displayPetOwner = document.getElementById("display-pet-owner");
     const displaySpecialInstructions = document.getElementById("display-special-instructions");
-
+    
     // Forms
     const petProfileForm = document.getElementById("pet-profile-form");
     const medicationForm = document.getElementById("medication-form");
     const quickPetForm = document.getElementById("quick-pet-form");
     const editPetModal = document.getElementById("edit-pet-modal");
-
+    
     // Quick Edit Triggers
     const btnEditPetQuick = document.getElementById("btn-edit-pet-quick");
     const btnCloseModal = document.getElementById("btn-close-modal");
@@ -43,7 +50,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const timerFeeding = document.getElementById("timer-feeding");
     const timerWalking = document.getElementById("timer-walking");
     const timerMedication = document.getElementById("timer-medication");
-
+    
     // Timeline & Medications Elements
     const timelineContainer = document.getElementById("timeline-container");
     const timelineEmpty = document.getElementById("timeline-empty");
@@ -74,12 +81,12 @@ document.addEventListener("DOMContentLoaded", () => {
     navButtons.forEach(btn => {
         btn.addEventListener("click", () => {
             const targetId = btn.getAttribute("data-target");
-
+            
             navButtons.forEach(b => b.classList.remove("active"));
             tabContents.forEach(c => c.classList.remove("active"));
-
+            
             btn.classList.add("active");
-
+            
             const targetSection = document.getElementById(targetId);
             if (targetSection) {
                 targetSection.classList.add("active");
@@ -99,7 +106,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Main App Initialization
     async function initApp() {
         console.log("Initializing Pet Care Log Application...");
-
+        
         // Set default filter date in history to today
         const todayStr = getLocalDateString(new Date());
         filterDate.value = todayStr;
@@ -109,18 +116,13 @@ document.addEventListener("DOMContentLoaded", () => {
         let targetPetId = urlParams.get('pet_id');
 
         // Setup Header Pet Selector Dropdown
-        const currentUser = JSON.parse(localStorage.getItem('petziUser') || 'null');
         const petSelector = document.getElementById('header-pet-selector');
-
+        
         if (petSelector) {
             try {
-                let userPetsUrl = `${API_BASE}/pets`;
-                if (currentUser && currentUser.id) {
-                    userPetsUrl += `?user_id=${currentUser.id}`;
-                }
-                const allPets = await apiRequest(userPetsUrl);
+                const allPets = await apiRequest(`${API_BASE}/pets`);
                 petSelector.innerHTML = '';
-
+                
                 if (allPets && allPets.length > 0) {
                     allPets.forEach(p => {
                         const opt = document.createElement('option');
@@ -161,11 +163,11 @@ document.addEventListener("DOMContentLoaded", () => {
         const petLoaded = await loadPetProfile(targetPetId);
         if (petLoaded) {
             loadDashboardData();
-
+            
             // Set up background timers & medication schedulers
             // Update relative timers every 30 seconds
             setInterval(updateRelativeTimers, 30000);
-
+            
             // Check medication reminder schedules every 10 seconds
             setInterval(checkMedicationReminders, 10000);
         }
@@ -197,18 +199,18 @@ document.addEventListener("DOMContentLoaded", () => {
     function showToast(message, type = "success") {
         const toast = document.createElement("div");
         toast.className = `toast ${type}`;
-
+        
         const icon = document.createElement("span");
         icon.className = "material-icons";
         icon.innerText = type === "success" ? "check_circle" : "error";
-
+        
         const text = document.createElement("span");
         text.innerText = message;
-
+        
         toast.appendChild(icon);
         toast.appendChild(text);
         toastContainer.appendChild(toast);
-
+        
         // Remove toast after 4 seconds
         setTimeout(() => {
             toast.style.animation = "fadeIn 0.3s ease-out reverse";
@@ -230,12 +232,12 @@ document.addEventListener("DOMContentLoaded", () => {
         const date = new Date(isoString);
         const now = new Date();
         const diffMs = now.getTime() - date.getTime();
-
+        
         if (diffMs < 0) return "Just now"; // Handle clock drift
-
+        
         const diffMins = Math.floor(diffMs / (60 * 1000));
         const diffHours = Math.floor(diffMs / (60 * 60 * 1000));
-
+        
         if (diffMins < 1) {
             return "Just now";
         }
@@ -250,14 +252,14 @@ document.addEventListener("DOMContentLoaded", () => {
             }
             return `${diffHours} ${diffHours === 1 ? 'hour' : 'hours'} ago`;
         }
-
+        
         // Check if yesterday
         const yesterday = new Date(now);
         yesterday.setDate(now.getDate() - 1);
         if (date.toDateString() === yesterday.toDateString()) {
             return "Yesterday";
         }
-
+        
         // Return absolute formatted date
         return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
     }
@@ -317,9 +319,30 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // Centralized Request Wrapper for Connection Error Handling
+    function getAuthHeaders(extraHeaders = {}) {
+        const token = localStorage.getItem("petziToken");
+        return token ? { ...extraHeaders, Authorization: `Bearer ${token}` } : extraHeaders;
+    }
+
+    function handleAuthFailure(response) {
+        if (response.status === 401 || response.status === 403) {
+            localStorage.removeItem("petziUser");
+            localStorage.removeItem("petziToken");
+            window.location.replace("auth.html?mode=login");
+            return true;
+        }
+        return false;
+    }
+
     async function apiRequest(url, options = {}) {
         try {
-            const response = await fetch(url, options);
+            const response = await fetch(url, {
+                ...options,
+                headers: getAuthHeaders(options.headers || {})
+            });
+            if (handleAuthFailure(response)) {
+                throw new Error("Authentication required");
+            }
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({}));
                 throw new Error(errorData.error || `HTTP error ${response.status}`);
@@ -353,7 +376,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             currentPet = pet;
-
+            
             // Update Dashboard displays
             displayPetName.innerText = pet.name;
             displayPetAge.innerText = pet.age ? `${pet.age} years` : "Unknown Age";
@@ -362,7 +385,7 @@ document.addEventListener("DOMContentLoaded", () => {
             displayPetWeight.innerText = pet.weight ? `${pet.weight} kg` : "Unknown Weight";
             displayPetOwner.innerText = pet.owner_name || "Unknown Owner";
             displaySpecialInstructions.innerText = pet.special_instructions || "No special instructions registered.";
-
+            
             // Populate form elements in Pet tab
             document.getElementById("pet-name").value = pet.name || "";
             document.getElementById("pet-owner").value = pet.owner_name || "";
@@ -429,7 +452,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     btnCloseModal.addEventListener("click", closePetModal);
     btnCancelModal.addEventListener("click", closePetModal);
-
+    
     // Close modal if overlay clicked
     editPetModal.addEventListener("click", (e) => {
         if (e.target === editPetModal) closePetModal();
@@ -476,10 +499,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 showToast("No active pet profile to log activity for.", "error");
                 return;
             }
-
+            
             const activityType = btn.getAttribute("data-activity");
             const notePlaceholder = `Logged ${activityType.toLowerCase()} via quick dashboard action.`;
-
+            
             try {
                 await apiRequest(`${API_BASE}/activities`, {
                     method: "POST",
@@ -490,9 +513,9 @@ document.addEventListener("DOMContentLoaded", () => {
                         notes: notePlaceholder
                     })
                 });
-
+                
                 showToast(`Successfully logged ${activityType}!`);
-
+                
                 // Refresh dashboard widgets without full page reload
                 await loadDashboardData();
             } catch (err) {
@@ -504,7 +527,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Load dashboard metrics and activity lists
     async function loadDashboardData() {
         if (!currentPet) return;
-
+        
         // 1. Fetch Today's activities for THIS SPECIFIC PET
         const todayStr = getLocalDateString(new Date());
         try {
@@ -513,7 +536,7 @@ document.addEventListener("DOMContentLoaded", () => {
         } catch (err) {
             console.error("Could not fetch today's activities:", err);
         }
-
+        
         // 2. Fetch latest timers for THIS SPECIFIC PET
         await updateRelativeTimers();
     }
@@ -521,22 +544,25 @@ document.addEventListener("DOMContentLoaded", () => {
     // Update relative timers for quick actions (filtered by current pet)
     async function updateRelativeTimers() {
         if (!currentPet) return;
-
+        
         const types = ["Feeding", "Walking", "Medication"];
         const timerElements = {
             "Feeding": timerFeeding,
             "Walking": timerWalking,
             "Medication": timerMedication
         };
-
+        
         for (const type of types) {
             try {
-                const response = await fetch(`${API_BASE}/activities/latest/${type}?pet_id=${currentPet.id}`);
+                const response = await fetch(`${API_BASE}/activities/latest/${type}?pet_id=${currentPet.id}`, {
+                    headers: getAuthHeaders()
+                });
+                if (handleAuthFailure(response)) return;
                 if (response.status === 200) {
                     const latestActivity = await response.json();
-                    timerElements[type].innerText = `Last ${type}: ${formatRelativeTime(latestActivity.timestamp)}`;
-                } else if (response.status === 404) {
-                    timerElements[type].innerText = `Last ${type}: Never`;
+                    timerElements[type].innerText = latestActivity && latestActivity.timestamp
+                        ? `Last ${type}: ${formatRelativeTime(latestActivity.timestamp)}`
+                        : `Last ${type}: Never`;
                 } else {
                     timerElements[type].innerText = `Last ${type}: Error`;
                 }
@@ -553,13 +579,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function renderTimeline(activities) {
         timelineContainer.innerHTML = "";
-
+        
         if (!activities || activities.length === 0) {
             timelineEmpty.classList.remove("hidden");
             timelineContainer.classList.add("hidden");
             return;
         }
-
+        
         timelineEmpty.classList.add("hidden");
         timelineContainer.classList.remove("hidden");
 
@@ -569,12 +595,12 @@ document.addEventListener("DOMContentLoaded", () => {
         sortedActivities.forEach(act => {
             const item = document.createElement("div");
             item.className = "timeline-item";
-
+            
             // Dot color matching activity type
             let typeClass = "neutral-dot";
             let timeColorClass = "";
             let icon = "info";
-
+            
             if (act.activity_type === "Feeding") {
                 typeClass = "feeding-dot";
                 timeColorClass = "feeding-time";
@@ -588,7 +614,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 timeColorClass = "medication-time";
                 icon = "medication";
             }
-
+            
             item.innerHTML = `
                 <div class="timeline-dot ${typeClass}"></div>
                 <div class="timeline-content-card">
@@ -623,7 +649,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function renderMedications(meds) {
         medicationsContainer.innerHTML = "";
-
+        
         if (!meds || meds.length === 0) {
             medicationsEmpty.classList.remove("hidden");
             medicationsContainer.classList.add("hidden");
@@ -636,11 +662,11 @@ document.addEventListener("DOMContentLoaded", () => {
         meds.forEach(med => {
             const card = document.createElement("div");
             card.className = "med-card";
-
+            
             const startStr = med.start_date ? formatNiceDate(med.start_date) : "N/A";
             const endStr = med.end_date ? formatNiceDate(med.end_date) : "N/A";
             const timeStr12Hr = formatTimeInputTo12Hour(med.reminder_time);
-
+            
             card.innerHTML = `
                 <div class="med-card-header">
                     <div>
@@ -751,6 +777,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
             resetMedicationForm();
             await loadMedications();
+            await checkMedicationReminders();
+            window.dispatchEvent(new CustomEvent("petzi:notifications-refresh"));
         } catch (err) {
             console.error("Failed to save medication:", err);
         }
@@ -764,7 +792,7 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("med-frequency").value = med.frequency || "";
         document.getElementById("med-start-date").value = med.start_date || "";
         document.getElementById("med-end-date").value = med.end_date || "";
-
+        
         // Input time element expects HH:MM 24-hr format
         document.getElementById("med-time").value = convertTo24Hour(med.reminder_time);
         document.getElementById("med-notes").value = med.notes || "";
@@ -897,7 +925,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 try {
                     osc.stop();
                     osc.disconnect();
-                } catch (e) { }
+                } catch (e) {}
             });
             activeProceduralOscillators = [];
         }
@@ -911,24 +939,24 @@ document.addEventListener("DOMContentLoaded", () => {
         const name = (pet.name || "").toLowerCase().trim();
         const combined = `${species} ${breed} ${name}`;
 
-        if (combined.includes("dog") || combined.includes("pup") || combined.includes("labrador") ||
-            combined.includes("golden") || combined.includes("retriever") || combined.includes("terrier") ||
-            combined.includes("bulldog") || combined.includes("shepherd") || combined.includes("poodle") ||
+        if (combined.includes("dog") || combined.includes("pup") || combined.includes("labrador") || 
+            combined.includes("golden") || combined.includes("retriever") || combined.includes("terrier") || 
+            combined.includes("bulldog") || combined.includes("shepherd") || combined.includes("poodle") || 
             combined.includes("beagle") || combined.includes("husky") || combined.includes("pug") ||
             combined.includes("rottweiler") || combined.includes("chihuahua") || combined.includes("boxer") ||
             combined.includes("dachshund") || combined.includes("hound")) {
             return "dog";
         }
 
-        if (combined.includes("cat") || combined.includes("kitten") || combined.includes("kitty") ||
-            combined.includes("feline") || combined.includes("persian") || combined.includes("siamese") ||
+        if (combined.includes("cat") || combined.includes("kitten") || combined.includes("kitty") || 
+            combined.includes("feline") || combined.includes("persian") || combined.includes("siamese") || 
             combined.includes("maine") || combined.includes("tabby") || combined.includes("sphynx") ||
             combined.includes("ragdoll") || combined.includes("bengal") || combined.includes("shorthair")) {
             return "cat";
         }
 
-        if (combined.includes("bird") || combined.includes("parrot") || combined.includes("canary") ||
-            combined.includes("cockatiel") || combined.includes("finch") || combined.includes("parakeet") ||
+        if (combined.includes("bird") || combined.includes("parrot") || combined.includes("canary") || 
+            combined.includes("cockatiel") || combined.includes("finch") || combined.includes("parakeet") || 
             combined.includes("budgie") || combined.includes("cockatoo") || combined.includes("macaw") ||
             combined.includes("lovebird") || combined.includes("pigeon") || combined.includes("sparrow")) {
             return "bird";
@@ -938,8 +966,8 @@ document.addEventListener("DOMContentLoaded", () => {
             return "rabbit";
         }
 
-        if (combined.includes("hamster") || combined.includes("guinea") || combined.includes("mouse") ||
-            combined.includes("rat") || combined.includes("gerbil") || combined.includes("rodent") ||
+        if (combined.includes("hamster") || combined.includes("guinea") || combined.includes("mouse") || 
+            combined.includes("rat") || combined.includes("gerbil") || combined.includes("rodent") || 
             combined.includes("chinchilla") || combined.includes("ferret")) {
             return "hamster";
         }
@@ -1174,35 +1202,35 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const now = new Date();
         const currentDateStr = getLocalDateString(now);
-
+        
         // System current time in HH:MM format
         const currentHours = String(now.getHours()).padStart(2, '0');
         const currentMinutes = String(now.getMinutes()).padStart(2, '0');
         const currentTimeStr = `${currentHours}:${currentMinutes}`; // YYYY-MM-DD HH:MM
-
+        
         for (const med of medicationsList) {
             const medId = med.id;
             const scheduledTime24 = convertTo24Hour(med.reminder_time);
-
+            
             // Check if reminder is scheduled for this minute
             const timeMatches = (currentTimeStr === scheduledTime24);
-
+            
             // Generate distinct occurrence ID for today's dose (prevent duplicate fires)
             const occurrenceKey = `${medId}_${currentDateStr}_${scheduledTime24}`;
-
+            
             // Validate start and end dates
             let dateRangeValid = true;
             const todayMidnight = new Date();
-            todayMidnight.setHours(0, 0, 0, 0);
-
+            todayMidnight.setHours(0,0,0,0);
+            
             if (med.start_date) {
                 const start = new Date(med.start_date);
-                start.setHours(0, 0, 0, 0);
+                start.setHours(0,0,0,0);
                 if (todayMidnight < start) dateRangeValid = false;
             }
             if (med.end_date) {
                 const end = new Date(med.end_date);
-                end.setHours(23, 59, 59, 999);
+                end.setHours(23,59,59,999);
                 if (todayMidnight > end) dateRangeValid = false;
             }
 
@@ -1223,7 +1251,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (shouldTriggerStandard) {
                     triggeredReminders[occurrenceKey] = "pending";
                 }
-
+                
                 // Clear snooze timer if we are firing it
                 if (shouldTriggerSnooze) {
                     delete snoozeUntil[medId];
@@ -1239,26 +1267,28 @@ document.addEventListener("DOMContentLoaded", () => {
     function triggerReminderAlert(medication, occurrenceKey) {
         activeReminder = {
             medication: medication,
-            key: occurrenceKey
+            key: occurrenceKey,
+            notificationReferenceKey: `med_${occurrenceKey}`
         };
 
         const dosageInfo = `${medication.medication_name} — ${medication.dosage}`;
         reminderText.innerText = `${currentPet.name} needs ${dosageInfo}`;
-
+        
         // Show banner overlay
         reminderOverlay.classList.remove("hidden");
 
         // Play the pet-specific sound for this reminder
         playPetSound(currentPet);
-
+        
         // Trigger browser native notification if allowed
         showNativeNotification(`Medication Reminder for ${currentPet.name}`, `${currentPet.name} needs ${dosageInfo}`);
+        window.dispatchEvent(new CustomEvent("petzi:notifications-refresh"));
     }
 
     // Native browser notification integration
     function showNativeNotification(title, body) {
         if (!("Notification" in window)) return;
-
+        
         if (Notification.permission === "granted") {
             new Notification(title, { body: body, icon: "/favicon.ico" });
         } else if (Notification.permission !== "denied") {
@@ -1274,12 +1304,12 @@ document.addEventListener("DOMContentLoaded", () => {
     btnReminderGiven.addEventListener("click", async () => {
         stopNotificationSound();
         if (!activeReminder || !currentPet) return;
-
+        
         const med = activeReminder.medication;
         const key = activeReminder.key;
-
+        
         const now = new Date().toISOString();
-
+        
         try {
             // 1. Log medication log in SQLite
             await apiRequest(`${API_BASE}/medication-logs`, {
@@ -1306,16 +1336,33 @@ document.addEventListener("DOMContentLoaded", () => {
                 })
             });
 
+            // 3. Clear the matching unread bell notification for this due dose
+            await apiRequest(`${API_BASE}/notifications/sync`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ pet_id: currentPet.id })
+            });
+
+            await apiRequest(`${API_BASE}/notifications/read-reference`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    pet_id: currentPet.id,
+                    reference_key: activeReminder.notificationReferenceKey
+                })
+            });
+
             // Set final status in triggered cache to prevent repeat alerts
             triggeredReminders[key] = "given";
-
+            
             showToast(`Marked ${med.medication_name} as given!`);
-
+            
             // Clean up UI & stop sound
             hideReminderAlert();
-
+            
             // Refresh dashboard
             await loadDashboardData();
+            window.dispatchEvent(new CustomEvent("petzi:notifications-refresh"));
         } catch (err) {
             console.error("Failed to mark medication as given:", err);
         }
@@ -1327,10 +1374,10 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!activeReminder) return;
 
         const medId = activeReminder.medication.id;
-
+        
         // Set snooze target: 5 minutes in future
         snoozeUntil[medId] = Date.now() + 5 * 60 * 1000;
-
+        
         showToast("Reminder snoozed for 5 minutes.");
         hideReminderAlert();
     });
@@ -1365,26 +1412,26 @@ document.addEventListener("DOMContentLoaded", () => {
     function applyFilters() {
         const filterValDate = filterDate.value; // YYYY-MM-DD
         const filterValType = filterType.value.toLowerCase(); // feeding/walking/medication
-
+        
         let filtered = [...activitiesAll];
-
+        
         if (filterValDate) {
             filtered = filtered.filter(act => {
                 const actDate = getLocalDateString(new Date(act.timestamp));
                 return actDate === filterValDate;
             });
         }
-
+        
         if (filterValType) {
             filtered = filtered.filter(act => act.activity_type.toLowerCase() === filterValType);
         }
-
+        
         renderHistoryTable(filtered);
     }
 
     function renderHistoryTable(rows) {
         historyTableBody.innerHTML = "";
-
+        
         if (!rows || rows.length === 0) {
             historyTable.classList.add("hidden");
             historyEmpty.classList.remove("hidden");
@@ -1396,14 +1443,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
         rows.forEach(row => {
             const tr = document.createElement("tr");
-
+            
             const timestampObj = new Date(row.timestamp);
             const dateStr = formatNiceDate(row.timestamp);
             const timeStr = formatTime(row.timestamp);
-
+            
             let badgeClass = "feeding";
             let icon = "restaurant";
-
+            
             if (row.activity_type === "Walking") {
                 badgeClass = "walking";
                 icon = "directions_walk";
@@ -1411,7 +1458,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 badgeClass = "medication";
                 icon = "medication";
             }
-
+            
             tr.innerHTML = `
                 <td>
                     <div style="font-weight: 600; color: var(--text-primary);">${dateStr}</div>
@@ -1434,7 +1481,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Trigger filters on form input changes
     filterDate.addEventListener("change", applyFilters);
     filterType.addEventListener("change", applyFilters);
-
+    
     // Clear Filters
     btnClearFilters.addEventListener("click", () => {
         filterDate.value = "";
@@ -1486,7 +1533,7 @@ document.addEventListener("DOMContentLoaded", () => {
             filtered.forEach(act => {
                 const timeStr = formatTime(act.timestamp);
                 const dateStr = getLocalDateString(new Date(act.timestamp));
-
+                
                 // Construct clean lines matching prompt requirement:
                 // "09:00 AM - Feeding"
                 // "10:30 AM - Walk"

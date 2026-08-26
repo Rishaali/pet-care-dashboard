@@ -5,24 +5,26 @@ const db = require("../database");
 // GET /api/activities - Fetch activities (optionally filtered by pet_id and/or type)
 router.get("/", (req, res) => {
     const { pet_id, type } = req.query;
-    let sql = "SELECT * FROM activities";
-    let conditions = [];
-    let params = [];
+    let sql = `
+        SELECT a.*
+        FROM activities a
+        JOIN pets p ON a.pet_id = p.id
+    `;
+    let conditions = ["p.user_id = ?"];
+    let params = [req.user.id];
 
     if (pet_id) {
-        conditions.push("pet_id = ?");
+        conditions.push("a.pet_id = ?");
         params.push(pet_id);
     }
     if (type) {
-        conditions.push("LOWER(activity_type) = LOWER(?)");
+        conditions.push("LOWER(a.activity_type) = LOWER(?)");
         params.push(type);
     }
 
-    if (conditions.length > 0) {
-        sql += " WHERE " + conditions.join(" AND ");
-    }
+    sql += " WHERE " + conditions.join(" AND ");
 
-    sql += " ORDER BY timestamp DESC";
+    sql += " ORDER BY a.timestamp DESC";
 
     db.all(sql, params, (err, rows) => {
         if (err) {
@@ -47,19 +49,22 @@ router.get("/today", (req, res) => {
     }
 
     let sql = `
-        SELECT * FROM activities 
-        WHERE (date(timestamp) = date(?) 
-           OR date(timestamp, 'localtime') = date(?)
-           OR timestamp LIKE ?)
+        SELECT a.*
+        FROM activities a
+        JOIN pets p ON a.pet_id = p.id
+        WHERE p.user_id = ?
+        AND (date(a.timestamp) = date(?) 
+           OR date(a.timestamp, 'localtime') = date(?)
+           OR a.timestamp LIKE ?)
     `;
-    let params = [dateStr, dateStr, `${dateStr}%`];
+    let params = [req.user.id, dateStr, dateStr, `${dateStr}%`];
 
     if (pet_id) {
-        sql += " AND pet_id = ?";
+        sql += " AND a.pet_id = ?";
         params.push(pet_id);
     }
 
-    sql += " ORDER BY timestamp DESC";
+    sql += " ORDER BY a.timestamp DESC";
 
     db.all(sql, params, (err, rows) => {
         if (err) {
@@ -87,17 +92,20 @@ router.get("/latest/:type", (req, res) => {
     const pet_id = req.query.pet_id;
 
     let sql = `
-        SELECT * FROM activities 
-        WHERE LOWER(activity_type) = LOWER(?)
+        SELECT a.*
+        FROM activities a
+        JOIN pets p ON a.pet_id = p.id
+        WHERE LOWER(a.activity_type) = LOWER(?)
+        AND p.user_id = ?
     `;
-    let params = [type];
+    let params = [type, req.user.id];
 
     if (pet_id) {
-        sql += " AND pet_id = ?";
+        sql += " AND a.pet_id = ?";
         params.push(pet_id);
     }
 
-    sql += " ORDER BY timestamp DESC LIMIT 1";
+    sql += " ORDER BY a.timestamp DESC LIMIT 1";
 
     db.get(sql, params, (err, row) => {
         if (err) {
@@ -105,7 +113,11 @@ router.get("/latest/:type", (req, res) => {
             return res.status(500).json({ error: "Failed to fetch latest activity" });
         }
         if (!row) {
-            return res.status(404).json({ message: "No activity recorded for this type" });
+            return res.status(200).json({
+                activity_type: type,
+                timestamp: null,
+                notes: null
+            });
         }
         res.status(200).json(row);
     });
@@ -124,7 +136,7 @@ router.post("/", (req, res) => {
     }
 
     // Check if pet exists
-    db.get("SELECT id FROM pets WHERE id = ?", [pet_id], (err, row) => {
+    db.get("SELECT id FROM pets WHERE id = ? AND user_id = ?", [pet_id, req.user.id], (err, row) => {
         if (err) {
             console.error("Error verifying pet existence:", err.message);
             return res.status(500).json({ error: "Database error" });
@@ -166,10 +178,19 @@ router.post("/", (req, res) => {
 // DELETE /api/activities/:id - Delete an activity log
 router.delete("/:id", (req, res) => {
     const id = req.params.id;
-    db.run("DELETE FROM activities WHERE id = ?", [id], function(err) {
+    const sql = `
+        DELETE FROM activities
+        WHERE id = ?
+        AND pet_id IN (SELECT id FROM pets WHERE user_id = ?)
+    `;
+
+    db.run(sql, [id, req.user.id], function(err) {
         if (err) {
             console.error("Error deleting activity:", err.message);
             return res.status(500).json({ error: "Failed to delete activity" });
+        }
+        if (this.changes === 0) {
+            return res.status(404).json({ error: "Activity not found" });
         }
         res.status(200).json({ message: "Activity deleted successfully" });
     });

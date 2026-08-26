@@ -2,16 +2,11 @@ const express = require("express");
 const router = express.Router();
 const db = require("../database");
 
-// GET /api/pets - Get all pets (optionally filter by user_id)
+// GET /api/pets - Get pets for the authenticated user
 router.get("/", (req, res) => {
-    const userId = req.query.user_id;
-    let sql = "SELECT * FROM pets";
-    let params = [];
-    if (userId) {
-        sql += " WHERE user_id = ?";
-        params = [userId];
-    }
-    sql += " ORDER BY id DESC";
+    const sql = "SELECT * FROM pets WHERE user_id = ? ORDER BY id DESC";
+    const params = [req.user.id];
+
     db.all(sql, params, (err, rows) => {
         if (err) {
             console.error("Error fetching pets:", err.message);
@@ -24,7 +19,7 @@ router.get("/", (req, res) => {
 // GET /api/pets/:id - Get a specific pet by ID
 router.get("/:id", (req, res) => {
     const id = req.params.id;
-    db.get("SELECT * FROM pets WHERE id = ?", [id], (err, row) => {
+    db.get("SELECT * FROM pets WHERE id = ? AND user_id = ?", [id, req.user.id], (err, row) => {
         if (err) {
             console.error("Error fetching pet:", err.message);
             return res.status(500).json({ error: "Failed to fetch pet details" });
@@ -42,7 +37,7 @@ router.get("/:id/logs", (req, res) => {
     const type = req.query.type; // Optional filter: Feeding, Walking, Medication
 
     // Check pet exists
-    db.get("SELECT id, name FROM pets WHERE id = ?", [petId], (err, pet) => {
+    db.get("SELECT id, name FROM pets WHERE id = ? AND user_id = ?", [petId, req.user.id], (err, pet) => {
         if (err) return res.status(500).json({ error: "Database error" });
         if (!pet) return res.status(404).json({ error: "Pet not found" });
 
@@ -76,7 +71,7 @@ router.get("/:id/summary", (req, res) => {
     const dateStr = req.query.date || `${yyyy}-${mm}-${dd}`;
 
     // Verify pet exists
-    db.get("SELECT id, name FROM pets WHERE id = ?", [petId], (err, pet) => {
+    db.get("SELECT id, name FROM pets WHERE id = ? AND user_id = ?", [petId, req.user.id], (err, pet) => {
         if (err) return res.status(500).json({ error: "Database error" });
         if (!pet) return res.status(404).json({ error: "Pet not found" });
 
@@ -134,14 +129,19 @@ router.get("/:id/summary", (req, res) => {
 router.get("/:id/activities", (req, res) => {
     const petId = req.params.id;
     const type = req.query.type;
-    let sql = "SELECT * FROM activities WHERE pet_id = ?";
-    let params = [petId];
+    let sql = `
+        SELECT a.*
+        FROM activities a
+        JOIN pets p ON a.pet_id = p.id
+        WHERE a.pet_id = ? AND p.user_id = ?
+    `;
+    let params = [petId, req.user.id];
 
     if (type) {
-        sql += " AND LOWER(activity_type) = LOWER(?)";
+        sql += " AND LOWER(a.activity_type) = LOWER(?)";
         params.push(type);
     }
-    sql += " ORDER BY timestamp DESC";
+    sql += " ORDER BY a.timestamp DESC";
 
     db.all(sql, params, (err, rows) => {
         if (err) return res.status(500).json({ error: "Failed to fetch activities" });
@@ -152,7 +152,14 @@ router.get("/:id/activities", (req, res) => {
 // GET /api/pets/:id/medications - Get medication schedules for a specific pet
 router.get("/:id/medications", (req, res) => {
     const petId = req.params.id;
-    db.all("SELECT * FROM medications WHERE pet_id = ? ORDER BY id DESC", [petId], (err, rows) => {
+    const sql = `
+        SELECT m.*
+        FROM medications m
+        JOIN pets p ON m.pet_id = p.id
+        WHERE m.pet_id = ? AND p.user_id = ?
+        ORDER BY m.id DESC
+    `;
+    db.all(sql, [petId, req.user.id], (err, rows) => {
         if (err) return res.status(500).json({ error: "Failed to fetch medications" });
         res.status(200).json(rows);
     });
@@ -162,7 +169,7 @@ router.get("/:id/medications", (req, res) => {
 router.post("/", (req, res) => {
     const {
         name, age, breed, gender, weight, owner_name, special_instructions,
-        user_id, species, color, date_of_birth, vaccination_status,
+        species, color, date_of_birth, vaccination_status,
         last_vaccination_date, next_vaccination_date, health_condition,
         allergies, medical_history, current_medications, microchip_number,
         emergency_contact, diet, activity_level, behavior, species_image
@@ -200,7 +207,7 @@ router.post("/", (req, res) => {
         parsedWeight,
         owner_name ? owner_name.trim() : null,
         special_instructions ? special_instructions.trim() : null,
-        user_id || null,
+        req.user.id,
         species ? species.trim() : null,
         color ? color.trim() : null,
         date_of_birth || null,
@@ -236,7 +243,7 @@ router.put("/:id", (req, res) => {
     const id = req.params.id;
     const {
         name, age, breed, gender, weight, owner_name, special_instructions,
-        user_id, species, color, date_of_birth, vaccination_status,
+        species, color, date_of_birth, vaccination_status,
         last_vaccination_date, next_vaccination_date, health_condition,
         allergies, medical_history, current_medications, microchip_number,
         emergency_contact, diet, activity_level, behavior, species_image
@@ -256,7 +263,7 @@ router.put("/:id", (req, res) => {
         return res.status(400).json({ error: "Weight must be a positive number" });
     }
 
-    db.get("SELECT id FROM pets WHERE id = ?", [id], (err, row) => {
+    db.get("SELECT id FROM pets WHERE id = ? AND user_id = ?", [id, req.user.id], (err, row) => {
         if (err) return res.status(500).json({ error: "Database error" });
         if (!row) return res.status(404).json({ error: "Pet not found" });
 
@@ -277,7 +284,7 @@ router.put("/:id", (req, res) => {
             parsedWeight,
             owner_name ? owner_name.trim() : null,
             special_instructions ? special_instructions.trim() : null,
-            user_id || null,
+            req.user.id,
             species ? species.trim() : null,
             color ? color.trim() : null,
             date_of_birth || null,
@@ -310,11 +317,11 @@ router.put("/:id", (req, res) => {
 // DELETE /api/pets/:id - Delete a pet
 router.delete("/:id", (req, res) => {
     const id = req.params.id;
-    db.get("SELECT id FROM pets WHERE id = ?", [id], (err, row) => {
+    db.get("SELECT id FROM pets WHERE id = ? AND user_id = ?", [id, req.user.id], (err, row) => {
         if (err) return res.status(500).json({ error: "Database error" });
         if (!row) return res.status(404).json({ error: "Pet not found" });
 
-        db.run("DELETE FROM pets WHERE id = ?", [id], (err) => {
+        db.run("DELETE FROM pets WHERE id = ? AND user_id = ?", [id, req.user.id], (err) => {
             if (err) {
                 console.error("Error deleting pet:", err.message);
                 return res.status(500).json({ error: "Failed to delete pet" });

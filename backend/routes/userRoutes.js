@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const db = require("../database");
+const { authenticateToken, signToken } = require("../middleware/auth");
 
 // POST /api/users/signup - Register a new user
 router.post("/signup", (req, res) => {
@@ -75,13 +76,16 @@ router.post("/signup", (req, res) => {
                     }
                     return res.status(500).json({ error: "Failed to create account" });
                 }
+                const user = {
+                    id: this.lastID,
+                    name: name.trim(),
+                    email: email.trim().toLowerCase()
+                };
+
                 res.status(201).json({
                     message: "Account created successfully",
-                    user: {
-                        id: this.lastID,
-                        name: name.trim(),
-                        email: email.trim().toLowerCase()
-                    }
+                    token: signToken(user),
+                    user
                 });
             });
         });
@@ -111,23 +115,44 @@ router.post("/login", (req, res) => {
             return res.status(401).json({ error: "Incorrect password. Please try again." });
         }
 
+        const safeUser = {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            phone: user.phone,
+            gender: user.gender,
+            age: user.age
+        };
+
         res.status(200).json({
             message: "Login successful",
-            user: {
-                id: user.id,
-                name: user.name,
-                email: user.email,
-                phone: user.phone,
-                gender: user.gender,
-                age: user.age
-            }
+            token: signToken(safeUser),
+            user: safeUser
         });
     });
 });
 
+// GET /api/users/me - Get authenticated user profile
+router.get("/me", authenticateToken, (req, res) => {
+    db.get("SELECT id, name, email, phone, gender, age, created_at FROM users WHERE id = ?", [req.user.id], (err, user) => {
+        if (err) {
+            console.error("Error fetching user:", err.message);
+            return res.status(500).json({ error: "Database error" });
+        }
+        if (!user) {
+            return res.status(404).json({ error: "User not found" });
+        }
+        res.status(200).json(user);
+    });
+});
+
 // GET /api/users/:id - Get user profile
-router.get("/:id", (req, res) => {
+router.get("/:id", authenticateToken, (req, res) => {
     const id = req.params.id;
+    if (String(req.user.id) !== String(id)) {
+        return res.status(403).json({ error: "You can only access your own profile" });
+    }
+
     db.get("SELECT id, name, email, phone, gender, age, created_at FROM users WHERE id = ?", [id], (err, user) => {
         if (err) {
             console.error("Error fetching user:", err.message);

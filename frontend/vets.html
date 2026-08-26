@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Petzi – Find the Best Veterinarian</title>
+    <meta name="description" content="Find and book appointments with the most suitable veterinary doctor for your pet's specific medical condition.">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!-- Shared Styles -->
+    <link rel="stylesheet" href="petzi.css">
+
+    <style>
+        /* Feature specific page styles */
+        .vets-container {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 24px;
+            margin-top: 24px;
+        }
+
+        @media (max-width: 900px) {
+            .vets-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Filter Panel / Form Card */
+        .search-card {
+            background: #FFFFFF;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            box-shadow: var(--shadow-sm);
+            height: fit-content;
+            position: sticky;
+            top: 94px;
+        }
+
+        .search-card h2 {
+            font-family: var(--font-heading);
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            background: var(--brand-cream);
+            color: var(--text-primary);
+            font-family: var(--font-main);
+            font-size: 0.9rem;
+            transition: var(--transition-fast);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--brand-primary);
+            box-shadow: 0 0 0 3px var(--brand-primary-light);
+        }
+
+        .btn-search {
+            width: 100%;
+            padding: 12px;
+            background: var(--brand-primary);
+            color: #FFFFFF;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: var(--transition-fast);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-search:hover {
+            background: var(--brand-primary-hover);
+        }
+
+        /* Results Area */
+        .results-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .results-title {
+            font-family: var(--font-heading);
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--text-primary);
+        }
+
+        .results-title span {
+            color: var(--text-muted);
+            font-size: 1rem;
+            font-weight: 500;
+            margin-left: 8px;
+        }
+
+        .sort-control {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Vet Cards List */
+        .vets-list {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .vet-card {
+            background: #FFFFFF;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            gap: 20px;
+            position: relative;
+            transition: var(--transition);
+        }
+
+        .vet-card:hover {
+            box-shadow: var(--shadow-md);
+            border-color: #D6CCC0;
+        }
+
+        .vet-card.best-match {
+            border: 2px solid var(--brand-primary);
+            background: linear-gradient(180deg, #FFFFFF 0%, var(--brand-primary-soft) 100%);
+        }
+
+        .best-match-badge {
+            position: absolute;
+            top: -12px;
+            left: 24px;
+            background: var(--brand-primary);
+            color: #FFFFFF;
+            padding: 4px 12px;
+            border-radius: 100px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .vet-image {
+            width: 100px;
+            height: 100px;
+            border-radius: var(--radius-md);
+            object-fit: cover;
+            border: 1px solid var(--border);
+            background: var(--bg-dark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+        }
+
+        .vet-details {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .vet-name {
+            font-family: var(--font-heading);
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .vet-specialty {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--brand-primary);
+            background: var(--brand-primary-light);
+            padding: 2px 8px;
+            border-radius: 4px;
+            width: fit-content;
+        }
+
+        .vet-clinic {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .vet-stats {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 6px;
+            padding-top: 8px;
+            border-top: 1px solid var(--border-light);
+        }
+
+        .vet-stat-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .vet-stat-item.rating {
+            color: #D97706;
+            font-weight: 600;
+        }
+
+        .vet-reasons {
+            margin-top: 10px;
+            background: rgba(2, 132, 199, 0.04);
+            border-radius: var(--radius-sm);
+            padding: 10px 12px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .vet-reasons-title {
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .vet-reason-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            line-height: 1.4;
+        }
+
+        .vet-reason-item.match {
+            color: var(--brand-primary);
+        }
+
+        .vet-actions {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: flex-end;
+            min-width: 140px;
+            gap: 10px;
+        }
+
+        @media (max-width: 600px) {
+            .vet-card {
+                flex-direction: column;
+            }
+            .vet-actions {
+                align-items: stretch;
+                width: 100%;
+                margin-top: 12px;
+            }
+        }
+
+        .vet-score-pill {
+            text-align: right;
+        }
+
+        .vet-score-value {
+            font-size: 1.6rem;
+            font-weight: 900;
+            color: var(--brand-primary);
+            font-family: var(--font-heading);
+        }
+
+        .vet-score-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            width: 100%;
+        }
+
+        .btn-vet-card {
+            padding: 8px 16px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            background: #FFFFFF;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: var(--transition-fast);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            text-decoration: none;
+        }
+
+        .btn-vet-card:hover {
+            border-color: var(--brand-primary);
+            color: var(--brand-primary);
+        }
+
+        .btn-vet-card.btn-primary-vet {
+            background: var(--brand-primary);
+            border-color: var(--brand-primary);
+            color: #FFFFFF;
+        }
+
+        .btn-vet-card.btn-primary-vet:hover {
+            background: var(--brand-primary-hover);
+        }
+
+        .btn-vet-card.btn-compare.active {
+            background: var(--brand-primary-light);
+            border-color: var(--brand-primary);
+            color: var(--brand-primary);
+        }
+
+        /* Filter Controls */
+        .filter-section {
+            border-top: 1px solid var(--border);
+            margin-top: 18px;
+            padding-top: 18px;
+        }
+
+        .filter-section h3 {
+            font-size: 0.95rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+
+        /* Safety Banner */
+        .safety-banner {
+            background: #FFFBEB;
+            border: 1px solid #FDE68A;
+            border-radius: var(--radius-md);
+            padding: 16px;
+            margin-bottom: 24px;
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+
+        .safety-banner.emergency {
+            background: #FEF2F2;
+            border-color: #FCA5A5;
+            color: #991B1B;
+        }
+
+        .safety-icon {
+            font-size: 1.4rem;
+            color: #D97706;
+        }
+
+        .safety-banner.emergency .safety-icon {
+            color: #DC2626;
+        }
+
+        .safety-content h4 {
+            font-weight: 700;
+            font-size: 0.95rem;
+            margin-bottom: 4px;
+        }
+
+        .safety-content p {
+            font-size: 0.88rem;
+            line-height: 1.4;
+        }
+
+        /* Compare Bar */
+        .compare-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #FFFFFF;
+            border-top: 1px solid var(--border);
+            box-shadow: 0 -4px 16px rgba(0,0,0,0.08);
+            padding: 14px 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 999;
+            transform: translateY(100%);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .compare-bar.show {
+            transform: translateY(0);
+        }
+
+        .compare-items {
+            display: flex;
+            gap: 12px;
+        }
+
+        .compare-item-pill {
+            background: var(--bg-card-2);
+            border: 1px solid var(--border);
+            border-radius: 100px;
+            padding: 6px 14px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .compare-item-remove {
+            cursor: pointer;
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        .compare-item-remove:hover {
+            color: #EF4444;
+        }
+
+        /* Compare Modal */
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(30, 41, 59, 0.4);
+            backdrop-filter: blur(4px);
+            z-index: 1100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease-in-out;
+        }
+
+        .modal.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-content {
+            background: #FFFFFF;
+            border-radius: var(--radius-xl);
+            width: 90%;
+            max-width: 900px;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .modal-title {
+            font-family: var(--font-heading);
+            font-size: 1.4rem;
+            font-weight: 800;
+        }
+
+        .modal-body {
+            padding: 24px;
+            overflow-x: auto;
+        }
+
+        .compare-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+
+        .compare-table th, .compare-table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .compare-table th {
+            font-weight: 700;
+            color: var(--text-secondary);
+            background: var(--bg-card-2);
+        }
+
+        .compare-table tr:hover {
+            background: var(--brand-primary-soft);
+        }
+
+        .compare-highlight {
+            background: #ECFDF5;
+            color: #065F46;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .empty-results {
+            text-align: center;
+            padding: 48px;
+            background: #FFFFFF;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .empty-results .material-icons {
+            font-size: 4rem;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Navigation Header -->
+<nav class="petzi-nav" id="petzi-nav">
+    <a href="home.html" class="nav-brand">
+        <div class="nav-brand-icon">🐾</div>
+        <span class="nav-brand-name">Petzi</span>
+    </a>
+    <div class="nav-links" id="nav-links">
+        <a href="home.html" class="nav-link"><span class="material-icons">home</span><span>Home</span></a>
+        <a href="pets.html" class="nav-link"><span class="material-icons">pets</span><span>My Pets</span></a>
+        <a href="vets.html" class="nav-link active"><span class="material-icons">local_hospital</span><span>Find a Vet</span></a>
+        <a href="appointments.html" class="nav-link"><span class="material-icons">event</span><span>Appointments</span></a>
+        <div class="nav-user-pill" id="nav-user-pill">
+            <span class="material-icons" style="font-size:1rem;">account_circle</span>
+            <span id="nav-username">User</span>
+        </div>
+        <button class="nav-link nav-logout" id="btn-logout">
+            <span class="material-icons">logout</span><span>Logout</span>
+        </button>
+    </div>
+</nav>
+
+<!-- Main Layout Wrapper -->
+<main class="page-wrapper" style="padding-bottom: 100px;">
+    <div class="section">
+        <!-- Page Header -->
+        <div class="page-header">
+            <div class="header-title-block">
+                <h1>🩺 Find the Right Veterinarian</h1>
+                <p>Locate specialists suited for your pet's precise symptoms and book appointments instantly.</p>
+            </div>
+        </div>
+
+        <!-- Safety Disclaimer Banner (Default / Yellow) -->
+        <div class="safety-banner" id="safety-banner">
+            <span class="material-icons safety-icon" id="safety-icon">info</span>
+            <div class="safety-content">
+                <h4 id="safety-title">Information & Safety Advisory</h4>
+                <p id="safety-text">This tool maps pet health problems to appropriate veterinary specializations. It is NOT a medical diagnosis tool, does not recommend prescription dosages, and should not replace clinical veterinarian evaluations.</p>
+            </div>
+        </div>
+
+        <!-- Two Column Main Section -->
+        <div class="vets-container">
+            <!-- Sidebar: Selection Forms & Filters -->
+            <aside class="search-card">
+                <h2><span class="material-icons" style="color: var(--brand-primary)">search</span> Find Best Vet</h2>
+                
+                <form id="search-form">
+                    <!-- Pet selection -->
+                    <div class="form-group">
+                        <label for="pet-select">Select Pet</label>
+                        <select id="pet-select" class="form-control" required>
+                            <option value="">Choose a Pet...</option>
+                        </select>
+                    </div>
+
+                    <!-- Disease dropdown -->
+                    <div class="form-group">
+                        <label for="disease-select">Pet Problem</label>
+                        <select id="disease-select" class="form-control" required>
+                            <option value="">Select Symptoms/Condition...</option>
+                            <option value="Skin Allergy">Skin Allergy</option>
+                            <option value="Skin Infection">Skin Infection</option>
+                            <option value="Fever">Fever</option>
+                            <option value="Ear Infection">Ear Infection</option>
+                            <option value="Eye Infection">Eye Infection</option>
+                            <option value="Dental Problem">Dental Problem</option>
+                            <option value="Digestive Problem">Digestive Problem</option>
+                            <option value="Bone/Joint Problem">Bone/Joint Problem</option>
+                            <option value="Respiratory Problem">Respiratory Problem</option>
+                            <option value="Parasites">Parasites</option>
+                            <option value="Vaccination">Vaccination</option>
+                            <option value="General Checkup">General Checkup</option>
+                            <option value="Surgery">Surgery</option>
+                            <option value="Emergency">Emergency</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+
+                    <!-- Manual text entry -->
+                    <div class="form-group">
+                        <label for="disease-manual">Or Enter Symptom manually</label>
+                        <input type="text" id="disease-manual" class="form-control" placeholder="e.g. skin itching, limping">
+                    </div>
+
+                    <!-- City select -->
+                    <div class="form-group">
+                        <label for="city-select">Your City</label>
+                        <select id="city-select" class="form-control" required>
+                            <option value="Coimbatore">Coimbatore</option>
+                            <option value="Bangalore">Bangalore</option>
+                            <option value="Chennai">Chennai</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn-search">
+                        <span class="material-icons">local_hospital</span>
+                        Find Veterinarians
+                    </button>
+                </form>
+
+                <!-- Sidebar Filters: visible after search -->
+                <div class="filter-section" id="sidebar-filters" style="display: none;">
+                    <h3>Filter Results</h3>
+                    
+                    <div class="form-group">
+                        <label for="filter-specialty">Specialization</label>
+                        <select id="filter-specialty" class="form-control filter-trigger">
+                            <option value="all">All Specializations</option>
+                            <option value="Veterinary Dermatology">Dermatology</option>
+                            <option value="Veterinary Ophthalmology">Ophthalmology</option>
+                            <option value="Veterinary Dentistry">Dentistry</option>
+                            <option value="Veterinary Orthopedics">Orthopedics</option>
+                            <option value="Veterinary Internal Medicine">Internal Medicine</option>
+                            <option value="Veterinary Surgery">Surgery</option>
+                            <option value="General Veterinary Medicine">General Vet</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="filter-rating">Min Rating</label>
+                        <select id="filter-rating" class="form-control filter-trigger">
+                            <option value="0">Any Rating</option>
+                            <option value="4.5">4.5 ⭐ & above</option>
+                            <option value="4.7">4.7 ⭐ & above</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="filter-experience">Min Experience</label>
+                        <select id="filter-experience" class="form-control filter-trigger">
+                            <option value="0">Any Experience</option>
+                            <option value="5">5+ Years</option>
+                            <option value="10">10+ Years</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="filter-fee">Max Fee</label>
+                        <select id="filter-fee" class="form-control filter-trigger">
+                            <option value="9999">Any Fee</option>
+                            <option value="400">₹400 or less</option>
+                            <option value="600">₹600 or less</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group" style="display: flex; align-items: center; gap: 8px; margin-top: 10px;">
+                        <input type="checkbox" id="filter-emergency" class="filter-trigger" style="width: 16px; height: 16px;">
+                        <label for="filter-emergency" style="margin-bottom: 0; cursor: pointer;">Emergency Available</label>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Results Section -->
+            <section>
+                <div class="results-header" id="results-header" style="display: none;">
+                    <h2 class="results-title" id="results-title">Suitable Veterinarians <span>(0 found)</span></h2>
+                    <div class="sort-control">
+                        <label for="sort-select" style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);">Sort By:</label>
+                        <select id="sort-select" class="form-control" style="width: 160px; padding: 6px 10px;">
+                            <option value="score">Recommended</option>
+                            <option value="rating">Highest Rated</option>
+                            <option value="experience">Most Experienced</option>
+                            <option value="fee">Lowest Fee</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Vet Cards Render Container -->
+                <div class="vets-list" id="vets-list">
+                    <div class="empty-results">
+                        <span class="material-icons">medical_services</span>
+                        <h3>Find specialized care</h3>
+                        <p>Select your pet, their symptoms, and your location to search veterinarian recommendations.</p>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+</main>
+
+<!-- Compare Selection Bar -->
+<div class="compare-bar" id="compare-bar">
+    <div>
+        <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--text-primary);">Compare Veterinarians</h4>
+        <p style="font-size: 0.8rem; color: var(--text-muted);" id="compare-bar-subtitle">Select up to 3 vets to compare details.</p>
+    </div>
+    <div style="display: flex; align-items: center; gap: 16px;">
+        <div class="compare-items" id="compare-pills-container">
+            <!-- Pills go here -->
+        </div>
+        <button class="btn-primary" id="btn-compare-now" style="padding: 8px 20px; font-size: 0.88rem;">Compare Selected</button>
+    </div>
+</div>
+
+<!-- Comparison Table Modal -->
+<div class="modal" id="compare-modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title">Veterinarian Comparison</h3>
+            <button class="btn-icon" id="btn-close-compare" style="cursor: pointer;"><span class="material-icons">close</span></button>
+        </div>
+        <div class="modal-body">
+            <table class="compare-table" id="compare-table-element">
+                <!-- Table headers and rows will be generated dynamically -->
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Container -->
+<div class="petzi-toast-container" id="toast-container"></div>
+
+<script src="vets.js"></script>
+</body>
+</html>

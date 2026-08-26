@@ -232,6 +232,8 @@
     <div class="nav-links" id="nav-links">
         <a href="home.html" class="nav-link"><span class="material-icons">home</span><span>Home</span></a>
         <a href="pets.html" class="nav-link active"><span class="material-icons">pets</span><span>My Pets</span></a>
+        <a href="vets.html" class="nav-link"><span class="material-icons">local_hospital</span><span>Find a Vet</span></a>
+        <a href="appointments.html" class="nav-link"><span class="material-icons">event</span><span>Appointments</span></a>
         <div class="nav-user-pill" id="nav-user-pill">
             <span class="material-icons" style="font-size:1rem;">account_circle</span>
             <span id="nav-username">User</span>
@@ -445,9 +447,6 @@
 <div class="petzi-toast-container" id="toast-container"></div>
 
 <script>
-    // ---- API Base URL ----
-    const API_BASE = 'http://localhost:5000/api';
-
     // ---- Check Authentication ----
     const currentUser = JSON.parse(localStorage.getItem('petziUser') || 'null');
     if (!currentUser || !currentUser.id) {
@@ -484,7 +483,7 @@
     async function loadPets() {
         const container = document.getElementById('pets-container');
         try {
-            const res = await fetch(`${API_BASE}/pets?user_id=${currentUser.id}`);
+            const res = await fetch(`/api/pets?user_id=${currentUser.id}`);
             if (!res.ok) throw new Error('Failed to load pets');
             const pets = await res.json();
 
@@ -667,7 +666,7 @@
         };
 
         try {
-            const res = await fetch(`${API_BASE}/pets`, {
+            const res = await fetch('/api/pets', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)

@@ -1,35 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>Petzi – Everything Your Pet Needs, All in One Place</title>
-
-    <meta name="description"
-        content="Petzi is your complete pet care companion. Track feeding, walking, medications, and reminders for all your pets in one clean, simple app.">
+    <meta name="description" content="Petzi is your complete pet care companion. Track feeding, walking, medications, and reminders for all your pets in one clean, simple app.">
 
     <!-- Google Fonts -->
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800;900&display=swap"
-        rel="stylesheet">
-
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <!-- Material Icons -->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-
     <!-- Shared Styles -->
     <link rel="stylesheet" href="petzi.css">
 
     <style>
-        /* =========================================================
-           HOME PAGE STYLES
-           ========================================================= */
+        /* ---- HOME PAGE STYLES (Light Blue & Warm Cream) ---- */
 
-        /* =========================
-           Hero Section
-           ========================= */
-
+        /* Hero Section */
         .hero {
             min-height: 85vh;
             display: flex;
@@ -46,12 +33,8 @@
             position: absolute;
             inset: 0;
             background:
-                radial-gradient(ellipse 70% 50% at 50% 10%,
-                    rgba(2, 132, 199, 0.06) 0%,
-                    transparent 70%),
-                radial-gradient(ellipse 60% 40% at 80% 80%,
-                    rgba(254, 243, 199, 0.6) 0%,
-                    transparent 60%);
+                radial-gradient(ellipse 70% 50% at 50% 10%, rgba(2, 132, 199, 0.06) 0%, transparent 70%),
+                radial-gradient(ellipse 60% 40% at 80% 80%, rgba(254, 243, 199, 0.6) 0%, transparent 60%);
         }
 
         .floating-pets {
@@ -64,26 +47,15 @@
         .floating-pet-emoji {
             position: absolute;
             font-size: 2.2rem;
-            animation:
-                floatPet var(--dur, 8s) ease-in-out infinite;
+            animation: floatPet var(--dur, 8s) ease-in-out infinite;
             animation-delay: var(--delay, 0s);
             opacity: 0.25;
         }
 
         @keyframes floatPet {
-
-            0%,
-            100% {
-                transform: translateY(0px) rotate(0deg);
-            }
-
-            33% {
-                transform: translateY(-12px) rotate(4deg);
-            }
-
-            66% {
-                transform: translateY(-6px) rotate(-2deg);
-            }
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            33% { transform: translateY(-12px) rotate(4deg); }
+            66% { transform: translateY(-6px) rotate(-2deg); }
         }
 
         .hero-content {
@@ -110,27 +82,13 @@
         }
 
         @keyframes fadeSlideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-16px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(-16px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         @keyframes fadeSlideUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .hero-title {
@@ -141,8 +99,7 @@
             letter-spacing: -1px;
             color: var(--text-primary);
             margin-bottom: 1.25rem;
-            animation:
-                fadeSlideUp 0.6s ease-out 0.1s both;
+            animation: fadeSlideUp 0.6s ease-out 0.1s both;
         }
 
         .hero-title .gradient-text {
@@ -155,8 +112,7 @@
             max-width: 560px;
             margin: 0 auto 2.25rem;
             line-height: 1.65;
-            animation:
-                fadeSlideUp 0.6s ease-out 0.2s both;
+            animation: fadeSlideUp 0.6s ease-out 0.2s both;
         }
 
         .hero-actions {
@@ -165,8 +121,7 @@
             justify-content: center;
             gap: 14px;
             flex-wrap: wrap;
-            animation:
-                fadeSlideUp 0.6s ease-out 0.3s both;
+            animation: fadeSlideUp 0.6s ease-out 0.3s both;
         }
 
         .btn-hero-cta {
@@ -202,8 +157,7 @@
             margin-top: 3.5rem;
             padding-top: 3rem;
             border-top: 1px solid var(--border);
-            animation:
-                fadeSlideUp 0.6s ease-out 0.4s both;
+            animation: fadeSlideUp 0.6s ease-out 0.4s both;
             flex-wrap: wrap;
         }
 
@@ -222,11 +176,7 @@
             font-weight: 600;
         }
 
-
-        /* =========================
-           Features Strip
-           ========================= */
-
+        /* Features Strip */
         .features-strip {
             background: #FFFFFF;
             border-top: 1px solid var(--border);
@@ -259,11 +209,7 @@
             color: var(--brand-primary);
         }
 
-
-        /* =========================
-           Facts Section
-           ========================= */
-
+        /* Facts Section */
         .facts-section {
             padding: 80px 2rem;
             max-width: 1200px;
@@ -277,8 +223,7 @@
 
         .facts-grid {
             display: grid;
-            grid-template-columns:
-                repeat(auto-fill, minmax(310px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
             gap: 20px;
             text-align: left;
         }
@@ -340,11 +285,7 @@
             border: 1px solid var(--border-light);
         }
 
-
-        /* =========================
-           How It Works
-           ========================= */
-
+        /* How It Works Section */
         .how-section {
             padding: 80px 2rem;
             background: #FFFFFF;
@@ -360,8 +301,7 @@
 
         .how-steps {
             display: grid;
-            grid-template-columns:
-                repeat(auto-fit, minmax(220px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
             gap: 28px;
             margin-top: 3rem;
             text-align: left;
@@ -404,11 +344,7 @@
             line-height: 1.55;
         }
 
-
-        /* =========================
-           CTA
-           ========================= */
-
+        /* CTA Section */
         .cta-section {
             padding: 80px 2rem;
             text-align: center;
@@ -438,11 +374,7 @@
             margin-bottom: 1.75rem;
         }
 
-
-        /* =========================
-           Footer
-           ========================= */
-
+        /* Footer */
         .footer {
             background: #FFFFFF;
             border-top: 1px solid var(--border);
@@ -463,11 +395,7 @@
             color: var(--text-muted);
         }
 
-
-        /* =========================
-           Navigation User Indicator
-           ========================= */
-
+        /* Nav user indicator */
         .nav-user-pill {
             display: flex;
             align-items: center;
@@ -480,961 +408,269 @@
             color: var(--brand-primary);
             font-weight: 600;
         }
-
-
-        /* =========================
-           Responsive
-           ========================= */
-
-        @media (max-width: 700px) {
-
-            .hero {
-                padding:
-                    90px 1.25rem 50px;
-            }
-
-            .hero-stats {
-                gap: 24px;
-            }
-
-            .features-strip {
-                padding:
-                    16px 1rem;
-            }
-
-            .features-strip-inner {
-                gap: 18px;
-            }
-
-            .facts-section,
-            .how-section,
-            .cta-section {
-                padding:
-                    60px 1.25rem;
-            }
-
-            .facts-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .cta-box {
-                padding:
-                    36px 24px;
-            }
-
-        }
     </style>
 </head>
-
 <body>
 
-    <!-- =========================================================
-         NAVIGATION
-         ========================================================= -->
-
-    <nav class="petzi-nav" id="petzi-nav">
-
-        <a href="home.html" class="nav-brand">
-
-            <div class="nav-brand-icon">
-                🐾
-            </div>
-
-            <span class="nav-brand-name">
-                Petzi
-            </span>
-
-        </a>
-
-
-        <div class="nav-links" id="nav-links">
-            <!-- Dynamic navigation -->
-        </div>
-
-    </nav>
-
-
-    <!-- =========================================================
-         HERO SECTION
-         ========================================================= -->
-
-    <section class="hero">
-
-        <div class="hero-bg"></div>
-
-
-        <!-- Floating pet emojis -->
-        <div class="floating-pets">
-
-            <span class="floating-pet-emoji" style="top:15%; left:8%; --dur:9s; --delay:0s;">
-                🐶
-            </span>
-
-            <span class="floating-pet-emoji" style="top:25%; right:10%; --dur:11s; --delay:2s;">
-                🐱
-            </span>
-
-            <span class="floating-pet-emoji" style="bottom:30%; left:6%; --dur:8s; --delay:4s;">
-                🐰
-            </span>
-
-            <span class="floating-pet-emoji" style="bottom:20%; right:8%; --dur:10s; --delay:1s;">
-                🐦
-            </span>
-
-            <span class="floating-pet-emoji" style="top:55%; left:15%; --dur:12s; --delay:3s;">
-                🐠
-            </span>
-
-            <span class="floating-pet-emoji" style="top:40%; right:5%; --dur:7s; --delay:5s;">
-                🐹
-            </span>
-
-        </div>
-
-
-        <div class="hero-content">
-
-            <div class="hero-badge">
-
-                <span class="material-icons" style="font-size:0.9rem;">
-                    favorite
-                </span>
-
-                Simple &amp; Caring Pet Companion
-
-            </div>
-
-
-            <h1 class="hero-title">
-
-                Everything Your Pet<br>
-
-                Needs,
-                <span class="gradient-text">
-                    All in One Place
-                </span>
-
-            </h1>
-
-
-            <p class="hero-subtitle">
-
-                Keep your pet's feeding, walking, medications,
-                and daily care log organized in a warm,
-                simple, humanized app.
-
-            </p>
-
-
-            <div class="hero-actions">
-
-                <a href="auth.html?mode=signup" class="btn-hero-cta" id="btn-get-started">
-
-                    Get Started
-
-                    <span class="material-icons">
-                        arrow_forward
-                    </span>
-
-                </a>
-
-
-                <a href="auth.html?mode=login" class="btn-secondary" id="btn-login-hero">
-
-                    <span class="material-icons">
-                        login
-                    </span>
-
-                    Sign In
-
-                </a>
-
-            </div>
-
-
-            <div class="hero-stats">
-
-                <div class="hero-stat">
-
-                    <div class="hero-stat-value">
-                        🐾
-                    </div>
-
-                    <div class="hero-stat-label">
-                        Multi-Pet Profiles
-                    </div>
-
-                </div>
-
-
-                <div class="hero-stat">
-
-                    <div class="hero-stat-value">
-                        💊
-                    </div>
-
-                    <div class="hero-stat-label">
-                        Medication Alerts
-                    </div>
-
-                </div>
-
-
-                <div class="hero-stat">
-
-                    <div class="hero-stat-value">
-                        📋
-                    </div>
-
-                    <div class="hero-stat-label">
-                        Daily Care Log
-                    </div>
-
-                </div>
-
-
-                <div class="hero-stat">
-
-                    <div class="hero-stat-value">
-                        🔔
-                    </div>
-
-                    <div class="hero-stat-label">
-                        Timely Reminders
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </section>
-
-
-    <!-- =========================================================
-         FEATURE STRIP
-         ========================================================= -->
-
-    <div class="features-strip">
-
-        <div class="features-strip-inner">
-
-            <div class="feature-pill">
-                <span class="material-icons">
-                    restaurant
-                </span>
-                Feeding Tracker
-            </div>
-
-            <div class="feature-pill">
-                <span class="material-icons">
-                    directions_walk
-                </span>
-                Walk Logger
-            </div>
-
-            <div class="feature-pill">
-                <span class="material-icons">
-                    vaccines
-                </span>
-                Vaccination Records
-            </div>
-
-            <div class="feature-pill">
-                <span class="material-icons">
-                    medication
-                </span>
-                Medication Schedules
-            </div>
-
-            <div class="feature-pill">
-                <span class="material-icons">
-                    history
-                </span>
-                Care Timeline
-            </div>
-
-            <div class="feature-pill">
-                <span class="material-icons">
-                    alarm
-                </span>
-                Smart Reminders
-            </div>
-
-        </div>
-
+<!-- Shared Nav -->
+<nav class="petzi-nav" id="petzi-nav">
+    <a href="home.html" class="nav-brand">
+        <div class="nav-brand-icon">🐾</div>
+        <span class="nav-brand-name">Petzi</span>
+    </a>
+    <div class="nav-links" id="nav-links">
+        <!-- Dynamic: guest vs logged-in -->
+    </div>
+</nav>
+
+<!-- Hero Section -->
+<section class="hero">
+    <div class="hero-bg"></div>
+    <!-- Floating pet emojis -->
+    <div class="floating-pets">
+        <span class="floating-pet-emoji" style="top:15%; left:8%; --dur:9s; --delay:0s;">🐶</span>
+        <span class="floating-pet-emoji" style="top:25%; right:10%; --dur:11s; --delay:2s;">🐱</span>
+        <span class="floating-pet-emoji" style="bottom:30%; left:6%; --dur:8s; --delay:4s;">🐰</span>
+        <span class="floating-pet-emoji" style="bottom:20%; right:8%; --dur:10s; --delay:1s;">🐦</span>
+        <span class="floating-pet-emoji" style="top:55%; left:15%; --dur:12s; --delay:3s;">🐠</span>
+        <span class="floating-pet-emoji" style="top:40%; right:5%; --dur:7s; --delay:5s;">🐹</span>
     </div>
 
-
-    <!-- =========================================================
-         PET FACTS
-         ========================================================= -->
-
-    <section class="facts-section" id="facts-section">
-
-        <div class="facts-header">
-
-            <div class="section-tag">
-
-                <span class="material-icons" style="font-size:0.9rem;">
-                    lightbulb
-                </span>
-
-                Pet Wisdom
-
-            </div>
-
-
-            <h2 class="section-title">
-                Did You Know? 🐾
-            </h2>
-
-
-            <div class="section-divider"></div>
-
-
-            <p class="section-subtitle">
-
-                Helpful insights to make everyday
-                pet parenting joyful and healthy.
-
-            </p>
-
+    <div class="hero-content">
+        <div class="hero-badge">
+            <span class="material-icons" style="font-size:0.9rem;">favorite</span>
+            Simple &amp; Caring Pet Companion
         </div>
 
-
-        <div class="facts-grid">
-
-            <div class="fact-card">
-
-                <div class="fact-card-icon">
-                    🐶
-                </div>
-
-                <div class="fact-card-title">
-                    Dogs Understand Hundreds of Words
-                </div>
-
-                <div class="fact-card-desc">
-
-                    The average dog can learn up to
-                    165 words and gestures. They pick
-                    up on tone, voice inflections, and
-                    your emotional cues with incredible
-                    sensitivity.
-
-                </div>
-
-                <div class="fact-card-tag">
-                    🧠 Communication
-                </div>
-
-            </div>
-
-
-            <div class="fact-card">
-
-                <div class="fact-card-icon">
-                    😴
-                </div>
-
-                <div class="fact-card-title">
-                    Cats Sleep Up to 16 Hours a Day
-                </div>
-
-                <div class="fact-card-desc">
-
-                    Cats are crepuscular — naturally most
-                    active at dawn and dusk. Getting
-                    adequate quiet sleep allows them to
-                    stay energetic, calm, and happy.
-
-                </div>
-
-                <div class="fact-card-tag">
-                    😴 Rest &amp; Health
-                </div>
-
-            </div>
-
-
-            <div class="fact-card">
-
-                <div class="fact-card-icon">
-                    👃
-                </div>
-
-                <div class="fact-card-title">
-                    Dog Nose Prints Are Unique
-                </div>
-
-                <div class="fact-card-desc">
-
-                    Just like human fingerprints, each
-                    dog has a unique pattern of ridges
-                    and texture on their nose that
-                    never changes throughout their life.
-
-                </div>
-
-                <div class="fact-card-tag">
-                    🔬 Unique Biology
-                </div>
-
-            </div>
-
-
-            <div class="fact-card">
-
-                <div class="fact-card-icon">
-                    🏃
-                </div>
-
-                <div class="fact-card-title">
-                    Daily Walks Keep Pets Healthy
-                </div>
-
-                <div class="fact-card-desc">
-
-                    Consistent physical activity supports
-                    a healthy weight, improves heart health,
-                    relieves anxiety, and strengthens your
-                    everyday bond with your companion.
-
-                </div>
-
-                <div class="fact-card-tag">
-                    💪 Health &amp; Fitness
-                </div>
-
-            </div>
-
-
-            <div class="fact-card">
-
-                <div class="fact-card-icon">
-                    💉
-                </div>
-
-                <div class="fact-card-title">
-                    Timely Care Prevents Illness
-                </div>
-
-                <div class="fact-card-desc">
-
-                    Staying on schedule with regular
-                    vaccinations and routine checkups
-                    protects your pets from common
-                    illnesses and helps ensure a long,
-                    happy life.
-
-                </div>
-
-                <div class="fact-card-tag">
-                    🛡️ Preventative Care
-                </div>
-
-            </div>
-
-
-            <div class="fact-card">
-
-                <div class="fact-card-icon">
-                    🕐
-                </div>
-
-                <div class="fact-card-title">
-                    Predictable Routine Builds Trust
-                </div>
-
-                <div class="fact-card-desc">
-
-                    Pets thrive on regular feeding,
-                    walking, and medicine times.
-                    A reliable rhythm reduces stress
-                    and supports smooth daily digestion.
-
-                </div>
-
-                <div class="fact-card-tag">
-                    📅 Daily Rhythm
-                </div>
-
-            </div>
-
-        </div>
-
-    </section>
-
-
-    <!-- =========================================================
-         HOW PETZI WORKS
-         ========================================================= -->
-
-    <section class="how-section">
-
-        <div class="how-inner">
-
-            <div class="section-tag">
-
-                <span class="material-icons" style="font-size:0.9rem;">
-                    play_circle
-                </span>
-
-                Simple &amp; Fast
-
-            </div>
-
-
-            <h2 class="section-title">
-                How Petzi Works
-            </h2>
-
-
-            <div class="section-divider"></div>
-
-
-            <div class="how-steps">
-
-                <div class="how-step">
-
-                    <div class="step-number">
-                        1
-                    </div>
-
-                    <div class="step-title">
-                        Create Account
-                    </div>
-
-                    <div class="step-desc">
-
-                        Sign up in seconds.
-                        Your pet information is
-                        stored cleanly and safely.
-
-                    </div>
-
-                </div>
-
-
-                <div class="how-step">
-
-                    <div class="step-number">
-                        2
-                    </div>
-
-                    <div class="step-title">
-                        Add Your Pets
-                    </div>
-
-                    <div class="step-desc">
-
-                        Enter their breed, age, weight,
-                        and any special dietary or
-                        medical notes.
-
-                    </div>
-
-                </div>
-
-
-                <div class="how-step">
-
-                    <div class="step-number">
-                        3
-                    </div>
-
-                    <div class="step-title">
-                        Log Daily Care
-                    </div>
-
-                    <div class="step-desc">
-
-                        Log meals, walks, and medications
-                        with simple one-click buttons.
-
-                    </div>
-
-                </div>
-
-
-                <div class="how-step">
-
-                    <div class="step-number">
-                        4
-                    </div>
-
-                    <div class="step-title">
-                        Stay on Schedule
-                    </div>
-
-                    <div class="step-desc">
-
-                        Keep your companion happy with
-                        automatic dosage reminders
-                        and timelines.
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </section>
-
-
-    <!-- =========================================================
-         CTA
-         ========================================================= -->
-
-    <section class="cta-section">
-
-        <div class="cta-box">
-
-            <div style="
-                    font-size: 2.5rem;
-                    margin-bottom: 0.75rem;
-                ">
-
-                🐾
-
-            </div>
-
-
-            <h2 class="cta-title">
-
-                Ready to Care Better<br>
-                for Your Pet?
-
-            </h2>
-
-
-            <p class="cta-sub">
-
-                Join Petzi today and give your pet
-                the attentive, organized care they deserve.
-
-            </p>
-
-
-            <a href="auth.html?mode=signup" class="btn-primary">
-
-                <span class="material-icons">
-                    pets
-                </span>
-
-                Get Started — Free
-
-            </a>
-
-        </div>
-
-    </section>
-
-
-    <!-- =========================================================
-         FOOTER
-         ========================================================= -->
-
-    <footer class="footer">
-
-        <div class="footer-brand">
-
-            <span style="font-size:1.3rem;">
-                🐾
-            </span>
-
-            <span style="
-                    font-family:'Outfit',sans-serif;
-                    font-weight:700;
-                    color:var(--text-primary);
-                ">
-
-                Petzi
-
-            </span>
-
-        </div>
-
-
-        <p class="footer-text">
-
-            Pet Care Log &amp; Medication Reminder
-            &nbsp;•&nbsp;
-            Built for everyday pet parents
-
+        <h1 class="hero-title">
+            Everything Your Pet<br>
+            Needs, <span class="gradient-text">All in One Place</span>
+        </h1>
+
+        <p class="hero-subtitle">
+            Keep your pet's feeding, walking, medications, and daily care log organized in a warm, simple, humanized app.
         </p>
 
-    </footer>
+        <div class="hero-actions">
+            <a href="auth.html?mode=signup" class="btn-hero-cta" id="btn-get-started">
+                Get Started
+                <span class="material-icons">arrow_forward</span>
+            </a>
+            <a href="auth.html?mode=login" class="btn-secondary" id="btn-login-hero">
+                <span class="material-icons">login</span>
+                Sign In
+            </a>
+        </div>
 
+        <div class="hero-stats">
+            <div class="hero-stat">
+                <div class="hero-stat-value">🐾</div>
+                <div class="hero-stat-label">Multi-Pet Profiles</div>
+            </div>
+            <div class="hero-stat">
+                <div class="hero-stat-value">💊</div>
+                <div class="hero-stat-label">Medication Alerts</div>
+            </div>
+            <div class="hero-stat">
+                <div class="hero-stat-value">📋</div>
+                <div class="hero-stat-label">Daily Care Log</div>
+            </div>
+            <div class="hero-stat">
+                <div class="hero-stat-value">🔔</div>
+                <div class="hero-stat-label">Timely Reminders</div>
+            </div>
+        </div>
+    </div>
+</section>
 
-    <!-- Toast container -->
-    <div class="petzi-toast-container" id="toast-container">
+<!-- Feature Pills Strip -->
+<div class="features-strip">
+    <div class="features-strip-inner">
+        <div class="feature-pill"><span class="material-icons">restaurant</span> Feeding Tracker</div>
+        <div class="feature-pill"><span class="material-icons">directions_walk</span> Walk Logger</div>
+        <div class="feature-pill"><span class="material-icons">vaccines</span> Vaccination Records</div>
+        <div class="feature-pill"><span class="material-icons">medication</span> Medication Schedules</div>
+        <div class="feature-pill"><span class="material-icons">history</span> Care Timeline</div>
+        <div class="feature-pill"><span class="material-icons">alarm</span> Smart Reminders</div>
+    </div>
+</div>
+
+<!-- Did You Know / Facts Section -->
+<section class="facts-section" id="facts-section">
+    <div class="facts-header">
+        <div class="section-tag">
+            <span class="material-icons" style="font-size:0.9rem;">lightbulb</span>
+            Pet Wisdom
+        </div>
+        <h2 class="section-title">Did You Know? 🐾</h2>
+        <div class="section-divider"></div>
+        <p class="section-subtitle">Helpful insights to make everyday pet parenting joyful and healthy.</p>
     </div>
 
+    <div class="facts-grid">
 
-    <!-- =========================================================
-         JAVASCRIPT
-         ========================================================= -->
+        <div class="fact-card">
+            <div class="fact-card-icon">🐶</div>
+            <div class="fact-card-title">Dogs Understand Hundreds of Words</div>
+            <div class="fact-card-desc">The average dog can learn up to 165 words and gestures. They pick up on tone, voice inflections, and your emotional cues with incredible sensitivity.</div>
+            <div class="fact-card-tag">
+                🧠 Communication
+            </div>
+        </div>
 
-    <script>
+        <div class="fact-card">
+            <div class="fact-card-icon">😴</div>
+            <div class="fact-card-title">Cats Sleep Up to 16 Hours a Day</div>
+            <div class="fact-card-desc">Cats are crepuscular — naturally most active at dawn and dusk. Getting adequate quiet sleep allows them to stay energetic, calm, and happy.</div>
+            <div class="fact-card-tag">
+                😴 Rest &amp; Health
+            </div>
+        </div>
 
-        /* =====================================================
-           BACKEND API BASE URL
+        <div class="fact-card">
+            <div class="fact-card-icon">👃</div>
+            <div class="fact-card-title">Dog Nose Prints Are Unique</div>
+            <div class="fact-card-desc">Just like human fingerprints, each dog has a unique pattern of ridges and texture on their nose that never changes throughout their life.</div>
+            <div class="fact-card-tag">
+                🔬 Unique Biology
+            </div>
+        </div>
 
-           Backend:
-           http://localhost:5000
+        <div class="fact-card">
+            <div class="fact-card-icon">🏃</div>
+            <div class="fact-card-title">Daily Walks Keep Pets Healthy</div>
+            <div class="fact-card-desc">Consistent physical activity supports a healthy weight, improves heart health, relieves anxiety, and strengthens your everyday bond with your companion.</div>
+            <div class="fact-card-tag">
+                💪 Health &amp; Fitness
+            </div>
+        </div>
 
-           API:
-           http://localhost:5000/api
-           ===================================================== */
+        <div class="fact-card">
+            <div class="fact-card-icon">💉</div>
+            <div class="fact-card-title">Timely Care Prevents Illness</div>
+            <div class="fact-card-desc">Staying on schedule with regular vaccinations and routine checkups protects your pets from common illnesses and helps ensure a long, happy life.</div>
+            <div class="fact-card-tag">
+                🛡️ Preventative Care
+            </div>
+        </div>
 
-        const API_BASE_URL =
-            'http://localhost:5000/api';
+        <div class="fact-card">
+            <div class="fact-card-icon">🕐</div>
+            <div class="fact-card-title">Predictable Routine Builds Trust</div>
+            <div class="fact-card-desc">Pets thrive on regular feeding, walking, and medicine times. A reliable rhythm reduces stress and supports smooth daily digestion.</div>
+            <div class="fact-card-tag">
+                📅 Daily Rhythm
+            </div>
+        </div>
 
+    </div>
+</section>
 
-        /* =====================================================
-           NAV SCROLL EFFECT
-           ===================================================== */
+<!-- How It Works -->
+<section class="how-section">
+    <div class="how-inner">
+        <div class="section-tag">
+            <span class="material-icons" style="font-size:0.9rem;">play_circle</span>
+            Simple &amp; Fast
+        </div>
+        <h2 class="section-title">How Petzi Works</h2>
+        <div class="section-divider"></div>
 
-        const nav =
-            document.getElementById('petzi-nav');
+        <div class="how-steps">
+            <div class="how-step">
+                <div class="step-number">1</div>
+                <div class="step-title">Create Account</div>
+                <div class="step-desc">Sign up in seconds. Your pet information is stored cleanly and safely.</div>
+            </div>
+            <div class="how-step">
+                <div class="step-number">2</div>
+                <div class="step-title">Add Your Pets</div>
+                <div class="step-desc">Enter their breed, age, weight, and any special dietary or medical notes.</div>
+            </div>
+            <div class="how-step">
+                <div class="step-number">3</div>
+                <div class="step-title">Log Daily Care</div>
+                <div class="step-desc">Log meals, walks, and medications with simple one-click buttons.</div>
+            </div>
+            <div class="how-step">
+                <div class="step-number">4</div>
+                <div class="step-title">Stay on Schedule</div>
+                <div class="step-desc">Keep your companion happy with automatic dosage reminders and timelines.</div>
+            </div>
+        </div>
+    </div>
+</section>
 
+<!-- CTA Section -->
+<section class="cta-section">
+    <div class="cta-box">
+        <div style="font-size: 2.5rem; margin-bottom: 0.75rem;">🐾</div>
+        <h2 class="cta-title">Ready to Care Better<br>for Your Pet?</h2>
+        <p class="cta-sub">Join Petzi today and give your pet the attentive, organized care they deserve.</p>
+        <a href="auth.html?mode=signup" class="btn-primary">
+            <span class="material-icons">pets</span>
+            Get Started — Free
+        </a>
+    </div>
+</section>
 
-        window.addEventListener('scroll', () => {
+<!-- Footer -->
+<footer class="footer">
+    <div class="footer-brand">
+        <span style="font-size:1.3rem;">🐾</span>
+        <span style="font-family:'Outfit',sans-serif; font-weight:700; color:var(--text-primary);">Petzi</span>
+    </div>
+    <p class="footer-text">Pet Care Log &amp; Medication Reminder &nbsp;•&nbsp; Built for everyday pet parents</p>
+</footer>
 
-            nav.classList.toggle(
-                'scrolled',
-                window.scrollY > 20
-            );
+<!-- Toast container -->
+<div class="petzi-toast-container" id="toast-container"></div>
 
-        });
+<script>
+    // ---- Nav scroll effect ----
+    const nav = document.getElementById('petzi-nav');
+    window.addEventListener('scroll', () => {
+        nav.classList.toggle('scrolled', window.scrollY > 20);
+    });
 
+    // ---- Check if user is already logged in ----
+    const navLinks = document.getElementById('nav-links');
+    const storedUser = JSON.parse(localStorage.getItem('petziUser') || 'null');
 
-        /* =====================================================
-           GET NAVIGATION ELEMENT
-           ===================================================== */
-
-        const navLinks =
-            document.getElementById('nav-links');
-
-
-        /* =====================================================
-           CHECK LOGGED-IN USER
-           ===================================================== */
-
-        let storedUser = null;
-
-
-        try {
-
-            storedUser =
-                JSON.parse(
-                    localStorage.getItem('petziUser') || 'null'
-                );
-
-        } catch (error) {
-
-            console.error(
-                'Invalid stored user data:',
-                error
-            );
-
+    if (storedUser && storedUser.id) {
+        // Logged-in nav
+        navLinks.innerHTML = `
+            <a href="pets.html" class="nav-link"><span class="material-icons">pets</span><span>My Pets</span></a>
+            <a href="vets.html" class="nav-link"><span class="material-icons">local_hospital</span><span>Find a Vet</span></a>
+            <a href="appointments.html" class="nav-link"><span class="material-icons">event</span><span>Appointments</span></a>
+            <div class="nav-user-pill">
+                <span class="material-icons" style="font-size:1rem;">account_circle</span>
+                ${storedUser.name.split(' ')[0]}
+            </div>
+            <button class="nav-link nav-logout" id="btn-logout">
+                <span class="material-icons">logout</span><span>Logout</span>
+            </button>
+        `;
+        document.getElementById('btn-logout').addEventListener('click', () => {
             localStorage.removeItem('petziUser');
-
-        }
-
-
-        /* =====================================================
-           LOGGED-IN USER
-           ===================================================== */
-
-        if (storedUser && storedUser.id) {
-
-            navLinks.innerHTML = `
-
-                <a
-                    href="pets.html"
-                    class="nav-link">
-
-                    <span class="material-icons">
-                        pets
-                    </span>
-
-                    <span>
-                        My Pets
-                    </span>
-
-                </a>
-
-
-                <div class="nav-user-pill">
-
-                    <span
-                        class="material-icons"
-                        style="font-size:1rem;">
-
-                        account_circle
-
-                    </span>
-
-                    ${escapeHtml(
-                storedUser.name
-                    ? storedUser.name.split(' ')[0]
-                    : 'User'
-            )}
-
-                </div>
-
-
-                <button
-                    class="nav-link nav-logout"
-                    id="btn-logout"
-                    type="button">
-
-                    <span class="material-icons">
-                        logout
-                    </span>
-
-                    <span>
-                        Logout
-                    </span>
-
-                </button>
-
-            `;
-
-
-            /* ===============================================
-               LOGOUT
-               =============================================== */
-
-            const logoutButton =
-                document.getElementById('btn-logout');
-
-
-            logoutButton.addEventListener(
-                'click',
-                () => {
-
-                    localStorage.removeItem(
-                        'petziUser'
-                    );
-
-                    window.location.reload();
-
-                }
-            );
-
-
-            /* ===============================================
-               UPDATE HERO BUTTONS
-               =============================================== */
-
-            const getStartedButton =
-                document.getElementById(
-                    'btn-get-started'
-                );
-
-
-            const loginHeroButton =
-                document.getElementById(
-                    'btn-login-hero'
-                );
-
-
-            getStartedButton.href =
-                'pets.html';
-
-
-            getStartedButton.innerHTML = `
-
-                <span class="material-icons">
-                    pets
-                </span>
-
-                My Pets
-
-            `;
-
-
-            loginHeroButton.style.display =
-                'none';
-
-        }
-
-
-        /* =====================================================
-           GUEST USER
-           ===================================================== */
-
-        else {
-
-            navLinks.innerHTML = `
-
-                <a
-                    href="auth.html?mode=login"
-                    class="nav-btn-auth nav-btn-login">
-
-                    <span
-                        class="material-icons"
-                        style="font-size:1.1rem;">
-
-                        login
-
-                    </span>
-
-                    Login
-
-                </a>
-
-
-                <a
-                    href="auth.html?mode=signup"
-                    class="nav-btn-auth nav-btn-signup">
-
-                    <span
-                        class="material-icons"
-                        style="font-size:1.1rem;">
-
-                        person_add
-
-                    </span>
-
-                    Sign Up
-
-                </a>
-
-            `;
-
-        }
-
-
-        /* =====================================================
-           HTML ESCAPE FUNCTION
-
-           Prevents stored user names from being inserted
-           directly as raw HTML.
-           ===================================================== */
-
-        function escapeHtml(value) {
-
-            const div =
-                document.createElement('div');
-
-            div.textContent =
-                value || '';
-
-            return div.innerHTML;
-
-        }
-
-    </script>
+            window.location.reload();
+        });
+        // Update hero buttons for logged-in state
+        document.getElementById('btn-get-started').href = 'pets.html';
+        document.getElementById('btn-get-started').innerHTML = '<span class="material-icons">pets</span> My Pets';
+        document.getElementById('btn-login-hero').style.display = 'none';
+    } else {
+        // Guest nav
+        navLinks.innerHTML = `
+            <a href="auth.html?mode=login" class="nav-btn-auth nav-btn-login">
+                <span class="material-icons" style="font-size:1.1rem;">login</span> Login
+            </a>
+            <a href="auth.html?mode=signup" class="nav-btn-auth nav-btn-signup">
+                <span class="material-icons" style="font-size:1.1rem;">person_add</span> Sign Up
+            </a>
+        `;
+    }
+</script>
 
 </body>
-
 </html>

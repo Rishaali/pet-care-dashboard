@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Petzi – Veterinarian Details & Booking</title>
+    <meta name="description" content="View veterinarian credentials, reviews, and clinical services, and book an appointment slot.">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!-- Shared Styles -->
+    <link rel="stylesheet" href="petzi.css">
+
+    <style>
+        .details-grid {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 24px;
+            margin-top: 24px;
+        }
+
+        @media (max-width: 900px) {
+            .details-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Profile details card */
+        .profile-card {
+            background: #FFFFFF;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            padding: 32px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .profile-header-details {
+            display: flex;
+            gap: 24px;
+            align-items: flex-start;
+            border-bottom: 1px solid var(--border-light);
+            padding-bottom: 24px;
+            margin-bottom: 24px;
+        }
+
+        @media (max-width: 600px) {
+            .profile-header-details {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+        }
+
+        .vet-avatar-large {
+            width: 120px;
+            height: 120px;
+            border-radius: var(--radius-lg);
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3.5rem;
+        }
+
+        .profile-title-block {
+            flex: 1;
+        }
+
+        .profile-title-block h2 {
+            font-family: var(--font-heading);
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            margin-bottom: 6px;
+        }
+
+        .profile-badges {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+
+        .profile-badge {
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 6px;
+        }
+
+        .profile-badge.specialty {
+            background: var(--brand-primary-light);
+            color: var(--brand-primary);
+        }
+
+        .profile-badge.emergency {
+            background: #FEF2F2;
+            color: #DC2626;
+        }
+
+        /* Details Section */
+        .section-block {
+            margin-bottom: 24px;
+        }
+
+        .section-block h3 {
+            font-family: var(--font-heading);
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 1px solid var(--border-light);
+            padding-bottom: 6px;
+        }
+
+        /* Booking Panel Card */
+        .booking-card {
+            background: #FFFFFF;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            padding: 24px;
+            box-shadow: var(--shadow-sm);
+            height: fit-content;
+            position: sticky;
+            top: 94px;
+        }
+
+        .booking-card h3 {
+            font-family: var(--font-heading);
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .booking-form {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .booking-info-row {
+            background: var(--bg-card-2);
+            border-radius: var(--radius-sm);
+            padding: 12px;
+            font-size: 0.88rem;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .booking-info-item {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .booking-info-item strong {
+            color: var(--text-primary);
+        }
+
+        /* Slot selector grid */
+        .slots-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+            gap: 8px;
+            margin-top: 10px;
+            max-height: 160px;
+            overflow-y: auto;
+            padding: 4px;
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-sm);
+            background: var(--brand-cream);
+        }
+
+        .slot-btn {
+            padding: 8px 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-align: center;
+            background: #FFFFFF;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: var(--transition-fast);
+        }
+
+        .slot-btn:hover {
+            border-color: var(--brand-primary);
+            color: var(--brand-primary);
+        }
+
+        .slot-btn.active {
+            background: var(--brand-primary);
+            border-color: var(--brand-primary);
+            color: #FFFFFF;
+        }
+
+        .slot-btn.disabled {
+            background: var(--bg-dark);
+            color: var(--text-muted);
+            border-color: var(--border-light);
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        /* Services Checklist styling */
+        .services-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+        }
+
+        .service-tag {
+            background: var(--bg-card-2);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-sm);
+            padding: 8px 12px;
+            font-size: 0.88rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Working Hours list */
+        .hours-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.88rem;
+            padding: 6px 0;
+            border-bottom: 1px dashed var(--border-light);
+        }
+
+        /* Confirmation view */
+        .confirmation-view {
+            background: #FFFFFF;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            padding: 40px;
+            text-align: center;
+            max-width: 580px;
+            margin: 40px auto;
+            box-shadow: var(--shadow-md);
+            display: none;
+        }
+
+        .success-checkmark {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: #ECFDF5;
+            color: #10B981;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3.5rem;
+            margin: 0 auto 24px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .confirmation-card {
+            background: var(--bg-card-2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 24px;
+            text-align: left;
+            margin: 24px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            font-size: 0.92rem;
+        }
+
+        .confirmation-title {
+            font-family: var(--font-heading);
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .confirmation-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-top: 16px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Navigation Header -->
+<nav class="petzi-nav" id="petzi-nav">
+    <a href="home.html" class="nav-brand">
+        <div class="nav-brand-icon">🐾</div>
+        <span class="nav-brand-name">Petzi</span>
+    </a>
+    <div class="nav-links" id="nav-links">
+        <a href="home.html" class="nav-link"><span class="material-icons">home</span><span>Home</span></a>
+        <a href="pets.html" class="nav-link"><span class="material-icons">pets</span><span>My Pets</span></a>
+        <a href="vets.html" class="nav-link"><span class="material-icons">local_hospital</span><span>Find a Vet</span></a>
+        <a href="appointments.html" class="nav-link"><span class="material-icons">event</span><span>Appointments</span></a>
+        <div class="nav-user-pill" id="nav-user-pill">
+            <span class="material-icons" style="font-size:1rem;">account_circle</span>
+            <span id="nav-username">User</span>
+        </div>
+        <button class="nav-link nav-logout" id="btn-logout">
+            <span class="material-icons">logout</span><span>Logout</span>
+        </button>
+    </div>
+</nav>
+
+<!-- Page Content -->
+<main class="page-wrapper" id="main-content">
+    <!-- View 1: Vet Details & Booking Form (Default) -->
+    <div id="details-view" class="section">
+        <!-- Back link -->
+        <a href="vets.html" class="nav-btn" style="text-decoration:none; display:inline-flex; align-items:center; margin-bottom: 16px; width: fit-content; background: #FFFFFF; border: 1px solid var(--border); padding: 8px 16px; border-radius: var(--radius-sm); font-weight: 600; color: var(--text-secondary);">
+            <span class="material-icons" style="font-size: 1.1rem; margin-right: 4px;">arrow_back</span> Back to Vet Search
+        </a>
+
+        <div class="details-grid">
+            <!-- Left: Vet Profile Details -->
+            <div class="profile-card">
+                <div class="profile-header-details">
+                    <div class="vet-avatar-large">
+                        <span class="material-icons">person</span>
+                    </div>
+                    <div class="profile-title-block">
+                        <h2 id="vet-name">Dr. Priya Kumar</h2>
+                        <p id="vet-qualification" style="font-size: 1.05rem; color: var(--text-secondary); font-weight: 500;">BVSc & AH, MVSc (Dermatology)</p>
+                        
+                        <div class="profile-badges">
+                            <span class="profile-badge specialty" id="vet-specialty">Veterinary Dermatology</span>
+                            <span class="profile-badge emergency" id="vet-emergency-badge" style="display: none;">Emergency Support</span>
+                        </div>
+
+                        <div style="display: flex; align-items: center; gap: 16px; margin-top: 14px; font-size: 0.9rem; color: var(--text-secondary);">
+                            <span style="display: flex; align-items: center; gap: 4px; color: #D97706; font-weight: 600;">
+                                <span class="material-icons" style="font-size: 1.1rem;">star</span>
+                                <span id="vet-rating">4.8 (245 reviews)</span>
+                            </span>
+                            <span style="display: flex; align-items: center; gap: 4px;">
+                                <span class="material-icons" style="font-size: 1.1rem;">badge</span>
+                                <span id="vet-experience">8 Years Exp</span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Clinic Information -->
+                <div class="section-block">
+                    <h3><span class="material-icons">business</span> Clinic Details</h3>
+                    <div style="background: var(--brand-primary-soft); padding: 18px; border-radius: var(--radius-md); border: 1px solid var(--brand-primary-light);">
+                        <h4 id="clinic-name" style="font-family: var(--font-heading); font-size: 1.1rem; font-weight: 700; color: var(--brand-primary); margin-bottom: 6px;">Happy Paws Veterinary Hospital</h4>
+                        <p id="clinic-address" style="font-size: 0.92rem; color: var(--text-secondary); margin-bottom: 8px;">123 Avinashi Road, Coimbatore</p>
+                        <div style="display: flex; gap: 16px; flex-wrap: wrap; font-size: 0.85rem; color: var(--text-secondary);">
+                            <span style="display: flex; align-items: center; gap: 4px;">
+                                <span class="material-icons" style="font-size: 1rem;">call</span>
+                                <span id="clinic-phone">+91 98765 43210</span>
+                            </span>
+                            <span style="display: flex; align-items: center; gap: 4px;">
+                                <span class="material-icons" style="font-size: 1rem;">schedule</span>
+                                <span id="clinic-hours">09:00 AM - 08:00 PM</span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Services offered -->
+                <div class="section-block">
+                    <h3><span class="material-icons">checklist</span> Services Provided</h3>
+                    <div class="services-list" id="services-container">
+                        <!-- Services tags go here -->
+                    </div>
+                </div>
+
+                <!-- Contact & Availability Details -->
+                <div class="section-block">
+                    <h3><span class="material-icons">contact_support</span> Contact Veterinarian Directly</h3>
+                    <div style="font-size: 0.9rem; color: var(--text-secondary); display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <div>
+                            <strong>Phone Number:</strong>
+                            <p id="vet-phone">+91 99999 11111</p>
+                        </div>
+                        <div>
+                            <strong>Email Address:</strong>
+                            <p id="vet-email">priya.k@happypaws.com</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Interactive Booking Card -->
+            <div class="booking-card">
+                <h3><span class="material-icons" style="color: var(--brand-primary)">event_available</span> Book Appointment</h3>
+                
+                <form class="booking-form" id="booking-form">
+                    <!-- Read only Pet/Disease contexts -->
+                    <div class="booking-info-row">
+                        <div class="booking-info-item">
+                            <span>Pet Name:</span>
+                            <strong id="booking-pet-name">Bruno</strong>
+                        </div>
+                        <div class="booking-info-item" style="margin-top: 4px;">
+                            <span>Symptom / Problem:</span>
+                            <strong id="booking-disease">Skin Allergy</strong>
+                        </div>
+                        <div class="booking-info-item" style="margin-top: 4px; border-top: 1px dashed var(--border); padding-top: 4px;">
+                            <span>Consultation Fee:</span>
+                            <strong style="color: var(--brand-primary)" id="booking-fee">₹500</strong>
+                        </div>
+                    </div>
+
+                    <!-- Date Selection -->
+                    <div class="form-group">
+                        <label for="booking-date">Select Date</label>
+                        <input type="date" id="booking-date" class="form-control" required>
+                    </div>
+
+                    <!-- Slot Selection -->
+                    <div class="form-group">
+                        <label>Available Slots</label>
+                        <div class="slots-container" id="slots-container">
+                            <div style="grid-column: 1/-1; text-align: center; color: var(--text-muted); font-size: 0.85rem; padding: 10px 0;">
+                                Select a date to load slots.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Extra Notes -->
+                    <div class="form-group">
+                        <label for="booking-notes">Additional Symptoms / Notes</label>
+                        <textarea id="booking-notes" class="form-control" rows="3" placeholder="Describe symptoms or special instructions for the doctor..."></textarea>
+                    </div>
+
+                    <button type="submit" class="btn-search" id="btn-submit-appointment">
+                        <span class="material-icons">check_circle</span>
+                        Confirm Appointment
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- View 2: Appointment Confirmation Screen (Success) -->
+    <div id="confirmation-view" class="confirmation-view">
+        <div class="success-checkmark">
+            <span class="material-icons">check</span>
+        </div>
+        <h2 class="confirmation-title">✓ Appointment Confirmed</h2>
+        <p style="color: var(--text-secondary); font-size: 0.95rem;">Your appointment has been successfully scheduled and recorded in the database.</p>
+
+        <div class="confirmation-card">
+            <div>
+                <strong style="font-size: 1.15rem; color: var(--text-primary);" id="conf-vet-name">Dr. Priya Kumar</strong>
+                <p style="color: var(--brand-primary); font-weight: 600; font-size: 0.85rem;" id="conf-vet-specialty">Veterinary Dermatologist</p>
+            </div>
+            <div style="border-top: 1px solid var(--border-light); padding-top: 8px; margin-top: 4px;">
+                <p>📍 <strong id="conf-clinic-name">Happy Paws Veterinary Hospital</strong></p>
+                <p style="font-size: 0.85rem; color: var(--text-secondary); margin-left: 18px;" id="conf-clinic-city">Coimbatore</p>
+            </div>
+            <div style="border-top: 1px solid var(--border-light); padding-top: 8px; margin-top: 4px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                <div>
+                    <span style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase;">Pet Name</span>
+                    <p><strong id="conf-pet-name">Bruno</strong></p>
+                </div>
+                <div>
+                    <span style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase;">Problem</span>
+                    <p><strong id="conf-disease">Skin Allergy</strong></p>
+                </div>
+            </div>
+            <div style="border-top: 1px solid var(--border-light); padding-top: 8px; margin-top: 4px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                <div>
+                    <span style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase;">Date</span>
+                    <p><strong id="conf-date">27 August 2026</strong></p>
+                </div>
+                <div>
+                    <span style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase;">Time Slot</span>
+                    <p><strong id="conf-time">4:30 PM</strong></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="confirmation-actions">
+            <a href="appointments.html" class="btn-primary" style="padding: 10px 24px; text-decoration: none; border-radius: var(--radius-sm); font-weight: 700; font-size: 0.9rem;">
+                View Appointments
+            </a>
+            <a href="home.html" class="btn-vet-card" style="padding: 10px 24px; border-radius: var(--radius-sm); font-weight: 700; font-size: 0.9rem;">
+                Back to Home
+            </a>
+        </div>
+    </div>
+</main>
+
+<div class="petzi-toast-container" id="toast-container"></div>
+
+<script src="vet-details.js"></script>
+</body>
+</html>

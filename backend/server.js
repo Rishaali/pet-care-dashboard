@@ -10,6 +10,8 @@ const petRoutes = require("./routes/petRoutes");
 const activityRoutes = require("./routes/activityRoutes");
 const medicationRoutes = require("./routes/medicationRoutes");
 const userRoutes = require("./routes/userRoutes");
+const vetRoutes = require("./routes/vetRoutes");
+const appointmentRoutes = require("./routes/appointmentRoutes");
 
 const app = express();
 const PORT = 5000;
@@ -25,6 +27,8 @@ app.use("/api/pets", petRoutes);
 app.use("/api/activities", activityRoutes);
 app.use("/api/medications", medicationRoutes.medications);
 app.use("/api/medication-logs", medicationRoutes.medicationLogs);
+app.use("/api/vets", vetRoutes);
+app.use("/api/appointments", appointmentRoutes);
 
 // Root route serves landing/home page
 app.get("/", (req, res) => {
@@ -55,6 +59,24 @@ app.get("/dashboard", (req, res) => {
 });
 app.get("/index.html", (req, res) => {
     res.sendFile(path.join(__dirname, "..", "frontend", "index.html"));
+});
+app.get("/vets", (req, res) => {
+    res.sendFile(path.join(__dirname, "..", "frontend", "vets.html"));
+});
+app.get("/vets.html", (req, res) => {
+    res.sendFile(path.join(__dirname, "..", "frontend", "vets.html"));
+});
+app.get("/vet-details", (req, res) => {
+    res.sendFile(path.join(__dirname, "..", "frontend", "vet-details.html"));
+});
+app.get("/vet-details.html", (req, res) => {
+    res.sendFile(path.join(__dirname, "..", "frontend", "vet-details.html"));
+});
+app.get("/appointments", (req, res) => {
+    res.sendFile(path.join(__dirname, "..", "frontend", "appointments.html"));
+});
+app.get("/appointments.html", (req, res) => {
+    res.sendFile(path.join(__dirname, "..", "frontend", "appointments.html"));
 });
 
 // Fallback: serve home page for any unmatched route

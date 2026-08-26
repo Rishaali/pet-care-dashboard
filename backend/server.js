@@ -10,6 +10,7 @@ const petRoutes = require("./routes/petRoutes");
 const activityRoutes = require("./routes/activityRoutes");
 const medicationRoutes = require("./routes/medicationRoutes");
 const userRoutes = require("./routes/userRoutes");
+const chatbotRoutes = require("./routes/chatbotRoutes");
 
 const app = express();
 const PORT = 5000;
@@ -25,6 +26,8 @@ app.use("/api/pets", petRoutes);
 app.use("/api/activities", activityRoutes);
 app.use("/api/medications", medicationRoutes.medications);
 app.use("/api/medication-logs", medicationRoutes.medicationLogs);
+// Chatbot endpoint (isolated module)
+app.use("/api/chatbot", chatbotRoutes);
 
 // Root route serves landing/home page
 app.get("/", (req, res) => {

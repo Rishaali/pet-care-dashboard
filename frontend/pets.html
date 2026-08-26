@@ -445,9 +445,10 @@
 <div class="petzi-toast-container" id="toast-container"></div>
 
 <script>
-    // ---- API Base URL ----
-    const API_BASE = 'http://localhost:5000/api';
 
+<!-- Petzi Bot -->
+<link rel="stylesheet" href="petzi-bot.css">
+<script src="petzi-bot.js"></script>
     // ---- Check Authentication ----
     const currentUser = JSON.parse(localStorage.getItem('petziUser') || 'null');
     if (!currentUser || !currentUser.id) {
@@ -484,7 +485,7 @@
     async function loadPets() {
         const container = document.getElementById('pets-container');
         try {
-            const res = await fetch(`${API_BASE}/pets?user_id=${currentUser.id}`);
+            const res = await fetch(`/api/pets?user_id=${currentUser.id}`);
             if (!res.ok) throw new Error('Failed to load pets');
             const pets = await res.json();
 
@@ -667,7 +668,7 @@
         };
 
         try {
-            const res = await fetch(`${API_BASE}/pets`, {
+            const res = await fetch('/api/pets', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)

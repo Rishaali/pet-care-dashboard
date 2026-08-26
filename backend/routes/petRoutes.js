@@ -22,6 +22,25 @@ router.get("/", (req, res) => {
 });
 
 // GET /api/pets/:id - Get a specific pet by ID
+router.get("/:id/medical-history", (req, res) => {
+    const petId = req.params.id;
+
+    db.get("SELECT id, name, age, breed, species, health_condition, allergies, medical_history, current_medications, vaccination_status, last_vaccination_date, next_vaccination_date FROM pets WHERE id = ?", [petId], (err, pet) => {
+        if (err) return res.status(500).json({ error: "Failed to fetch medical history" });
+        if (!pet) return res.status(404).json({ error: "Pet not found" });
+
+        db.all("SELECT medication_name, dosage, frequency, notes FROM medications WHERE pet_id = ? ORDER BY id DESC", [petId], (medicationErr, medications) => {
+            if (medicationErr) return res.status(500).json({ error: "Failed to fetch medical history" });
+
+            db.all("SELECT activity_type, timestamp, notes FROM activities WHERE pet_id = ? AND LOWER(activity_type) IN ('medication', 'vet', 'veterinary') ORDER BY timestamp DESC", [petId], (activityErr, visits) => {
+                if (activityErr) return res.status(500).json({ error: "Failed to fetch medical history" });
+                res.status(200).json({ ...pet, medications: medications || [], veterinary_visits: visits || [] });
+            });
+        });
+    });
+});
+
+// GET /api/pets/:id - Get a specific pet by ID
 router.get("/:id", (req, res) => {
     const id = req.params.id;
     db.get("SELECT * FROM pets WHERE id = ?", [id], (err, row) => {
@@ -310,16 +329,23 @@ router.put("/:id", (req, res) => {
 // DELETE /api/pets/:id - Delete a pet
 router.delete("/:id", (req, res) => {
     const id = req.params.id;
+    const ownerId = req.query.user_id;
+    if (!ownerId) return res.status(400).json({ error: "user_id is required" });
     db.get("SELECT id FROM pets WHERE id = ?", [id], (err, row) => {
         if (err) return res.status(500).json({ error: "Database error" });
         if (!row) return res.status(404).json({ error: "Pet not found" });
 
-        db.run("DELETE FROM pets WHERE id = ?", [id], (err) => {
-            if (err) {
-                console.error("Error deleting pet:", err.message);
-                return res.status(500).json({ error: "Failed to delete pet" });
-            }
-            res.status(200).json({ message: "Pet deleted successfully" });
+        db.get("SELECT id FROM pets WHERE id = ? AND user_id = ?", [id, ownerId], (ownerError, ownedPet) => {
+            if (ownerError) return res.status(500).json({ error: "Database error" });
+            if (!ownedPet) return res.status(403).json({ error: "You can only delete your own pets" });
+
+            db.run("DELETE FROM pets WHERE id = ?", [id], (err) => {
+                if (err) {
+                    console.error("Error deleting pet:", err.message);
+                    return res.status(500).json({ error: "Failed to delete pet" });
+                }
+                res.status(200).json({ message: "Pet deleted successfully" });
+            });
         });
     });
 });

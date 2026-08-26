@@ -28,7 +28,10 @@ db.serialize(() => {
         )
     `, (err) => {
         if (err) console.error("Error creating users table:", err.message);
-        else console.log("Users table ready.");
+        else {
+            console.log("Users table ready.");
+            addOwnerLocationColumns();
+        }
     });
 
     // 2. Pets table (original columns preserved)
@@ -99,6 +102,18 @@ db.serialize(() => {
         }
     });
 });
+
+// Idempotent migration for owner location used by veterinary searches.
+function addOwnerLocationColumns() {
+    ["latitude REAL", "longitude REAL", "address_label TEXT", "location TEXT"].forEach(columnDefinition => {
+        const columnName = columnDefinition.split(" ")[0];
+        db.run(`ALTER TABLE users ADD COLUMN ${columnDefinition}`, err => {
+            if (err && !err.message.includes("duplicate column")) {
+                console.error(`Error adding users.${columnName}:`, err.message);
+            }
+        });
+    });
+}
 
 // Safely add new columns to pets table via ALTER TABLE
 // SQLite will throw error if column already exists — we catch and ignore those

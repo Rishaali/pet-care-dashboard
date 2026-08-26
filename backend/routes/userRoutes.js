@@ -4,7 +4,7 @@ const db = require("../database");
 
 // POST /api/users/signup - Register a new user
 router.post("/signup", (req, res) => {
-    const { name, email, phone, gender, age, password, confirm_password } = req.body;
+    const { name, email, phone, gender, age, password, confirm_password, location, address_label } = req.body;
 
     // Validation
     if (!name || name.trim() === "") {
@@ -33,6 +33,10 @@ router.post("/signup", (req, res) => {
     if (password !== confirm_password) {
         return res.status(400).json({ error: "Passwords do not match" });
     }
+    const savedLocation = (location || address_label || "").trim();
+    if (!savedLocation) {
+        return res.status(400).json({ error: "Your location is required" });
+    }
 
     // Check for existing email
     db.get("SELECT id FROM users WHERE email = ?", [email.trim().toLowerCase()], (err, existingEmail) => {
@@ -55,8 +59,8 @@ router.post("/signup", (req, res) => {
             }
 
             const sql = `
-                INSERT INTO users (name, email, phone, gender, age, password)
-                VALUES (?, ?, ?, ?, ?, ?)
+                INSERT INTO users (name, email, phone, gender, age, password, location, address_label)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             `;
             const params = [
                 name.trim(),
@@ -64,7 +68,9 @@ router.post("/signup", (req, res) => {
                 phone.trim(),
                 gender.trim(),
                 parseInt(age, 10),
-                password  // stored as-is (student project scope)
+                password,
+                savedLocation,
+                savedLocation
             ];
 
             db.run(sql, params, function(err) {
@@ -80,7 +86,9 @@ router.post("/signup", (req, res) => {
                     user: {
                         id: this.lastID,
                         name: name.trim(),
-                        email: email.trim().toLowerCase()
+                        email: email.trim().toLowerCase(),
+                        location: savedLocation,
+                        address_label: savedLocation
                     }
                 });
             });
@@ -119,16 +127,50 @@ router.post("/login", (req, res) => {
                 email: user.email,
                 phone: user.phone,
                 gender: user.gender,
-                age: user.age
+                age: user.age,
+                latitude: user.latitude,
+                longitude: user.longitude,
+                address_label: user.address_label,
+                location: user.location
             }
         });
     });
 });
 
 // GET /api/users/:id - Get user profile
+router.put("/:id/profile", (req, res) => {
+    const { name, email, phone, location } = req.body;
+    const userId = req.params.id;
+    const normalizedName = typeof name === "string" ? name.trim() : "";
+    const normalizedEmail = typeof email === "string" ? email.trim().toLowerCase() : "";
+    const normalizedPhone = typeof phone === "string" ? phone.trim() : "";
+    const normalizedLocation = typeof location === "string" ? location.trim() : "";
+
+    if (!normalizedName) return res.status(400).json({ error: "Name is required" });
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) return res.status(400).json({ error: "Enter a valid email address" });
+    if (!/^[+\d][\d\s().-]{6,}$/.test(normalizedPhone)) return res.status(400).json({ error: "Enter a valid phone number" });
+    if (!normalizedLocation) return res.status(400).json({ error: "Location is required" });
+
+    db.get("SELECT id FROM users WHERE id = ?", [userId], (lookupError, user) => {
+        if (lookupError) return res.status(500).json({ error: "Database error" });
+        if (!user) return res.status(404).json({ error: "User not found" });
+        db.get("SELECT id FROM users WHERE (email = ? OR phone = ?) AND id != ?", [normalizedEmail, normalizedPhone, userId], (duplicateError, duplicate) => {
+            if (duplicateError) return res.status(500).json({ error: "Database error" });
+            if (duplicate) return res.status(409).json({ error: "Email or phone is already in use" });
+            db.run("UPDATE users SET name = ?, email = ?, phone = ?, location = ?, address_label = ?, latitude = NULL, longitude = NULL WHERE id = ?", [normalizedName, normalizedEmail, normalizedPhone, normalizedLocation, normalizedLocation, userId], function(updateError) {
+                if (updateError) return res.status(500).json({ error: "Unable to update your profile" });
+                db.get("SELECT id, name, email, phone, gender, age, latitude, longitude, address_label, location, created_at FROM users WHERE id = ?", [userId], (profileError, updatedUser) => {
+                    if (profileError) return res.status(500).json({ error: "Unable to load updated profile" });
+                    res.status(200).json(updatedUser);
+                });
+            });
+        });
+    });
+});
+
 router.get("/:id", (req, res) => {
     const id = req.params.id;
-    db.get("SELECT id, name, email, phone, gender, age, created_at FROM users WHERE id = ?", [id], (err, user) => {
+    db.get("SELECT id, name, email, phone, gender, age, latitude, longitude, address_label, location, created_at FROM users WHERE id = ?", [id], (err, user) => {
         if (err) {
             console.error("Error fetching user:", err.message);
             return res.status(500).json({ error: "Database error" });
@@ -137,6 +179,17 @@ router.get("/:id", (req, res) => {
             return res.status(404).json({ error: "User not found" });
         }
         res.status(200).json(user);
+    });
+});
+
+// PUT /api/users/:id/location - Update a saved owner location
+router.put("/:id/location", (req, res) => {
+    const location = (req.body.location || req.body.address_label || "").trim();
+    if (!location) return res.status(400).json({ error: "Location is required" });
+    db.run("UPDATE users SET location = ?, address_label = ?, latitude = NULL, longitude = NULL WHERE id = ?", [location, location, req.params.id], function(err) {
+        if (err) return res.status(500).json({ error: "Failed to update owner location" });
+        if (!this.changes) return res.status(404).json({ error: "User not found" });
+        res.status(200).json({ message: "Owner location updated", location, address_label: location });
     });
 });
 

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Owner Profile | Petzi</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="petzi.css">
+    <style>
+        .profile-page { max-width: 1060px; margin: 0 auto; padding: 48px 5% 80px; }
+        .profile-hero { background: #fff; border: 1px solid var(--border); border-radius: var(--radius-md); box-shadow: var(--shadow-sm); padding: 26px 30px; display: flex; align-items: center; justify-content: space-between; gap: 22px; margin-bottom: 24px; }
+        .profile-hero-identity { display: flex; align-items: center; gap: 18px; }
+        .profile-avatar { width: 76px; height: 76px; display: grid; place-items: center; border-radius: 18px; color: var(--brand-primary); background: var(--brand-primary-light); border: 1px solid rgba(2,132,199,.18); }
+        .profile-avatar .material-icons { font-size: 42px; }
+        .profile-hero h1 { font-size: clamp(1.8rem, 4vw, 2.7rem); margin-bottom: 4px; }
+        .profile-hero p { color: var(--text-secondary); }
+        .profile-panel, .pets-panel { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md); box-shadow: var(--shadow-md); overflow: hidden; }
+        .profile-section-heading { display: flex; align-items: center; gap: 12px; padding: 20px 24px; border-bottom: 1px solid var(--border-light); background: linear-gradient(90deg, var(--brand-primary-soft), #fff); }
+        .profile-section-heading .material-icons { color: var(--brand-primary); }
+        .profile-section-heading h2 { font-size: 1.3rem; }
+        .profile-section-heading p { color: var(--text-secondary); font-size: .88rem; margin-top: 3px; }
+        .owner-details-list { display: flex; flex-direction: column; gap: 16px; padding: 24px; }
+        .owner-detail-row { padding-bottom: 15px; border-bottom: 1px solid var(--border-light); }
+        .owner-detail-row:last-child { padding-bottom: 0; border-bottom: 0; }
+        .owner-detail-label { display: block; color: var(--text-muted); font-size: .78rem; font-weight: 700; margin-bottom: 4px; }
+        .owner-detail-value { color: var(--text-primary); font-size: .95rem; }
+        .owner-detail-value input { width: 100%; border: 1px solid transparent; background: transparent; color: inherit; font: inherit; padding: 0; outline: none; }
+        .owner-details-list.editing .owner-detail-value input { border-color: var(--border); background: var(--bg-main); border-radius: var(--radius-sm); padding: 10px 12px; }
+        .field-error { display: block; color: var(--error); font-size: .8rem; margin-top: 6px; min-height: 0; }
+        .profile-actions { display: flex; justify-content: center; gap: 10px; padding: 22px 24px; }
+        .profile-button { border: 0; border-radius: var(--radius-sm); padding: 11px 17px; display: inline-flex; align-items: center; gap: 7px; font: inherit; font-weight: 700; cursor: pointer; text-decoration: none; }
+        .profile-button.primary { color: #fff; background: var(--brand-primary); }
+        .profile-button.secondary { color: var(--brand-primary); background: var(--brand-primary-light); }
+        .profile-button:disabled { opacity: .6; cursor: wait; }
+        .profile-message { min-height: 24px; padding: 0 24px; text-align: center; color: var(--success); font-weight: 600; }
+        .profile-message.error { color: var(--error); }
+        .loading { text-align: center; padding: 52px; color: var(--text-secondary); }
+        .pets-panel { margin-top: 24px; padding: 24px; }
+        .pets-heading { display: flex; justify-content: space-between; align-items: end; gap: 16px; margin-bottom: 18px; }
+        .pets-heading h2 { font-size: 1.4rem; }
+        .pets-heading p { color: var(--text-secondary); font-size: .88rem; margin-top: 3px; }
+        .pets-heading-actions { display: flex; align-items: center; gap: 10px; }
+        .pet-count { color: var(--brand-primary); background: var(--brand-primary-light); border-radius: 999px; padding: 6px 11px; font-size: .8rem; font-weight: 700; white-space: nowrap; }
+        .pets-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px; }
+        .owner-pet-card { border: 1px solid var(--border); border-radius: var(--radius-sm); background: linear-gradient(145deg, #fff 0%, var(--bg-card-alt) 100%); padding: 18px; transition: var(--transition); }
+        .owner-pet-card:hover { border-color: var(--brand-primary); transform: translateY(-2px); box-shadow: var(--shadow-md); }
+        .owner-pet-top { display: flex; align-items: center; gap: 12px; margin-bottom: 15px; }
+        .owner-pet-avatar { width: 48px; height: 48px; display: grid; place-items: center; border-radius: 14px; background: var(--brand-secondary); font-size: 1.7rem; }
+        .owner-pet-name { font: 700 1.08rem var(--font-heading); }
+        .owner-pet-type { color: var(--text-secondary); font-size: .8rem; }
+        .owner-pet-details { display: grid; gap: 8px; color: var(--text-secondary); font-size: .82rem; }
+        .owner-pet-detail { display: flex; gap: 7px; align-items: flex-start; }
+        .owner-pet-detail .material-icons { color: var(--brand-primary); font-size: 17px; }
+        .pet-health-note { margin-top: 13px; padding-top: 11px; border-top: 1px solid var(--border-light); color: var(--text-secondary); font-size: .8rem; }
+        .owner-pet-actions { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+        .delete-pet-button { border: 0; background: transparent; color: var(--error); padding: 4px; cursor: pointer; display: inline-flex; align-items: center; }
+        .delete-pet-button:hover { color: #B91C1C; }
+        .pets-empty { text-align: center; padding: 28px 16px; color: var(--text-secondary); border: 1px dashed var(--border); border-radius: var(--radius-sm); }
+        .pet-link { display: inline-flex; margin-top: 14px; color: var(--brand-primary); font-size: .82rem; font-weight: 700; text-decoration: none; }
+        @media (max-width: 600px) { .profile-hero { padding: 22px; } .profile-hero-identity { align-items: flex-start; } .profile-hero-actions { display: none; } .profile-actions { flex-direction: column; } .profile-button { justify-content: center; } .pets-heading { align-items: flex-start; flex-direction: column; } .pets-heading-actions { width: 100%; justify-content: space-between; } }
+    </style>
+</head>
+<body>
+    <nav class="petzi-nav">
+        <a href="home.html" class="nav-brand"><div class="nav-brand-icon">🐾</div><span class="nav-brand-name">Petzi</span></a>
+        <div class="nav-links">
+            <a href="home.html" class="nav-link"><span class="material-icons">home</span><span>Home</span></a>
+            <a href="pets.html" class="nav-link"><span class="material-icons">pets</span><span>My Pets</span></a>
+            <a href="veterinary.html" class="nav-link"><span class="material-icons">local_hospital</span><span>Veterinary</span></a>
+            <a href="profile" class="nav-user-pill active" aria-label="Open owner profile" title="Open owner profile" style="text-decoration:none;"><span class="material-icons">account_circle</span></a>
+            <button class="nav-link nav-logout" id="logout"><span class="material-icons">logout</span><span>Logout</span></button>
+        </div>
+    </nav>
+    <main class="profile-page">
+        <header class="profile-hero"><div class="profile-hero-identity"><div class="profile-avatar"><span class="material-icons">person</span></div><div><h1 id="owner-greeting">Hi there</h1><p>Manage your details and saved clinic search location.</p></div></div></header>
+        <section class="profile-panel" id="panel"><div class="loading">Loading profile...<br><span class="material-icons">pets</span></div></section>
+        <section class="pets-panel" id="pets-panel"><div class="loading">Loading your pets...</div></section>
+    </main>
+    <script>
+        const user = JSON.parse(localStorage.getItem('petziUser') || 'null');
+        const panel = document.getElementById('panel');
+        let profile;
+        if (!user?.id) window.location.replace('auth.html?mode=login');
+        function escapeHtml(value) { return String(value ?? '').replace(/[&<>'"]/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[char])); }
+        function getPetEmoji(species) { const emojis = { dog: '🐶', cat: '🐱', rabbit: '🐰', bird: '🐦', fish: '🐠', hamster: '🐹' }; return emojis[String(species || '').toLowerCase()] || '🐾'; }
+        function renderPets(pets) {
+            const petsPanel = document.getElementById('pets-panel');
+            const heading = `<div class="pets-heading"><div><h2>My Pets</h2><p>Quick view of the pets connected to your account.</p></div><div class="pets-heading-actions">${pets.length ? `<span class="pet-count">${pets.length} ${pets.length === 1 ? 'pet' : 'pets'}</span>` : ''}<a class="profile-button primary" href="pets.html?add=pet"><span class="material-icons">add</span> Add New Pet</a></div></div>`;
+            if (!pets.length) { petsPanel.innerHTML = `${heading}<div class="pets-empty"><span class="material-icons" style="font-size:2rem;color:var(--brand-primary);">pets</span><p>No pets added yet.</p><a class="pet-link" href="pets.html">Open pet manager</a></div>`; return; }
+            petsPanel.innerHTML = `${heading}<div class="pets-grid">${pets.map(pet => `<article class="owner-pet-card"><div class="owner-pet-top"><div class="owner-pet-avatar">${getPetEmoji(pet.species)}</div><div><div class="owner-pet-name">${escapeHtml(pet.name)}</div><div class="owner-pet-type">${escapeHtml(pet.species || 'Pet')} · ${escapeHtml(pet.breed || 'Breed not specified')}</div></div></div><div class="owner-pet-details"><div class="owner-pet-detail"><span class="material-icons">cake</span><span>${pet.age != null ? `${escapeHtml(pet.age)} years old` : 'Age not recorded'}${pet.gender ? ` · ${escapeHtml(pet.gender)}` : ''}</span></div><div class="owner-pet-detail"><span class="material-icons">monitor_weight</span><span>${pet.weight != null ? `${escapeHtml(pet.weight)} kg` : 'Weight not recorded'}</span></div><div class="owner-pet-detail"><span class="material-icons">vaccines</span><span>${escapeHtml(pet.vaccination_status || 'Vaccination status unknown')}</span></div></div><div class="pet-health-note"><strong>Health:</strong> ${escapeHtml(pet.health_condition || 'No condition recorded')}<br><strong>Allergies:</strong> ${escapeHtml(pet.allergies || 'None recorded')}</div><div class="owner-pet-actions"><a class="pet-link" href="pet.html?id=${encodeURIComponent(pet.id)}">View pet details <span class="material-icons" style="font-size:16px;">arrow_forward</span></a><button class="delete-pet-button" type="button" data-pet-id="${escapeHtml(pet.id)}" data-pet-name="${escapeHtml(pet.name)}" title="Delete ${escapeHtml(pet.name)}" aria-label="Delete ${escapeHtml(pet.name)}"><span class="material-icons">delete</span></button></div></article>`).join('')}</div>`;
+            petsPanel.querySelectorAll('.delete-pet-button').forEach(button => button.addEventListener('click', () => deletePet(button.dataset.petId, button.dataset.petName)));
+        }
+        async function deletePet(petId, petName) { if (!window.confirm(`Delete ${petName} and its care records?`)) return; try { const response = await fetch(`/api/pets/${encodeURIComponent(petId)}?user_id=${encodeURIComponent(user.id)}`, { method: 'DELETE' }); const data = await response.json(); if (!response.ok) throw new Error(data.error || 'Unable to delete pet.'); await load(); } catch (error) { const message = document.getElementById('message'); if (message) { message.textContent = error.message; message.classList.add('error'); } } }
+        function render(editing = false, message = '', error = false) {
+            const fields = [['name', 'Name'], ['email', 'Email'], ['phone', 'Phone'], ['location', 'Location']];
+            panel.innerHTML = `<div class="profile-section-heading"><span class="material-icons">badge</span><div><h2>Owner Details</h2><p>Your account and clinic search information</p></div></div><div class="owner-details-list${editing ? ' editing' : ''}">${fields.map(([key, label]) => `<div class="owner-detail-row"><span class="owner-detail-label">${label}</span><div class="owner-detail-value"><input id="${key}" value="${escapeHtml(profile[key] || profile.address_label || '')}" ${editing ? '' : 'readonly'}>${editing ? `<span class="field-error" id="${key}-error"></span>` : ''}</div></div>`).join('')}</div><div class="profile-message${error ? ' error' : ''}" id="message">${escapeHtml(message)}</div><div class="profile-actions">${editing ? '<button class="profile-button primary" id="save"><span class="material-icons">save</span> Save Changes</button><button class="profile-button secondary" id="cancel">Cancel</button>' : '<button class="profile-button primary" id="edit"><span class="material-icons">edit</span> Edit Profile</button>'}</div>`;
+            if (editing) { document.getElementById('save').addEventListener('click', save); document.getElementById('cancel').addEventListener('click', () => render(false)); } else document.getElementById('edit').addEventListener('click', () => render(true));
+        }
+        async function load() { try { const [profileResponse, petsResponse] = await Promise.all([fetch(`/api/users/${user.id}`), fetch(`/api/pets?user_id=${user.id}`)]); const data = await profileResponse.json(); if (!profileResponse.ok) throw new Error(data.error || 'Profile not found'); const pets = await petsResponse.json(); if (!petsResponse.ok) throw new Error('Unable to load pets'); profile = data; const firstName = data.name?.split(' ')[0] || 'there'; document.getElementById('owner-greeting').textContent = `Hi, ${firstName}`; const navName = document.getElementById('nav-username'); if (navName) navName.textContent = firstName; render(); renderPets(pets); } catch (error) { panel.innerHTML = `<div class="loading">Unable to load your profile.<br><button class="profile-button secondary" onclick="load()">Retry</button></div>`; document.getElementById('pets-panel').innerHTML = '<div class="pets-empty">Unable to load your pets. Please try again.</div>'; } }
+        async function save(event) { const button = event.currentTarget; const values = Object.fromEntries(['name', 'email', 'phone', 'location'].map(key => [key, document.getElementById(key).value.trim()])); let valid = true; if (!values.name) { document.getElementById('name-error').textContent = 'Name is required.'; valid = false; } if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email)) { document.getElementById('email-error').textContent = 'Enter a valid email address.'; valid = false; } if (!/^[+\d][\d\s().-]{6,}$/.test(values.phone)) { document.getElementById('phone-error').textContent = 'Enter a valid phone number.'; valid = false; } if (!values.location) { document.getElementById('location-error').textContent = 'Location is required.'; valid = false; } if (!valid) return; button.disabled = true; button.innerHTML = '<span class="material-icons">sync</span> Saving changes...'; try { const response = await fetch(`/api/users/${user.id}/profile`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(values) }); const data = await response.json(); if (!response.ok) throw new Error(data.error || 'Unable to update your profile.'); profile = data; localStorage.setItem('petziUser', JSON.stringify({ ...user, ...data })); render(false, 'Profile updated successfully!'); setTimeout(() => { const message = document.getElementById('message'); if (message) message.textContent = ''; }, 4000); } catch (error) { render(true, error.message, true); } }
+        document.getElementById('logout').addEventListener('click', () => { localStorage.removeItem('petziUser'); window.location.replace('auth.html?mode=login'); });
+        load();
+    </script>
+</body>
+</html>

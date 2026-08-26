@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nearby Veterinary Clinics | Petzi</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="petzi.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+    <style>
+        .vet-page { max-width: 1240px; margin: 0 auto; padding: 42px 5% 72px; }
+        .vet-hero { display: flex; justify-content: space-between; align-items: end; gap: 24px; margin-bottom: 28px; }
+        .vet-kicker { color: var(--brand-primary); font-weight: 700; letter-spacing: .08em; text-transform: uppercase; font-size: .78rem; }
+        .vet-hero h1 { font-size: clamp(2rem, 4vw, 3.2rem); margin: 7px 0; }
+        .vet-hero p { color: var(--text-secondary); max-width: 620px; }
+        .vet-toolbar, .pet-summary, .clinic-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-md); box-shadow: var(--shadow-sm); }
+        .vet-toolbar { padding: 18px; display: flex; flex-wrap: wrap; align-items: end; gap: 12px; margin-bottom: 18px; }
+        .vet-toolbar label, .manual-location label { display: grid; gap: 6px; color: var(--text-secondary); font-size: .78rem; font-weight: 700; }
+        .vet-toolbar select, .vet-toolbar input { min-height: 42px; border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 0 12px; color: var(--text-primary); background: var(--bg-main); font: inherit; }
+        .vet-toolbar select { min-width: 190px; }
+        .vet-toolbar input { width: 92px; }
+        .vet-button { min-height: 42px; border: 0; border-radius: var(--radius-sm); padding: 0 16px; display: inline-flex; align-items: center; justify-content: center; gap: 7px; font: inherit; font-weight: 700; cursor: pointer; }
+        .vet-button.primary { color: white; background: var(--primary); }
+        .vet-button.secondary { color: var(--primary); background: var(--primary-light); }
+        .vet-button:disabled { opacity: .55; cursor: wait; }
+        .manual-location { display: none; width: 100%; border-top: 1px solid var(--border-light); padding-top: 14px; gap: 10px; grid-template-columns: repeat(2, minmax(120px, 180px)) auto; align-items: end; }
+        .manual-location.open { display: grid; }
+        .vet-status { min-height: 24px; color: var(--text-secondary); margin: 10px 0 20px; }
+        .vet-status.error { color: var(--error); }
+        .vet-layout { display: grid; grid-template-columns: minmax(320px, .9fr) minmax(420px, 1.1fr); gap: 22px; align-items: start; }
+        .pet-summary { padding: 18px; margin-bottom: 16px; }
+        .pet-summary h2, .results-heading h2 { font-size: 1.25rem; margin-bottom: 10px; }
+        .summary-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+        .summary-chip { background: var(--bg-card-alt); border-radius: 999px; padding: 6px 10px; font-size: .82rem; }
+        .history-note { color: var(--text-secondary); font-size: .9rem; margin-top: 12px; }
+        .results-heading { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin: 18px 0 10px; }
+        .clinic-list { display: grid; gap: 12px; }
+        .clinic-card { padding: 18px; transition: var(--transition); cursor: pointer; }
+        .clinic-card:hover, .clinic-card.selected { border-color: var(--primary); box-shadow: var(--shadow-md); }
+        .clinic-top { display: flex; justify-content: space-between; gap: 12px; }
+        .clinic-name { font: 700 1.08rem var(--font-heading); }
+        .clinic-distance { color: var(--primary); font-weight: 700; white-space: nowrap; }
+        .clinic-detail { color: var(--text-secondary); font-size: .88rem; margin-top: 7px; }
+        .clinic-services { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0; }
+        .service-tag { color: var(--cream-text); background: var(--cream-card); border: 1px solid var(--cream-border); border-radius: 999px; padding: 4px 8px; font-size: .75rem; }
+        .recommendation { color: var(--text-primary); background: var(--primary-soft); border-left: 3px solid var(--primary); padding: 9px 11px; font-size: .82rem; }
+        .clinic-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+        .clinic-actions a { text-decoration: none; }
+        #vet-map { height: 620px; border-radius: var(--radius-md); overflow: hidden; border: 1px solid var(--border-color); box-shadow: var(--shadow-sm); position: sticky; top: 22px; }
+        .empty-state { padding: 28px; text-align: center; color: var(--text-secondary); background: var(--bg-card); border: 1px dashed var(--border-color); border-radius: var(--radius-md); }
+        @media (max-width: 850px) { .vet-hero { align-items: start; flex-direction: column; } .vet-layout { grid-template-columns: 1fr; } #vet-map { height: 360px; position: static; order: -1; } }
+        @media (max-width: 520px) { .manual-location.open { grid-template-columns: 1fr 1fr; } .manual-location .vet-button { grid-column: 1 / -1; } .vet-toolbar { align-items: stretch; } .vet-toolbar label, .vet-toolbar select { width: 100%; } }
+    </style>
+</head>
+<body>
+    <nav class="petzi-nav">
+        <a href="home.html" class="nav-brand"><div class="nav-brand-icon">🐾</div><span class="nav-brand-name">Petzi</span></a>
+        <div class="nav-links">
+            <a href="home.html" class="nav-link"><span class="material-icons">home</span><span>Home</span></a>
+            <a href="pets.html" class="nav-link"><span class="material-icons">pets</span><span>My Pets</span></a>
+            <a href="veterinary.html" class="nav-link active"><span class="material-icons">local_hospital</span><span>Veterinary</span></a>
+            <a href="profile" class="nav-user-pill" aria-label="Open owner profile" title="Open owner profile" style="text-decoration:none;"><span class="material-icons">account_circle</span></a>
+            <button class="nav-link nav-logout" id="btn-logout"><span class="material-icons">logout</span><span>Logout</span></button>
+        </div>
+    </nav>
+
+    <main class="vet-page">
+        <header class="vet-hero"><div><div class="vet-kicker">Care, close to home</div><h1>Nearby Veterinary Clinics</h1><p>Find real veterinary clinics near you, ranked using your pet's recorded care history. Recommendations are informational and do not diagnose your pet.</p></div></header>
+        <section class="vet-toolbar" aria-label="Clinic search controls">
+            <label>Pet<select id="pet-select"><option>Loading pets...</option></select></label>
+            <label>Radius<select id="radius-select"><option value="5000">5 km</option><option value="7500">7.5 km</option><option value="10000" selected>10 km</option><option value="20000">20 km</option></select></label>
+            <span id="saved-location" class="summary-chip"><span class="material-icons" style="font-size:1rem;vertical-align:middle;color:var(--success);">check_circle</span> Loading saved location...</span>
+            <a class="vet-button secondary" href="profile">Update location</a>
+        </section>
+        <div class="vet-status" id="vet-status" role="status">Loading your saved location...</div>
+        <div class="vet-layout">
+            <section>
+                <div class="pet-summary"><h2>Pet medical summary</h2><div class="summary-grid" id="pet-summary-grid"></div><p class="history-note" id="history-note">Select a pet to view its relevant history.</p></div>
+                <div class="results-heading"><h2>Recommended Clinics</h2><span id="result-count"></span></div>
+                <div class="clinic-list" id="clinic-list"><div class="empty-state">Allow location access to search nearby clinics.</div></div>
+            </section>
+            <div id="vet-map" aria-label="Map of nearby veterinary clinics"></div>
+        </div>
+    </main>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+    <script>
+        const API_BASE = '/api';
+        const currentUser = JSON.parse(localStorage.getItem('petziUser') || 'null');
+        let pets = [], selectedPet, currentLocation, map, markers = [], clinics = [];
+        const status = document.getElementById('vet-status');
+        const list = document.getElementById('clinic-list');
+
+        function escapeHtml(value) { return String(value ?? '').replace(/[&<>'"]/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[char])); }
+        function setStatus(message, error = false) { status.textContent = message; status.className = `vet-status${error ? ' error' : ''}`; }
+        async function getJson(url) { const response = await fetch(url); const data = await response.json(); if (!response.ok) throw new Error(data.error || 'Request failed'); return data; }
+        function historyText(pet) { return [pet.health_condition, pet.allergies, pet.medical_history, pet.current_medications].filter(Boolean).join(' | '); }
+        function renderPetSummary() {
+            if (!selectedPet) return;
+            document.getElementById('pet-summary-grid').innerHTML = [`${selectedPet.species || 'Pet'}${selectedPet.breed ? ` · ${selectedPet.breed}` : ''}`, `${selectedPet.age ?? 'Age not recorded'} years`, `Vaccination: ${selectedPet.vaccination_status || 'Unknown'}`].map(item => `<span class="summary-chip">${escapeHtml(item)}</span>`).join('');
+            document.getElementById('history-note').textContent = historyText(selectedPet) || "We couldn't find medical history for this pet. We'll show nearby general veterinary clinics.";
+        }
+        function initMap() { map = L.map('vet-map').setView([0, 0], 2); L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap contributors' }).addTo(map); }
+        function renderMap() {
+            markers.forEach(marker => marker.remove()); markers = [];
+            if (!currentLocation) return;
+            const ownerMarker = L.marker([currentLocation.latitude, currentLocation.longitude]).addTo(map).bindPopup('<strong>Your location</strong>'); markers.push(ownerMarker);
+            clinics.forEach(clinic => { const marker = L.marker([clinic.latitude, clinic.longitude]).addTo(map).bindPopup(`<strong>${escapeHtml(clinic.name)}</strong><br>${escapeHtml(clinic.distanceKm)} km away`); marker.on('click', () => selectClinic(clinic.id)); markers.push(marker); });
+            const points = [[currentLocation.latitude, currentLocation.longitude], ...clinics.map(clinic => [clinic.latitude, clinic.longitude])]; map.fitBounds(points, { padding: [25, 25], maxZoom: 14 });
+        }
+        function selectClinic(clinicId) { document.querySelectorAll('.clinic-card').forEach(card => card.classList.toggle('selected', card.dataset.id === clinicId)); const clinic = clinics.find(item => item.id === clinicId); if (clinic) map.setView([clinic.latitude, clinic.longitude], 16); }
+        function renderClinics() {
+            document.getElementById('result-count').textContent = `${clinics.length} found`;
+            if (!clinics.length) { list.innerHTML = '<div class="empty-state">No veterinary clinics were found within this radius. Try expanding your search.</div>'; return; }
+            list.innerHTML = clinics.map(clinic => `<article class="clinic-card" data-id="${escapeHtml(clinic.id)}" tabindex="0"><div class="clinic-top"><div class="clinic-name">${escapeHtml(clinic.name)}</div><div class="clinic-distance">${escapeHtml(clinic.distanceKm)} km</div></div><div class="clinic-detail">${escapeHtml(clinic.address)}</div><div class="clinic-detail">${clinic.phone ? `☎ ${escapeHtml(clinic.phone)}` : 'Phone not listed'}${clinic.openingHours ? ` · ${escapeHtml(clinic.openingHours)}` : ''}</div><div class="clinic-services">${clinic.services.map(service => `<span class="service-tag">${escapeHtml(service)}</span>`).join('')}</div><div class="recommendation">${escapeHtml(clinic.recommendationReason)}</div><div class="clinic-actions"><a class="vet-button secondary" href="${escapeHtml(clinic.mapUrl)}" target="_blank" rel="noopener">View on Map</a><a class="vet-button secondary" href="${escapeHtml(clinic.directionsUrl)}" target="_blank" rel="noopener">Directions</a>${clinic.phone ? `<a class="vet-button primary" href="tel:${escapeHtml(clinic.phone)}">Call Clinic</a>` : ''}</div></article>`).join('');
+            document.querySelectorAll('.clinic-card').forEach(card => { card.addEventListener('click', event => { if (!event.target.closest('a')) selectClinic(card.dataset.id); }); });
+        }
+        async function searchClinics() {
+            if (!currentLocation || !selectedPet) return;
+            setStatus(`Searching within ${Number(document.getElementById('radius-select').value) / 1000} km...`); list.innerHTML = '<div class="empty-state">Searching real clinic listings...</div>';
+            try { const data = await getJson(`${API_BASE}/veterinary/recommendations/${selectedPet.id}?user_id=${currentUser.id}&radius=${document.getElementById('radius-select').value}`); currentLocation = { latitude: Number(data.owner_location.latitude), longitude: Number(data.owner_location.longitude) }; clinics = data.clinics || []; renderClinics(); renderMap(); setStatus(`${data.expandedRadius ? 'No clinics were found within 10 km. Expanded the search to 20 km. ' : ''}Showing clinics near ${data.owner_location.location || data.owner_location.address_label || 'your saved location'}.`); } catch (error) { setStatus(error.message, true); list.innerHTML = `<div class="empty-state">${escapeHtml(error.message)}${error.message.includes('location') ? '<br><a href="profile">Add or change your location</a>' : '<br><button class="vet-button secondary" onclick="searchClinics()">Retry</button>'}</div>`; }
+        }
+        async function init() { if (!currentUser || !currentUser.id) { window.location.replace('auth.html?mode=login'); return; } initMap(); try { const owner = await getJson(`${API_BASE}/users/${currentUser.id}`); const ownerLocation = owner.location || owner.address_label; document.getElementById('saved-location').innerHTML = ownerLocation ? `<span class="material-icons" style="font-size:1rem;vertical-align:middle;color:var(--success);">check_circle</span> Near ${escapeHtml(ownerLocation)}` : 'Location not added'; if (!ownerLocation) { setStatus('Add your saved location before searching for clinics.', true); list.innerHTML = '<div class="empty-state">Your account does not have a saved location yet.<br><a href="profile">Add your location</a></div>'; return; } pets = await getJson(`${API_BASE}/pets?user_id=${currentUser.id}`); const select = document.getElementById('pet-select'); select.innerHTML = pets.length ? pets.map(pet => `<option value="${pet.id}">${escapeHtml(pet.name)} (${escapeHtml(pet.species || 'Pet')})</option>`).join('') : '<option value="">No pets found</option>'; selectedPet = pets[0]; renderPetSummary(); select.addEventListener('change', () => { selectedPet = pets.find(pet => String(pet.id) === select.value); renderPetSummary(); searchClinics(); }); searchClinics(); } catch (error) { setStatus('We could not load your saved location or pets. Please try again later.', true); } }
+        document.getElementById('radius-select').addEventListener('change', searchClinics);
+        document.getElementById('btn-logout').addEventListener('click', () => { localStorage.removeItem('petziUser'); window.location.replace('auth.html?mode=login'); });
+        init();
+    </script>
+</body>
+</html>

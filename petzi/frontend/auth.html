@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Petzi – Login or Sign Up</title>
+    <meta name="description"
+        content="Login or create your Petzi account to manage your pet's care, medications, and daily activities.">
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="petzi.css">
+    <!-- Petzi Assistant Bot Styles -->
+    <link rel="stylesheet" href="petzi-assistant.css">
+
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            overflow-x: hidden;
+        }
+
+        .auth-page {
+            min-height: 100vh;
+            width: 100%;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            background: var(--petzi-cream);
+        }
+
+        /* Left Panel — Branding & Image Slider */
+        .auth-left {
+            width: 100%;
+            background: var(--petzi-cream);
+            border-right: 1px solid var(--border);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 70px 30px 40px;
+        }
+
+        .auth-nav-brand {
+            position: absolute;
+            top: 24px;
+            left: 32px;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        .auth-nav-brand .nav-brand-name {
+            color: var(--petzi-dark-brown);
+        }
+
+        .auth-left-bg {
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 70% 60% at 30% 20%, rgba(215, 164, 109, 0.15) 0%, transparent 70%),
+                radial-gradient(ellipse 60% 50% at 80% 80%, rgba(240, 213, 179, 0.5) 0%, transparent 60%);
+        }
+
+        .auth-left-content {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            max-width: 520px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        /* Image Carousel */
+        .auth-slider {
+            width: 100%;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            user-select: none;
+        }
+
+        .slider-track {
+            width: 100%;
+            position: relative;
+            min-height: 520px;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+        }
+
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(8px) scale(0.98);
+            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out, visibility 0.5s ease-in-out;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            pointer-events: none;
+        }
+
+        .slide.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0) scale(1);
+            position: relative;
+            pointer-events: auto;
+        }
+
+        .slide-image-wrapper {
+            width: 85%;
+            max-width: 440px;
+            height: 335px;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(107, 56, 37, 0.15), 0 6px 16px rgba(0, 0, 0, 0.05);
+            border: 4px solid #FFFFFF;
+            margin: 0 auto 1.5rem auto;
+            position: relative;
+            background: var(--petzi-beige);
+        }
+
+        .slide-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: transform 5s ease;
+        }
+
+        .slide.active .slide-image {
+            transform: scale(1.03);
+        }
+
+        .slide-text {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .slide-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.85rem;
+            font-weight: 800;
+            line-height: 1.25;
+            color: var(--petzi-dark-brown);
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.02em;
+            text-align: center;
+        }
+
+        .slide-title span {
+            color: var(--petzi-brown);
+        }
+
+        .slide-desc {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            text-align: center;
+            max-width: 400px;
+            min-height: 3.2rem;
+            margin: 0 auto;
+        }
+
+        /* Controls (Arrows & Dots) */
+        .slider-controls-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            margin-top: 1.5rem;
+            z-index: 5;
+        }
+
+        .slider-nav-btn {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: #FFFFFF;
+            border: 1px solid var(--petzi-caramel);
+            color: var(--petzi-dark-brown);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+            outline: none;
+        }
+
+        .slider-nav-btn:hover {
+            background: var(--petzi-brown);
+            color: #FFFFFF;
+            border-color: var(--petzi-brown);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(107, 56, 37, 0.2);
+        }
+
+        .slider-nav-btn:focus-visible {
+            outline: 2px solid var(--petzi-brown);
+            outline-offset: 2px;
+        }
+
+        .slider-dots {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .dot-btn {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--petzi-caramel);
+            opacity: 0.45;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            outline: none;
+        }
+
+        .dot-btn:hover {
+            opacity: 0.8;
+            transform: scale(1.1);
+        }
+
+        .dot-btn.active {
+            width: 26px;
+            border-radius: 13px;
+            background: var(--petzi-brown);
+            opacity: 1;
+        }
+
+        .dot-btn:focus-visible {
+            outline: 2px solid var(--petzi-brown);
+            outline-offset: 2px;
+        }
+
+        .auth-floating-pet {
+            position: absolute;
+            font-size: 5rem;
+            opacity: 0.1;
+            bottom: 30px;
+            right: 30px;
+            pointer-events: none;
+        }
+
+        /* Right Panel — Auth Form (Crisp White) */
+        .auth-right {
+            width: 100%;
+            background: #FFFFFF;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 32px;
+            overflow-y: auto;
+        }
+
+        .auth-form-container {
+            width: 100%;
+            max-width: 420px;
+            margin: 0 auto;
+        }
+
+        /* Tabs */
+        .auth-tabs {
+            display: flex;
+            background: var(--petzi-beige);
+            border: 1px solid var(--petzi-caramel);
+            border-radius: var(--radius-sm);
+            padding: 4px;
+            margin-bottom: 1.75rem;
+        }
+
+        .auth-tab {
+            flex: 1;
+            padding: 9px;
+            border: 1.5px solid transparent;
+            background: transparent;
+            color: var(--petzi-dark-brown);
+            font-size: 0.92rem;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: calc(var(--radius-sm) - 2px);
+            transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .auth-tab:hover:not(.active) {
+            background: #D7A46D;
+            color: #4A2B1A;
+        }
+
+        .auth-tab.active {
+            background: #4A2B1A;
+            color: #FFF3E4;
+            border-color: #4A2B1A;
+            box-shadow: 0 4px 10px rgba(74, 43, 26, 0.18);
+        }
+
+        /* Form panels */
+        .auth-panel {
+            display: none;
+        }
+
+        .auth-panel.active {
+            display: block;
+        }
+
+        .auth-form-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--petzi-dark-brown);
+            margin-bottom: 0.25rem;
+        }
+
+        .auth-form-subtitle {
+            font-size: 0.88rem;
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+        }
+
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .auth-submit-btn {
+            width: 100%;
+            padding: 12px;
+            background: #4A2B1A;
+            color: #FFF3E4;
+            border: 1.5px solid #4A2B1A;
+            border-radius: var(--radius-sm);
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+            box-shadow: var(--shadow-sm);
+            margin-top: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .auth-submit-btn:hover {
+            background: #A56A3E;
+            color: #FFF3E4;
+            border-color: #D7A46D;
+            box-shadow: 0 4px 12px rgba(74, 43, 26, 0.18);
+        }
+
+        .auth-submit-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .auth-switch {
+            text-align: center;
+            font-size: 0.88rem;
+            color: var(--text-muted);
+            margin-top: 1.2rem;
+        }
+
+        .auth-switch button {
+            color: var(--petzi-brown);
+            font-weight: 600;
+            text-decoration: none;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: inherit;
+            font-family: inherit;
+        }
+
+        .auth-switch button:hover {
+            color: var(--petzi-dark-brown);
+            text-decoration: underline;
+        }
+
+        .form-alert {
+            display: none;
+            padding: 10px 14px;
+            border-radius: var(--radius-sm);
+            font-size: 0.88rem;
+            font-weight: 500;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .form-alert.show {
+            display: flex;
+        }
+
+        .form-alert.error {
+            background: #F1D8D0;
+            border: 1px solid #E4C7A5;
+            color: #6B3825;
+        }
+
+        .form-alert.success {
+            background: #E8F1E5;
+            border: 1px solid #D7A46D;
+            color: #3D5A3D;
+        }
+
+        .password-wrapper {
+            position: relative;
+        }
+
+        .password-wrapper input {
+            padding-right: 42px;
+        }
+
+        .btn-toggle-pass {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            padding: 4px;
+        }
+
+        .btn-toggle-pass:hover {
+            color: var(--text-secondary);
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .auth-page {
+                grid-template-columns: 1fr;
+                display: flex;
+                flex-direction: column;
+            }
+
+            .auth-left {
+                width: 100%;
+                padding: 60px 20px 24px;
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+            }
+
+            .auth-nav-brand {
+                top: 16px;
+                left: 20px;
+            }
+
+            .auth-left-content {
+                margin-top: 10px;
+            }
+
+            .slide-image-wrapper {
+                width: 90%;
+                max-width: 360px;
+                height: 260px;
+            }
+
+            .slide-title {
+                font-size: 1.5rem;
+            }
+
+            .slider-track {
+                min-height: 440px;
+            }
+
+            .auth-right {
+                width: 100%;
+                min-height: auto;
+                padding: 30px 20px 40px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="auth-page">
+        <!-- Left branding panel with pet care image carousel -->
+        <div class="auth-left">
+            <div class="auth-left-bg"></div>
+
+            <!-- Shared Petzi Logo (Top-Left matching standard app navbar) -->
+            <a href="home.html" class="nav-brand auth-nav-brand">
+                <div class="nav-brand-icon">🐾</div>
+                <span class="nav-brand-name">Petzi</span>
+            </a>
+
+            <div class="auth-left-content">
+                <!-- Pet Care Image Carousel -->
+                <div class="auth-slider" id="petSlider" aria-label="Petzi feature highlights carousel">
+                    <div class="slider-track">
+                        <!-- Slide 1: Dog -->
+                        <div class="slide active" data-slide="0">
+                            <div class="slide-image-wrapper">
+                                <img src="assets/images/fact-dog.jpg" alt="Friendly Golden Retriever Dog"
+                                    class="slide-image" />
+                            </div>
+                            <div class="slide-text">
+                                <h2 class="slide-title">Every dog deserves<br><span>thoughtful care</span></h2>
+                                <p class="slide-desc">Keep your dog's feeding, walks, medications, and routine health organized.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Slide 2: Cat -->
+                        <div class="slide" data-slide="1">
+                            <div class="slide-image-wrapper">
+                                <img src="assets/images/fact-cat.jpg" alt="Fluffy Cat by window"
+                                    class="slide-image" />
+                            </div>
+                            <div class="slide-text">
+                                <h2 class="slide-title">Thoughtful care<br><span>for feline friends</span></h2>
+                                <p class="slide-desc">Whiskers, wellness, grooming, and cozy sleep routines made stress-free.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Slide 3: Fish -->
+                        <div class="slide" data-slide="2">
+                            <div class="slide-image-wrapper">
+                                <img src="assets/images/fact-fish.jpg" alt="Colorful aquarium fish"
+                                    class="slide-image" />
+                            </div>
+                            <div class="slide-text">
+                                <h2 class="slide-title">Keep aquatic pets<br><span>happy &amp; healthy</span></h2>
+                                <p class="slide-desc">Track feeding schedules, water care, and aquarium routines with ease.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Slide 4: Cow -->
+                        <div class="slide" data-slide="3">
+                            <div class="slide-image-wrapper">
+                                <img src="assets/images/fact-cow.jpg" alt="Friendly Cow in pasture"
+                                    class="slide-image" />
+                            </div>
+                            <div class="slide-text">
+                                <h2 class="slide-title">Farm &amp; field<br><span>livestock care</span></h2>
+                                <p class="slide-desc">Manage health records and feeding routines for farm animals confidently.</p>
+                            </div>
+                        </div>
+
+                        <!-- Slide 5: Hen -->
+                        <div class="slide" data-slide="4">
+                            <div class="slide-image-wrapper">
+                                <img src="assets/images/fact-hen.jpg" alt="Healthy Hen chicken"
+                                    class="slide-image" />
+                            </div>
+                            <div class="slide-text">
+                                <h2 class="slide-title">Poultry &amp; flock<br><span>routine management</span></h2>
+                                <p class="slide-desc">Track vaccination schedules and everyday care for farm poultry.</p>
+                            </div>
+                        </div>
+
+                        <!-- Slide 6: Rabbit -->
+                        <div class="slide" data-slide="5">
+                            <div class="slide-image-wrapper">
+                                <img src="assets/images/fact-rabbit.jpg" alt="Adorable fluffy rabbit"
+                                    class="slide-image" />
+                            </div>
+                            <div class="slide-text">
+                                <h2 class="slide-title">Gentle care<br><span>for small companions</span></h2>
+                                <p class="slide-desc">Keep track of nutrition, dental health, and wellness for your rabbits.</p>
+                            </div>
+                        </div>
+
+                        <!-- Slide 7: Goat -->
+                        <div class="slide" data-slide="6">
+                            <div class="slide-image-wrapper">
+                                <img src="assets/images/fact-goat.jpg" alt="Curious friendly goat"
+                                    class="slide-image" />
+                            </div>
+                            <div class="slide-text">
+                                <h2 class="slide-title">Complete care<br><span>for goats &amp; farm pets</span></h2>
+                                <p class="slide-desc">Everything you need to keep your goats active, healthy, and safe.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Carousel Controls: Prev, Indicator Dots, Next -->
+                    <div class="slider-controls-wrapper">
+                        <button type="button" class="slider-nav-btn" id="sliderPrevBtn" aria-label="Previous Slide">
+                            <span class="material-icons" style="font-size: 1.25rem;">chevron_left</span>
+                        </button>
+                        <div class="slider-dots" id="sliderDots" role="tablist">
+                            <button type="button" class="dot-btn active" data-index="0" aria-label="Go to slide 1"
+                                role="tab" aria-selected="true"></button>
+                            <button type="button" class="dot-btn" data-index="1" aria-label="Go to slide 2" role="tab"
+                                aria-selected="false"></button>
+                            <button type="button" class="dot-btn" data-index="2" aria-label="Go to slide 3" role="tab"
+                                aria-selected="false"></button>
+                            <button type="button" class="dot-btn" data-index="3" aria-label="Go to slide 4" role="tab"
+                                aria-selected="false"></button>
+                            <button type="button" class="dot-btn" data-index="4" aria-label="Go to slide 5" role="tab"
+                                aria-selected="false"></button>
+                            <button type="button" class="dot-btn" data-index="5" aria-label="Go to slide 6" role="tab"
+                                aria-selected="false"></button>
+                            <button type="button" class="dot-btn" data-index="6" aria-label="Go to slide 7" role="tab"
+                                aria-selected="false"></button>
+                        </div>
+                        <button type="button" class="slider-nav-btn" id="sliderNextBtn" aria-label="Next Slide">
+                            <span class="material-icons" style="font-size: 1.25rem;">chevron_right</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="auth-floating-pet">🐾</div>
+        </div>
+
+        <!-- Right form panel -->
+        <div class="auth-right">
+            <div class="auth-form-container">
+
+                <!-- Tab switcher -->
+                <div class="auth-tabs" role="tablist">
+                    <button class="auth-tab active" id="tab-login" role="tab" onclick="switchTab('login')">
+                        Login
+                    </button>
+                    <button class="auth-tab" id="tab-signup" role="tab" onclick="switchTab('signup')">
+                        Sign Up
+                    </button>
+                </div>
+
+                <!-- LOGIN PANEL -->
+                <div class="auth-panel active" id="panel-login">
+                    <div class="auth-form-title">Welcome back! </div>
+                    <div class="auth-form-subtitle">Sign in to view your pets and today's schedule.</div>
+
+                    <div class="form-alert" id="login-alert"></div>
+
+                    <form class="auth-form" id="login-form" novalidate>
+                        <div class="form-field">
+                            <label for="login-email">Email Address <span class="req">*</span></label>
+                            <input type="email" id="login-email" placeholder="you@example.com" autocomplete="email">
+                            <span class="field-error" id="login-email-err"></span>
+                        </div>
+                        <div class="form-field">
+                            <label for="login-password">Password <span class="req">*</span></label>
+                            <div class="password-wrapper">
+                                <input type="password" id="login-password" placeholder="Your password"
+                                    autocomplete="current-password">
+                                <button type="button" class="btn-toggle-pass"
+                                    onclick="togglePass('login-password', this)">
+                                    <span class="material-icons" style="font-size:1.1rem;">visibility</span>
+                                </button>
+                            </div>
+                            <span class="field-error" id="login-pass-err"></span>
+                        </div>
+                        <button type="submit" class="auth-submit-btn" id="btn-login-submit">
+                            <span class="material-icons">login</span>
+                            Sign In
+                        </button>
+                    </form>
+
+                    <div class="auth-switch">
+                        Don't have an account?
+                        <button onclick="switchTab('signup')">Create one</button>
+                    </div>
+                </div>
+
+                <!-- SIGNUP PANEL -->
+                <div class="auth-panel" id="panel-signup">
+                    <div class="auth-form-title">Create your account 🐾</div>
+                    <div class="auth-form-subtitle">Join Petzi and manage your pet's care with ease.</div>
+
+                    <div class="form-alert" id="signup-alert"></div>
+
+                    <form class="auth-form" id="signup-form" novalidate>
+                        <div class="form-row">
+                            <div class="form-field">
+                                <label for="signup-name">Full Name <span class="req">*</span></label>
+                                <input type="text" id="signup-name" placeholder="Jane Smith" autocomplete="name">
+                                <span class="field-error" id="signup-name-err"></span>
+                            </div>
+                            <div class="form-field">
+                                <label for="signup-age">Age <span class="req">*</span></label>
+                                <input type="number" id="signup-age" placeholder="25" min="1" max="120">
+                                <span class="field-error" id="signup-age-err"></span>
+                            </div>
+                        </div>
+                        <div class="form-field">
+                            <label for="signup-email">Email Address <span class="req">*</span></label>
+                            <input type="email" id="signup-email" placeholder="you@example.com" autocomplete="email">
+                            <span class="field-error" id="signup-email-err"></span>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-field">
+                                <label for="signup-phone">Phone Number <span class="req">*</span></label>
+                                <input type="tel" id="signup-phone" placeholder="+91 9999999999" autocomplete="tel">
+                                <span class="field-error" id="signup-phone-err"></span>
+                            </div>
+                            <div class="form-field">
+                                <label for="signup-gender">Gender <span class="req">*</span></label>
+                                <select id="signup-gender" autocomplete="sex">
+                                    <option value="">Select Gender</option>
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                    <option value="Non-binary">Non-binary</option>
+                                    <option value="Prefer not to say">Prefer not to say</option>
+                                </select>
+                                <span class="field-error" id="signup-gender-err"></span>
+                            </div>
+                        </div>
+                        <div class="form-field">
+                            <label for="signup-password">Password <span class="req">*</span></label>
+                            <div class="password-wrapper">
+                                <input type="password" id="signup-password" placeholder="At least 6 characters"
+                                    autocomplete="new-password">
+                                <button type="button" class="btn-toggle-pass"
+                                    onclick="togglePass('signup-password', this)">
+                                    <span class="material-icons" style="font-size:1.1rem;">visibility</span>
+                                </button>
+                            </div>
+                            <span class="field-error" id="signup-pass-err"></span>
+                        </div>
+                        <div class="form-field">
+                            <label for="signup-confirm">Confirm Password <span class="req">*</span></label>
+                            <div class="password-wrapper">
+                                <input type="password" id="signup-confirm" placeholder="Repeat password"
+                                    autocomplete="new-password">
+                                <button type="button" class="btn-toggle-pass"
+                                    onclick="togglePass('signup-confirm', this)">
+                                    <span class="material-icons" style="font-size:1.1rem;">visibility</span>
+                                </button>
+                            </div>
+                            <span class="field-error" id="signup-confirm-err"></span>
+                        </div>
+                        <button type="submit" class="auth-submit-btn" id="btn-signup-submit">
+                            <span class="material-icons">person_add</span>
+                            Create Account
+                        </button>
+                    </form>
+
+                    <div class="auth-switch">
+                        Already have an account?
+                        <button onclick="switchTab('login')">Sign in</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="petzi-toast-container" id="toast-container"></div>
+
+    <script src="auth.js"></script>
+    <script>
+        // ---- Check if already logged in ----
+        if (window.Auth && window.Auth.isAuthenticated()) {
+            window.location.replace('pets.html');
+        }
+
+        // ---- Image Slider / Carousel Logic ----
+        (function initPetSlider() {
+            const slider = document.getElementById('petSlider');
+            if (!slider) return;
+
+            const slides = slider.querySelectorAll('.slide');
+            const dots = slider.querySelectorAll('.dot-btn');
+            const prevBtn = document.getElementById('sliderPrevBtn');
+            const nextBtn = document.getElementById('sliderNextBtn');
+
+            if (!slides.length) return;
+
+            let currentIndex = 0;
+            let autoPlayTimer = null;
+            const intervalTime = 4500;
+
+            function showSlide(index) {
+                if (index < 0) {
+                    currentIndex = slides.length - 1;
+                } else if (index >= slides.length) {
+                    currentIndex = 0;
+                } else {
+                    currentIndex = index;
+                }
+
+                slides.forEach((slide, idx) => {
+                    if (idx === currentIndex) {
+                        slide.classList.add('active');
+                    } else {
+                        slide.classList.remove('active');
+                    }
+                });
+
+                dots.forEach((dot, idx) => {
+                    if (idx === currentIndex) {
+                        dot.classList.add('active');
+                        dot.setAttribute('aria-selected', 'true');
+                    } else {
+                        dot.classList.remove('active');
+                        dot.setAttribute('aria-selected', 'false');
+                    }
+                });
+            }
+
+            function nextSlide() {
+                showSlide(currentIndex + 1);
+            }
+
+            function prevSlide() {
+                showSlide(currentIndex - 1);
+            }
+
+            function startAutoPlay() {
+                stopAutoPlay();
+                autoPlayTimer = setInterval(nextSlide, intervalTime);
+            }
+
+            function stopAutoPlay() {
+                if (autoPlayTimer) {
+                    clearInterval(autoPlayTimer);
+                    autoPlayTimer = null;
+                }
+            }
+
+            function resetAutoPlay() {
+                stopAutoPlay();
+                startAutoPlay();
+            }
+
+            if (prevBtn) {
+                prevBtn.addEventListener('click', () => {
+                    prevSlide();
+                    resetAutoPlay();
+                });
+            }
+
+            if (nextBtn) {
+                nextBtn.addEventListener('click', () => {
+                    nextSlide();
+                    resetAutoPlay();
+                });
+            }
+
+            dots.forEach((dot, idx) => {
+                dot.addEventListener('click', () => {
+                    showSlide(idx);
+                    resetAutoPlay();
+                });
+            });
+
+            // Pause autoplay on mouse enter / touch, resume on mouse leave / touch end
+            slider.addEventListener('mouseenter', stopAutoPlay);
+            slider.addEventListener('mouseleave', startAutoPlay);
+            slider.addEventListener('touchstart', stopAutoPlay, { passive: true });
+            slider.addEventListener('touchend', startAutoPlay, { passive: true });
+
+            showSlide(0);
+            startAutoPlay();
+        })();
+
+        // ---- Read URL param to determine initial tab ----
+        const urlParams = new URLSearchParams(window.location.search);
+        const initMode = urlParams.get('mode') || 'login';
+        if (initMode === 'signup') switchTabDirect('signup');
+
+        function switchTabDirect(tab) {
+            document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.auth-panel').forEach(p => p.classList.remove('active'));
+            document.getElementById('tab-' + tab).classList.add('active');
+            document.getElementById('panel-' + tab).classList.add('active');
+        }
+
+        function switchTab(tab) {
+            switchTabDirect(tab);
+            clearAlerts();
+        }
+
+        function clearAlerts() {
+            document.querySelectorAll('.form-alert').forEach(a => {
+                a.className = 'form-alert';
+                a.textContent = '';
+            });
+            document.querySelectorAll('.field-error').forEach(e => {
+                e.className = 'field-error';
+                e.textContent = '';
+            });
+        }
+
+        // ---- Toggle password visibility ----
+        function togglePass(inputId, btn) {
+            const input = document.getElementById(inputId);
+            const icon = btn.querySelector('.material-icons');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.textContent = 'visibility_off';
+            } else {
+                input.type = 'password';
+                icon.textContent = 'visibility';
+            }
+        }
+
+        // ---- Show alert in form ----
+        function showAlert(id, type, message) {
+            const el = document.getElementById(id);
+            el.className = 'form-alert show ' + type;
+            el.innerHTML = `<span class="material-icons" style="font-size:1.1rem;">${type === 'error' ? 'error_outline' : 'check_circle'}</span> ${message}`;
+        }
+
+        function showFieldError(id, message) {
+            const el = document.getElementById(id);
+            if (el) {
+                el.textContent = message;
+                el.className = 'field-error visible';
+            }
+        }
+
+        // ---- Validate email ----
+        function isValidEmail(email) {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        }
+
+        // ---- Toast ----
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `petzi-toast ${type}`;
+            toast.innerHTML = `<span class="material-icons" style="font-size:1.1rem;">${type === 'success' ? 'check_circle' : 'error'}</span> ${message}`;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transition = 'opacity 0.3s';
+                setTimeout(() => toast.remove(), 300);
+            }, 4000);
+        }
+
+        // ---- LOGIN ----
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            clearAlerts();
+
+            const email = document.getElementById('login-email').value.trim();
+            const password = document.getElementById('login-password').value;
+            let valid = true;
+
+            if (!email) { showFieldError('login-email-err', 'Email is required'); valid = false; }
+            else if (!isValidEmail(email)) { showFieldError('login-email-err', 'Enter a valid email address'); valid = false; }
+            if (!password) { showFieldError('login-pass-err', 'Password is required'); valid = false; }
+            if (!valid) return;
+
+            const btn = document.getElementById('btn-login-submit');
+            if (btn.disabled) return; // Prevent double submission
+            btn.disabled = true;
+            btn.innerHTML = `<div class="spinner" style="width:18px;height:18px;border-width:2px;"></div> Signing in...`;
+
+            try {
+                const res = await fetch('/api/users/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await res.json();
+
+                if (!res.ok) {
+                    showAlert('login-alert', 'error', data.error || 'Login failed. Please try again.');
+                    btn.disabled = false;
+                    btn.innerHTML = `<span class="material-icons">login</span> Sign In`;
+                    return;
+                }
+
+                // Store user and token in localStorage via Auth utility, which validates token
+                try {
+                    window.Auth.setAuth(data.token, data.user);
+                } catch (authErr) {
+                    showAlert('login-alert', 'error', authErr.message);
+                    btn.disabled = false;
+                    btn.innerHTML = `<span class="material-icons">login</span> Sign In`;
+                    return;
+                }
+
+                showToast('Welcome back, ' + data.user.name.split(' ')[0] + '! 🐾');
+                window.location.replace('pets.html');
+
+            } catch (err) {
+                console.error(err);
+                showAlert('login-alert', 'error', 'Could not connect to server. Please try again.');
+                btn.disabled = false;
+                btn.innerHTML = `<span class="material-icons">login</span> Sign In`;
+            }
+        });
+
+        // ---- SIGNUP ----
+        document.getElementById('signup-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            clearAlerts();
+
+            const name = document.getElementById('signup-name').value.trim();
+            const age = document.getElementById('signup-age').value.trim();
+            const email = document.getElementById('signup-email').value.trim();
+            const phone = document.getElementById('signup-phone').value.trim();
+            const gender = document.getElementById('signup-gender').value;
+            const password = document.getElementById('signup-password').value;
+            const confirm = document.getElementById('signup-confirm').value;
+
+            let valid = true;
+
+            if (!name) { showFieldError('signup-name-err', 'Name is required'); valid = false; }
+            if (!age || isNaN(age) || parseInt(age) < 1) { showFieldError('signup-age-err', 'Enter a valid age'); valid = false; }
+            if (!email) { showFieldError('signup-email-err', 'Email is required'); valid = false; }
+            else if (!isValidEmail(email)) { showFieldError('signup-email-err', 'Enter a valid email address'); valid = false; }
+            if (!phone) { showFieldError('signup-phone-err', 'Phone number is required'); valid = false; }
+            if (!gender) { showFieldError('signup-gender-err', 'Please select your gender'); valid = false; }
+            if (!password) { showFieldError('signup-pass-err', 'Password is required'); valid = false; }
+            else if (password.length < 6) { showFieldError('signup-pass-err', 'Password must be at least 6 characters'); valid = false; }
+            if (!confirm) { showFieldError('signup-confirm-err', 'Please confirm your password'); valid = false; }
+            else if (password !== confirm) { showFieldError('signup-confirm-err', 'Passwords do not match'); valid = false; }
+
+            if (!valid) return;
+
+            const btn = document.getElementById('btn-signup-submit');
+            if (btn.disabled) return; // Prevent double submission
+            btn.disabled = true;
+            btn.innerHTML = `<div class="spinner" style="width:18px;height:18px;border-width:2px;"></div> Creating account...`;
+
+            try {
+                const res = await fetch('/api/users/signup', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, age, email, phone, gender, password, confirm_password: confirm })
+                });
+                const data = await res.json();
+
+                if (!res.ok) {
+                    showAlert('signup-alert', 'error', data.error || 'Sign up failed. Please try again.');
+                    btn.disabled = false;
+                    btn.innerHTML = `<span class="material-icons">person_add</span> Create Account`;
+                    return;
+                }
+
+                // Store user and token
+                try {
+                    window.Auth.setAuth(data.token, data.user);
+                } catch (authErr) {
+                    showAlert('signup-alert', 'error', authErr.message);
+                    btn.disabled = false;
+                    btn.innerHTML = `<span class="material-icons">person_add</span> Create Account`;
+                    return;
+                }
+
+                showToast('Account created! Welcome to Petzi 🐾');
+                window.location.replace('pets.html');
+
+            } catch (err) {
+                console.error(err);
+                showAlert('signup-alert', 'error', 'Could not connect to server. Please try again.');
+                btn.disabled = false;
+                btn.innerHTML = `<span class="material-icons">person_add</span> Create Account`;
+            }
+        });
+    </script>
+
+    <!-- Petzi Assistant Bot Script -->
+    <script src="petzi-assistant.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Petzi</title>
+
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <!-- Google Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <!-- Custom Style Sheet -->
+    <link rel="stylesheet" href="style.css">
+    <!-- Petzi Assistant Bot Styles -->
+    <link rel="stylesheet" href="petzi-assistant.css">
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+
+<body>
+    <!-- App Header & Navigation -->
+    <header class="app-header">
+        <div class="header-container">
+            <h1 class="app-title">
+                <span class="material-icons title-icon">pets</span>
+                Petzi
+            </h1>
+            <nav class="app-nav">
+                <a href="pets.html" class="nav-btn"
+                    style="text-decoration:none; display:inline-flex; align-items:center;">
+                    <span class="material-icons">arrow_back</span> My Pets
+                </a>
+                <a href="vets.html" class="nav-btn"
+                    style="text-decoration:none; display:inline-flex; align-items:center;">
+                    <span class="material-icons">local_hospital</span> Find a Vet
+                </a>
+                <a href="appointments.html" class="nav-btn"
+                    style="text-decoration:none; display:inline-flex; align-items:center;">
+                    <span class="material-icons">event</span> Appointments
+                </a>
+                <select id="header-pet-selector">
+                    <option value="">Loading Pets...</option>
+                </select>
+                <button class="nav-btn active" data-target="dashboard-section">
+                    <span class="material-icons">dashboard</span> Dashboard
+                </button>
+                <button class="nav-btn" data-target="profile-section">
+                    <span class="material-icons">person</span> Pet Profile
+                </button>
+                <button class="nav-btn" data-target="medications-section">
+                    <span class="material-icons">vaccines</span> Medications
+                </button>
+                <button class="nav-btn" data-target="vaccines-section">
+                    <span class="material-icons">shield</span> Vaccines
+                </button>
+                <button class="nav-btn" data-target="grooming-section">
+                    <span class="material-icons">spa</span> Grooming
+                </button>
+                <button class="nav-btn" data-target="vet-visits-section">
+                    <span class="material-icons">medical_services</span> Vet Visits
+                </button>
+                <button class="nav-btn" data-target="history-section">
+                    <span class="material-icons">history</span> History
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Success/Error Alert Banner -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Active Medication Reminder Overlay/Banner (In-app Notification) -->
+    <div id="reminder-overlay" class="reminder-overlay hidden">
+        <div class="reminder-card">
+            <div class="reminder-header">
+                <span class="material-icons reminder-icon animate-pulse">alarm</span>
+                <h3>Medication Reminder</h3>
+            </div>
+            <div class="reminder-body">
+                <p id="reminder-text">Bruno needs Antibiotic — 5 ml</p>
+            </div>
+            <div class="reminder-actions">
+                <button id="btn-reminder-given" class="btn btn-primary btn-given">
+                    <span class="material-icons">check_circle</span> Mark as Given
+                </button>
+                <button id="btn-reminder-snooze" class="btn btn-secondary btn-snooze">
+                    <span class="material-icons">snooze</span> Snooze (5m)
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <main class="app-main">
+
+        <!-- SECTION: DASHBOARD -->
+        <section id="dashboard-section" class="tab-content active">
+            <!-- Grid Layout: Profile & Quick Actions -->
+            <div class="dashboard-grid">
+
+                <!-- Pet Profile Card -->
+                <div class="card pet-profile-card">
+                    <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                        <h2>Pet Profile</h2>
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            <button id="btn-export-pdf" class="btn-icon" title="Export Health Report (PDF)" style="color: var(--petzi-brown); background: transparent; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 4px;">
+                                <span class="material-icons" style="font-size: 1.35rem;">picture_as_pdf</span>
+                            </button>
+                            <button id="btn-edit-pet-quick" class="btn-icon" title="Edit Pet">
+                                <span class="material-icons">edit</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="profile-details-wrapper">
+                        <div class="profile-avatar">
+                            <span class="material-icons">pets</span>
+                        </div>
+                        <div class="profile-grid">
+                            <div class="profile-item">
+                                <span class="label">Pet Name</span>
+                                <span class="value" id="display-pet-name">Bruno</span>
+                            </div>
+                            <div class="profile-item">
+                                <span class="label">Age</span>
+                                <span class="value" id="display-pet-age">3 years</span>
+                            </div>
+                            <div class="profile-item">
+                                <span class="label">Breed</span>
+                                <span class="value" id="display-pet-breed">Labrador</span>
+                            </div>
+                            <div class="profile-item">
+                                <span class="label">Gender</span>
+                                <span class="value" id="display-pet-gender">Male</span>
+                            </div>
+                            <div class="profile-item">
+                                <span class="label">Weight</span>
+                                <span class="value" id="display-pet-weight">24 kg</span>
+                            </div>
+                            <div class="profile-item">
+                                <span class="label">Owner Name</span>
+                                <span class="value" id="display-pet-owner">Pet Owner</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pet Wellness Score Card -->
+                <div class="card wellness-card" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center; background: var(--bg-card); border: 1.5px solid var(--border-color); border-radius: var(--radius-md); box-shadow: var(--shadow-sm); transition: var(--transition);">
+                    <div class="card-header" style="width: 100%; display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: none; padding-bottom: 0;">
+                        <h2>Wellness Score</h2>
+                        <span class="material-icons" style="color: var(--petzi-brown);">favorite</span>
+                    </div>
+                    <div class="wellness-gauge-wrapper" style="position: relative; width: 120px; height: 120px; margin: 10px 0;">
+                        <svg width="120" height="120" viewBox="0 0 120 120" style="transform: rotate(-90deg);">
+                            <circle cx="60" cy="60" r="50" fill="transparent" stroke="var(--petzi-beige)" stroke-width="10"></circle>
+                            <circle id="wellness-gauge-fill" cx="60" cy="60" r="50" fill="transparent" stroke="var(--petzi-brown)" stroke-width="10" stroke-dasharray="314.16" stroke-dashoffset="314.16" style="transition: stroke-dashoffset 0.8s cubic-bezier(0.4, 0, 0.2, 1);"></circle>
+                        </svg>
+                        <div id="wellness-score-text" style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: var(--font-heading); font-size: 1.6rem; font-weight: 800; color: var(--petzi-dark-brown);">0%</div>
+                    </div>
+                    <div id="wellness-status" style="font-weight: 700; font-size: 0.95rem; color: var(--petzi-dark-brown); margin-top: 10px; font-family: var(--font-heading);">Checking score...</div>
+                    <p id="wellness-tip" style="font-size: 0.82rem; color: var(--color-text-secondary); margin-top: 4px; line-height: 1.4; max-width: 220px;"></p>
+                </div>
+
+                <!-- Special Instructions Card -->
+                <div class="card special-instructions-card">
+                    <div class="card-header">
+                        <h2>Special Instructions</h2>
+                        <span class="material-icons warning-icon-header">error_outline</span>
+                    </div>
+                    <div class="instructions-body">
+                        <p id="display-special-instructions">Loading special instructions...</p>
+                    </div>
+                </div>
+
+                <!-- Suggested Products Card -->
+                <div class="card suggested-products-card" style="background: var(--bg-card); border: 1.5px solid var(--border-color); border-radius: var(--radius-md); box-shadow: var(--shadow-sm); padding: 20px;">
+                    <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1.5px solid var(--border-color); padding-bottom: 10px; margin-bottom: 15px;">
+                        <h2 id="suggested-products-title" style="margin: 0; font-size: 1.2rem; font-family: var(--font-heading); color: var(--petzi-dark-brown);">Suggested Products</h2>
+                        <span class="material-icons" style="color: var(--petzi-brown);">shopping_bag</span>
+                    </div>
+                    <div class="suggested-products-body" id="suggested-products-list" style="display: flex; flex-direction: column; gap: 14px;">
+                        <!-- Product suggestions injected dynamically -->
+                        <p style="color: var(--color-text-secondary); font-size: 0.88rem; text-align: center; margin: 10px 0;">No recommendations loaded.</p>
+                    </div>
+                </div>
+
+                <!-- Supplies Card -->
+                <div class="card supplies-card">
+                    <div class="card-header"
+                        style="display: flex; justify-content: space-between; align-items: center;">
+                        <h2>Supplies Stock</h2>
+                        <button id="btn-add-supply-trigger" class="btn-icon" title="Add Supply Item"
+                            style="background: transparent; border: none; cursor: pointer; color: var(--petzi-brown); display: flex; align-items: center; justify-content: center; padding: 4px; border-radius: 50%;">
+                            <span class="material-icons" style="font-size: 1.5rem;">add_circle_outline</span>
+                        </button>
+                    </div>
+                    <div class="supplies-body" id="supplies-list-container">
+                        <!-- Supply items injected here dynamically -->
+                        <div id="supplies-empty" class="empty-state" style="padding: 10px 0; text-align: center;">
+                            <span class="material-icons"
+                                style="font-size: 1.8rem; color: var(--color-text-muted);">inventory_2</span>
+                            <p style="font-size: 0.88rem; margin: 4px 0 0; color: var(--color-text-muted);">No supply
+                                items tracked yet.</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Pet Photo Timeline -->
+            <div class="card photo-timeline-card">
+                <div class="card-header">
+                    <h2>Photo Timeline</h2>
+                    <span class="material-icons">photo_camera</span>
+                </div>
+                <div class="carousel-container">
+                    <button class="carousel-btn prev-btn" id="carousel-prev" aria-label="Previous photos">
+                        <span class="material-icons">chevron_left</span>
+                    </button>
+                    <div class="carousel-track-wrapper">
+                        <div class="carousel-track" id="photo-carousel-track">
+                            <!-- Photo slides injected here dynamically -->
+                        </div>
+                    </div>
+                    <button class="carousel-btn next-btn" id="carousel-next" aria-label="Next photos">
+                        <span class="material-icons">chevron_right</span>
+                    </button>
+                </div>
+                <div class="carousel-controls">
+                    <div class="carousel-dots" id="carousel-dots"></div>
+                    <div class="carousel-actions">
+                        <button class="btn btn-text" id="btn-view-all-photos">View all photos</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Action Buttons -->
+            <div class="card action-card">
+                <h2 class="section-subtitle">Today's Care Activities</h2>
+                <p class="section-description">Quick log activities performed today. Each click immediately updates
+                    history.</p>
+
+                <div class="quick-actions-grid">
+                    <!-- Feeding Button -->
+                    <div class="action-btn-container">
+                        <button class="quick-action-btn feed-btn" data-activity="Feeding">
+                            <span class="material-icons action-icon">restaurant</span>
+                            <span class="btn-text">Logged Feeding</span>
+                        </button>
+                        <span class="last-done-timer" id="timer-feeding">Last Feeding: Loading...</span>
+                    </div>
+
+                    <!-- Walking Button -->
+                    <div class="action-btn-container">
+                        <button class="quick-action-btn walk-btn" data-activity="Walking">
+                            <span class="material-icons action-icon">directions_walk</span>
+                            <span class="btn-text">Logged Walk</span>
+                        </button>
+                        <span class="last-done-timer" id="timer-walking">Last Walk: Loading...</span>
+                    </div>
+
+                    <!-- Medication Button -->
+                    <div class="action-btn-container">
+                        <button class="quick-action-btn med-btn" id="btn-quick-med" data-activity="Medication">
+                            <span class="material-icons action-icon">medication</span>
+                            <span class="btn-text">Logged Medication</span>
+                        </button>
+                        <span class="last-done-timer" id="timer-medication">Last Medication: Loading...</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Today's Activity Timeline -->
+            <div class="card timeline-card">
+                <h2 class="section-subtitle">Today's Activity Timeline</h2>
+                <p class="section-description">Chronological checklist of activities recorded since midnight.</p>
+
+                <div id="timeline-empty" class="empty-state">
+                    <span class="material-icons">history_toggle_off</span>
+                    <p>No activities logged yet today.</p>
+                </div>
+
+                <div id="timeline-container" class="timeline-container">
+                    <!-- Timeline items will be rendered here dynamically -->
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: PET PROFILE -->
+        <section id="profile-section" class="tab-content">
+            <div class="card form-card">
+                <h2>Manage Pet Profile</h2>
+                <p class="form-description">Enter pet information stored securely in the SQLite database.</p>
+
+                <form id="pet-profile-form">
+                    <div class="form-group-row">
+                        <div class="form-group">
+                            <label for="pet-name">Pet Name <span class="required">*</span></label>
+                            <input type="text" id="pet-name" required placeholder="e.g. Bruno">
+                        </div>
+                        <div class="form-group">
+                            <label for="pet-owner">Owner Name</label>
+                            <input type="text" id="pet-owner" placeholder="e.g. John Doe">
+                        </div>
+                    </div>
+
+                    <div class="form-group-row">
+                        <div class="form-group">
+                            <label for="pet-breed">Breed</label>
+                            <input type="text" id="pet-breed" placeholder="e.g. Labrador Retriever">
+                        </div>
+                        <div class="form-group">
+                            <label for="pet-gender">Gender</label>
+                            <select id="pet-gender">
+                                <option value="">Select Gender</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Neutered Male">Neutered Male</option>
+                                <option value="Spayed Female">Spayed Female</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group-row">
+                        <div class="form-group">
+                            <label for="pet-age">Age</label>
+                            <div style="display: flex; gap: 8px;">
+                                <input type="number" id="pet-age" min="0" placeholder="e.g. 5" style="flex: 1;">
+                                <select id="pet-age-unit"
+                                    style="width: 105px; padding: 8px; border: 1.5px solid #D7A46D; border-radius: 8px; font-weight: 500; background: #FFF3E4; color: #4A2B1A;">
+                                    <option value="years">Years</option>
+                                    <option value="months">Months</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="pet-weight">Weight (kg)</label>
+                            <input type="number" id="pet-weight" step="0.1" min="0" placeholder="e.g. 24.5">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="pet-instructions">Special Instructions (Allergies, Vet Contacts, Notes)</label>
+                        <textarea id="pet-instructions" rows="4"
+                            placeholder="e.g. Bruno is allergic to chicken. Vet Number: +1 (555) 123-4567."></textarea>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">
+                            <span class="material-icons">save</span> Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <!-- SECTION: MEDICATIONS -->
+        <section id="medications-section" class="tab-content">
+            <div class="medications-grid">
+
+                <!-- Medication Form Card -->
+                <div class="card form-card">
+                    <h2 id="med-form-title">Schedule New Medication</h2>
+                    <p class="form-description">Set up recurring reminders and instructions.</p>
+
+                    <form id="medication-form">
+                        <input type="hidden" id="med-id">
+
+                        <div class="form-group">
+                            <label for="med-name">Medication Name <span class="required">*</span></label>
+                            <input type="text" id="med-name" required placeholder="e.g. Antibiotic">
+                        </div>
+
+                        <div class="form-group-row">
+                            <div class="form-group">
+                                <label for="med-dosage">Dosage <span class="required">*</span></label>
+                                <input type="text" id="med-dosage" required placeholder="e.g. 5 ml or 1 tablet">
+                            </div>
+                            <div class="form-group">
+                                <label for="med-frequency">Frequency</label>
+                                <input type="text" id="med-frequency" placeholder="e.g. Twice a day">
+                            </div>
+                        </div>
+
+                        <div class="form-group-row">
+                            <div class="form-group">
+                                <label for="med-start-date">Start Date</label>
+                                <input type="date" id="med-start-date">
+                            </div>
+                            <div class="form-group">
+                                <label for="med-end-date">End Date</label>
+                                <input type="date" id="med-end-date">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="med-time">Reminder Time <span class="required">*</span></label>
+                            <input type="time" id="med-time" required>
+                            <span class="time-format-hint">Note: System triggers alert daily at this time.</span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="med-sound-type">Reminder Sound <span class="required">*</span></label>
+                            <select id="med-sound-type"
+                                style="width: 100%; padding: 10px; border: 1.5px solid #D7A46D; border-radius: 8px; font-size: 0.95rem; background: #FFF3E4; color: #4A2B1A; font-weight: 500;">
+                                <option value="DEFAULT">Use Default Sound</option>
+                                <option value="CUSTOM">Custom Sound</option>
+                            </select>
+                        </div>
+
+                        <div id="custom-sound-container" class="form-group hidden"
+                            style="background: #FFF8EE; border: 1.5px dashed #D7A46D; padding: 12px; border-radius: 10px; margin-top: -4px;">
+                            <label for="med-custom-sound-file"
+                                style="display: block; margin-bottom: 6px; font-weight: 600; color: #4A2B1A; font-size: 0.9rem;">Choose
+                                Audio File (Max 10MB)</label>
+                            <input type="file" id="med-custom-sound-file" accept="audio/*,.mp3,.wav,.ogg,.m4a"
+                                style="font-size: 0.88rem; width: 100%;">
+                            <div id="custom-sound-info"
+                                style="margin-top: 8px; font-size: 0.85rem; color: #2E7D32; display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+                                <span id="custom-sound-filename"
+                                    style="font-weight: 500; word-break: break-all;"></span>
+                                <button type="button" id="btn-preview-custom-sound" class="btn btn-secondary hidden"
+                                    style="padding: 4px 10px; font-size: 0.8rem; height: auto;">
+                                    <span class="material-icons"
+                                        style="font-size: 1rem; vertical-align: middle;">play_arrow</span> Preview
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="med-notes">Notes</label>
+                            <textarea id="med-notes" rows="2" placeholder="e.g. Give after food."></textarea>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="button" id="btn-med-cancel" class="btn btn-secondary hidden">Cancel</button>
+                            <button type="submit" id="btn-med-submit" class="btn btn-primary">
+                                <span class="material-icons">add_alarm</span> Add Schedule
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Medication Lists Card -->
+                <div class="card list-card">
+                    <h2>Active Medication Schedules</h2>
+                    <p class="section-description">Medications currently scheduled for your pets.</p>
+
+
+                    <div id="medications-empty" class="empty-state">
+                        <span class="material-icons">healing</span>
+                        <p>No medication schedules set up yet.</p>
+                    </div>
+
+                    <div id="medications-list" class="medications-list">
+                        <!-- Medication schedule cards will be rendered here dynamically -->
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- SECTION: HISTORY -->
+        <section id="history-section" class="tab-content">
+            <div class="card history-main-card">
+                <div class="history-header">
+                    <div>
+                        <h2>Activity History</h2>
+                        <p class="section-description">A searchable record of all logged pet activities.</p>
+                    </div>
+                    <button id="btn-export-history" class="btn btn-secondary">
+                        <span class="material-icons">content_copy</span> Export History
+                    </button>
+                </div>
+
+                <!-- Filters -->
+                <div class="filters-panel">
+                    <div class="filter-group">
+                        <label for="filter-date">Date</label>
+                        <input type="date" id="filter-date">
+                    </div>
+                    <div class="filter-group">
+                        <label for="filter-type">Activity Type</label>
+                        <select id="filter-type">
+                            <option value="">All Activities</option>
+                            <option value="Feeding">Feeding</option>
+                            <option value="Walking">Walking</option>
+                            <option value="Medication">Medication</option>
+                        </select>
+                    </div>
+                    <button id="btn-clear-filters" class="btn btn-text">Clear</button>
+                </div>
+
+                <!-- History Table / Content -->
+                <div class="history-content">
+                    <div id="history-empty" class="empty-state hidden">
+                        <span class="material-icons">search_off</span>
+                        <p>No records found matching filters.</p>
+                    </div>
+
+                    <table class="history-table" id="history-table">
+                        <thead>
+                            <tr>
+                                <th>Date & Time</th>
+                                <th>Activity Type</th>
+                                <th>Details & Notes</th>
+                            </tr>
+                        </thead>
+                        <tbody id="history-table-body">
+                            <!-- History rows will be rendered here dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: VACCINES -->
+        <section id="vaccines-section" class="tab-content">
+            <div class="card vaccines-main-card">
+                <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1.5px solid var(--border-color); padding-bottom: 14px; margin-bottom: 20px;">
+                    <div>
+                        <h2>Vaccination Records</h2>
+                        <p class="section-description" style="margin: 4px 0 0 0; color: var(--color-text-secondary); font-size: 0.88rem;">Track medical vaccine dates, batches, and health compliance.</p>
+                    </div>
+                    <button id="btn-add-vaccine" class="btn btn-primary">
+                        <span class="material-icons" style="margin-right: 4px; vertical-align: middle;">add</span> Add Vaccine Record
+                    </button>
+                </div>
+
+                <div id="vaccines-empty" class="empty-state">
+                    <span class="material-icons" style="font-size: 3rem; color: var(--petzi-caramel); margin-bottom: 8px;">shield</span>
+                    <p style="font-weight: 600; color: var(--petzi-dark-brown);">No vaccine records tracked yet.</p>
+                    <p style="font-size: 0.82rem; color: var(--color-text-secondary); margin-top: 2px;">Keep your pet safe by logging their shots and setting next-due dates.</p>
+                </div>
+
+                <div id="vaccines-list" class="vaccines-list-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px;">
+                    <!-- Vaccine cards rendered dynamically -->
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: GROOMING & HYGIENE LOG -->
+        <section id="grooming-section" class="tab-content">
+            <div class="card grooming-main-card">
+                <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1.5px solid var(--border-color); padding-bottom: 14px; margin-bottom: 20px;">
+                    <div>
+                        <h2>Grooming &amp; Hygiene Log</h2>
+                        <p class="section-description" style="margin: 4px 0 0 0; color: var(--color-text-secondary); font-size: 0.88rem;">Track baths, nail trims, hair trims, teeth brushing, and ear cleanings.</p>
+                    </div>
+                    <button id="btn-add-grooming" class="btn btn-primary">
+                        <span class="material-icons" style="margin-right: 4px; vertical-align: middle;">add</span> Log Grooming
+                    </button>
+                </div>
+
+                <div id="grooming-empty" class="empty-state" style="margin-top: 30px;">
+                    <span class="material-icons" style="font-size: 3rem; color: var(--petzi-caramel); margin-bottom: 8px;">spa</span>
+                    <p style="font-weight: 600; color: var(--petzi-dark-brown);">No grooming activities logged yet.</p>
+                    <p style="font-size: 0.82rem; color: var(--color-text-secondary); margin-top: 2px;">Keep your pet fresh and healthy by tracking grooming schedules.</p>
+                </div>
+
+                <div id="grooming-list" class="vaccines-list-grid hidden" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px;">
+                    <!-- Grooming logs cards dynamically injected here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: VET VISIT REPORTS & PRESCRIPTIONS VAULT -->
+        <section id="vet-visits-section" class="tab-content">
+            <div class="card vet-visits-main-card">
+                <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1.5px solid var(--border-color); padding-bottom: 14px; margin-bottom: 20px;">
+                    <div>
+                        <h2>Vet Visits &amp; Prescriptions Vault</h2>
+                        <p class="section-description" style="margin: 4px 0 0 0; color: var(--color-text-secondary); font-size: 0.88rem;">Log veterinary clinical visits, diagnoses, prescriptions, and upload documents/scans.</p>
+                    </div>
+                    <button id="btn-add-vet-visit" class="btn btn-primary">
+                        <span class="material-icons" style="margin-right: 4px; vertical-align: middle;">add</span> Log Vet Visit
+                    </button>
+                </div>
+
+                <div id="vet-visits-empty" class="empty-state" style="margin-top: 30px;">
+                    <span class="material-icons" style="font-size: 3rem; color: var(--petzi-caramel); margin-bottom: 8px;">medical_services</span>
+                    <p style="font-weight: 600; color: var(--petzi-dark-brown);">No veterinary visits logged yet.</p>
+                    <p style="font-size: 0.82rem; color: var(--color-text-secondary); margin-top: 2px;">Keep a digitised history of prescriptions and diagnoses for your vet visits.</p>
+                </div>
+
+                <div id="vet-visits-list" class="vaccines-list-grid hidden" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px;">
+                    <!-- Vet visit cards dynamically injected here -->
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Simple Edit Pet Modal from Dashboard Quick Trigger -->
+    <div id="edit-pet-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Quick Edit Pet Profile</h2>
+                <button id="btn-close-modal" class="btn-icon">
+                    <span class="material-icons">close</span>
+                </button>
+            </div>
+            <form id="quick-pet-form">
+                <div class="form-group">
+                    <label for="quick-pet-name">Pet Name <span class="required">*</span></label>
+                    <input type="text" id="quick-pet-name" required>
+                </div>
+                <div class="form-group-row">
+                    <div class="form-group">
+                        <label for="quick-pet-age">Age</label>
+                        <div style="display: flex; gap: 8px;">
+                            <input type="number" id="quick-pet-age" min="0" placeholder="e.g. 5" style="flex: 1;">
+                            <select id="quick-pet-age-unit"
+                                style="width: 105px; padding: 8px; border: 1.5px solid #D7A46D; border-radius: 8px; font-weight: 500; background: #FFF3E4; color: #4A2B1A;">
+                                <option value="years">Years</option>
+                                <option value="months">Months</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="quick-pet-weight">Weight (kg)</label>
+                        <input type="number" id="quick-pet-weight" step="0.1" min="0">
+                    </div>
+                </div>
+                <div class="form-group-row">
+                    <div class="form-group">
+                        <label for="quick-pet-breed">Breed</label>
+                        <input type="text" id="quick-pet-breed">
+                    </div>
+                    <div class="form-group">
+                        <label for="quick-pet-gender">Gender</label>
+                        <select id="quick-pet-gender">
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Neutered Male">Neutered Male</option>
+                            <option value="Spayed Female">Spayed Female</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="quick-pet-owner">Owner Name</label>
+                    <input type="text" id="quick-pet-owner">
+                </div>
+                <div class="form-group">
+                    <label for="quick-pet-instructions">Special Instructions</label>
+                    <textarea id="quick-pet-instructions" rows="3"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" id="btn-cancel-modal" class="btn btn-secondary">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Profile</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Photo Lightbox Modal -->
+    <div id="photo-lightbox-modal" class="modal-overlay hidden">
+        <div class="lightbox-content">
+            <button id="btn-close-lightbox" class="btn-icon lightbox-close">
+                <span class="material-icons">close</span>
+            </button>
+            <img id="lightbox-img" src="" alt="Enlarged Pet Photo">
+            <div id="lightbox-caption" class="lightbox-caption"></div>
+            <div id="lightbox-actions" class="lightbox-actions"
+                style="display: flex; gap: 10px; justify-content: center; margin-top: 14px;">
+                <button type="button" id="lightbox-btn-edit" class="btn btn-secondary"
+                    style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 16px; font-size: 0.9rem;">
+                    <span class="material-icons" style="font-size: 1rem;">edit</span> Edit Entry
+                </button>
+                <button type="button" id="lightbox-btn-delete" class="btn btn-danger"
+                    style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 16px; font-size: 0.9rem; background: #DC2626 !important; border-color: #DC2626 !important;">
+                    <span class="material-icons" style="font-size: 1rem;">delete</span> Delete Entry
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Archived Photos Modal -->
+    <div id="archived-photos-modal" class="modal-overlay hidden">
+        <div class="modal-content archived-photos-content">
+            <div class="modal-header">
+                <h2>All Photos</h2>
+                <button id="btn-close-archived" class="btn-icon">
+                    <span class="material-icons">close</span>
+                </button>
+            </div>
+            <div class="archived-photos-grid" id="archived-photos-grid">
+                <!-- Archived photos injected here dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Photo Modal -->
+    <div id="add-photo-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-photo-title">Add Photo</h2>
+                <button id="btn-close-add-photo" class="btn-icon">
+                    <span class="material-icons">close</span>
+                </button>
+            </div>
+            <form id="add-photo-form">
+                <input type="hidden" id="modal-photo-id" value="">
+                <div class="form-group">
+                    <label for="modal-photo-upload" class="photo-upload-label">
+                        <div class="photo-preview-box" id="photo-preview-box">
+                            <span class="material-icons">add_a_photo</span>
+                            <p>Click to select or change photo</p>
+                            <img id="photo-preview-img" class="hidden" src="" alt="Preview">
+                        </div>
+                    </label>
+                    <input type="file" id="modal-photo-upload" accept="image/*" class="hidden">
+                </div>
+                <div class="form-group">
+                    <label for="modal-photo-date">Timeline Date (Year, Month & Date) <span
+                            class="required">*</span></label>
+                    <input type="date" id="modal-photo-date"
+                        style="width: 100%; padding: 10px; border: 1.5px solid #D7A46D; border-radius: 8px; font-family: inherit; font-size: 0.95rem; outline: none; background: #FFF3E4;"
+                        required>
+                </div>
+                <div class="form-group">
+                    <label for="modal-photo-caption">Brief Note / Caption <span class="required">*</span></label>
+                    <input type="text" id="modal-photo-caption"
+                        style="width: 100%; padding: 10px; border: 1.5px solid #D7A46D; border-radius: 8px; font-family: inherit; font-size: 0.95rem; outline: none; background: #FFF3E4;"
+                        placeholder="e.g. Good memory, First day at home, Birthday celebration" required>
+                </div>
+                <div class="form-group">
+                    <label for="modal-photo-age">Age</label>
+                    <input type="text" id="modal-photo-age"
+                        style="width: 100%; padding: 10px; border: 1.5px solid #D7A46D; border-radius: 8px; font-family: inherit; font-size: 0.95rem; outline: none; background: #FFF3E4;"
+                        placeholder="e.g. 2 months or 5 years">
+                </div>
+                <div class="form-actions">
+                    <button type="button" id="btn-cancel-add-photo" class="btn btn-secondary">Cancel</button>
+                    <button type="submit" id="btn-save-photo" class="btn btn-primary">
+                        <span class="btn-text" id="btn-save-photo-text">Save Photo</span>
+                        <span class="material-icons spinner hidden">autorenew</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Supply Modal -->
+    <div id="add-supply-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add Supply Item</h2>
+                <button id="btn-close-supply-modal" class="btn-icon">
+                    <span class="material-icons">close</span>
+                </button>
+            </div>
+            <form id="add-supply-form">
+                <div class="form-group">
+                    <label for="supply-item-type">Item Type <span class="required">*</span></label>
+                    <select id="supply-item-type" required
+                        style="width: 100%; padding: 10px; border: 1.5px solid #D7A46D; border-radius: 8px; font-family: inherit; font-size: 0.95rem; outline: none; background: #FFF3E4;">
+                        <option value="Food">Food</option>
+                        <option value="Medication">Medication</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="supply-item-name">Item Name <span class="required">*</span></label>
+                    <input type="text" id="supply-item-name" placeholder="e.g. Kibble, Antibiotic" required
+                        style="width: 100%; padding: 10px; border: 1.5px solid #D7A46D; border-radius: 8px; font-family: inherit; font-size: 0.95rem; outline: none; background: #FFF3E4;">
+                </div>
+                <div class="form-group-row" style="display: flex; gap: 12px; margin-bottom: 12px;">
+                    <div class="form-group" style="flex: 1;">
+                        <label for="supply-current-stock">Current Stock <span class="required">*</span></label>
+                        <input type="number" id="supply-current-stock" step="any" min="0" required placeholder="e.g. 5"
+                            style="width: 100%; padding: 10px; border: 1.5px solid #D7A46D; border-radius: 8px; font-family: inherit; font-size: 0.95rem; outline: none; background: #FFF3E4;">
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label for="supply-unit">Unit <span class="required">*</span></label>
+                        <select id="supply-unit" required
+                            style="width: 100%; padding: 10px; border: 1.5px solid #D7A46D; border-radius: 8px; font-family: inherit; font-size: 0.95rem; outline: none; background: #FFF3E4;">
+                            <option value="kg">kg</option>
+                            <option value="g">g</option>
+                            <option value="ml">ml</option>
+                            <option value="tablets">tablets</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group-row" style="display: flex; gap: 12px; margin-bottom: 12px;">
+                    <div class="form-group" style="flex: 1;">
+                        <label for="supply-usage-per-log">Usage per Log <span class="required">*</span></label>
+                        <input type="number" id="supply-usage-per-log" step="any" min="0.001" required
+                            placeholder="e.g. 0.2"
+                            style="width: 100%; padding: 10px; border: 1.5px solid #D7A46D; border-radius: 8px; font-family: inherit; font-size: 0.95rem; outline: none; background: #FFF3E4;">
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label for="supply-low-stock-threshold">Low Threshold (Days) <span
+                                class="required">*</span></label>
+                        <input type="number" id="supply-low-stock-threshold" min="1" value="2" required
+                            placeholder="e.g. 2"
+                            style="width: 100%; padding: 10px; border: 1.5px solid #D7A46D; border-radius: 8px; font-family: inherit; font-size: 0.95rem; outline: none; background: #FFF3E4;">
+                    </div>
+                </div>
+                <div class="form-actions" style="margin-top: 18px;">
+                    <button type="button" id="btn-cancel-supply-modal" class="btn btn-secondary">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add Item</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Restock Supply Modal -->
+    <div id="restock-supply-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Restock Supply</h2>
+                <button id="btn-close-restock-modal" class="btn-icon">
+                    <span class="material-icons">close</span>
+                </button>
+            </div>
+            <form id="restock-supply-form">
+                <input type="hidden" id="restock-supply-id" value="">
+                <div class="form-group">
+                    <label id="restock-item-label"
+                        style="font-weight: 600; color: var(--text-secondary); margin-bottom: 6px; display: block;">Restock
+                        Quantity</label>
+                    <input type="number" id="restock-quantity" step="any" min="0.001" required placeholder="e.g. 10"
+                        style="width: 100%; padding: 10px; border: 1.5px solid #D7A46D; border-radius: 8px; font-family: inherit; font-size: 0.95rem; outline: none; background: #FFF3E4;">
+                </div>
+                <div class="form-actions" style="margin-top: 18px;">
+                    <button type="button" id="btn-cancel-restock-modal" class="btn btn-secondary">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Restock</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add/Edit Vaccine Modal -->
+    <div id="vaccine-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="vaccine-modal-title">Add Vaccine Record</h2>
+                <button id="btn-close-vaccine-modal" class="btn-icon">
+                    <span class="material-icons">close</span>
+                </button>
+            </div>
+            <form id="vaccine-form">
+                <input type="hidden" id="vaccine-id" value="">
+                
+                <div class="form-group">
+                    <label for="vaccine-name">Vaccine Name <span class="required">*</span></label>
+                    <input type="text" id="vaccine-name" placeholder="e.g. Rabies, DHPP, Bordetella" required
+                        style="width: 100%; padding: 10px; border: 1.5px solid #D7A46D; border-radius: 8px; font-family: inherit; font-size: 0.95rem; outline: none; background: #FFF3E4;">
+                </div>
+
+                <div class="form-group-row" style="display: flex; gap: 12px; margin-bottom: 12px;">
+                    <div class="form-group" style="flex: 1;">
+                        <label for="vaccine-date-administered">Date Administered</label>
+                        <input type="date" id="vaccine-date-administered"
+                            style="width: 100%; padding: 10px; border: 1.5px solid #D7A46D; border-radius: 8px; font-family: inherit; font-size: 0.95rem; outline: none; background: #FFF3E4;">
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label for="vaccine-next-due-date">Next Due Date</label>
+                        <input type="date" id="vaccine-next-due-date"
+                            style="width: 100%; padding: 10px; border: 1.5px solid #D7A46D; border-radius: 8px; font-family: inherit; font-size: 0.95rem; outline: none; background: #FFF3E4;">
+                    </div>
+                </div>
+
+                <div class="form-group-row" style="display: flex; gap: 12px; margin-bottom: 12px;">
+                    <div class="form-group" style="flex: 1;">
+                        <label for="vaccine-vet">Veterinarian / Clinic</label>
+                        <input type="text" id="vaccine-vet" placeholder="e.g. Dr. Priya Kumar"
+                            style="width: 100%; padding: 10px; border: 1.5px solid #D7A46D; border-radius: 8px; font-family: inherit; font-size: 0.95rem; outline: none; background: #FFF3E4;">
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label for="vaccine-batch">Batch / Lot Number</label>
+                        <input type="text" id="vaccine-batch" placeholder="e.g. #RB-9982"
+                            style="width: 100%; padding: 10px; border: 1.5px solid #D7A46D; border-radius: 8px; font-family: inherit; font-size: 0.95rem; outline: none; background: #FFF3E4;">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="vaccine-notes">Notes / Symptoms</label>
+                    <textarea id="vaccine-notes" rows="2" placeholder="e.g. Mild lethargy for 24 hours after injection."
+                        style="width: 100%; padding: 10px; border: 1.5px solid #D7A46D; border-radius: 8px; font-family: inherit; font-size: 0.95rem; outline: none; background: #FFF3E4; resize: vertical;"></textarea>
+                </div>
+
+                <div class="form-actions" style="margin-top: 18px;">
+                    <button type="button" id="btn-cancel-vaccine-modal" class="btn btn-secondary">Cancel</button>
+                    <button type="submit" id="btn-submit-vaccine" class="btn btn-primary">
+                        <span class="btn-text">Save Record</span>
+                        <span class="material-icons spinner hidden">autorenew</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add/Edit Grooming Modal -->
+    <div id="grooming-modal" class="modal-overlay hidden">
+        <div class="modal-content" style="max-width: 420px;">
+            <div class="modal-header">
+                <h2 id="grooming-modal-title">Log Grooming Activity</h2>
+                <button id="btn-close-grooming-modal" class="btn-icon">
+                    <span class="material-icons">close</span>
+                </button>
+            </div>
+            <form id="grooming-form">
+                <input type="hidden" id="grooming-log-id" value="">
+                
+                <div class="form-group">
+                    <label for="grooming-input-type">Activity Type <span class="required">*</span></label>
+                    <select id="grooming-input-type" required
+                        style="width: 100%; padding: 10px; border: 1.5px solid #D7A46D; border-radius: 8px; font-family: inherit; font-size: 0.95rem; outline: none; background: #FFF3E4;">
+                        <option value="">-- Select Type --</option>
+                        <option value="Bath">Bath</option>
+                        <option value="Nail Trim">Nail Trim</option>
+                        <option value="Teeth Brushing">Teeth Brushing</option>
+                        <option value="Ear Cleaning">Ear Cleaning</option>
+                        <option value="Haircut">Haircut / Trim</option>
+                        <option value="Brushing / Comb">Brushing / Comb</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group-row" style="display: flex; gap: 12px; margin-bottom: 12px;">
+                    <div class="form-group" style="flex: 1;">
+                        <label for="grooming-input-date">Date Completed <span class="required">*</span></label>
+                        <input type="date" id="grooming-input-date" required
+                            style="width: 100%; padding: 10px; border: 1.5px solid #D7A46D; border-radius: 8px; font-family: inherit; font-size: 0.95rem; outline: none; background: #FFF3E4;">
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label for="grooming-input-due">Next Due Date</label>
+                        <input type="date" id="grooming-input-due"
+                            style="width: 100%; padding: 10px; border: 1.5px solid #D7A46D; border-radius: 8px; font-family: inherit; font-size: 0.95rem; outline: none; background: #FFF3E4;">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="grooming-input-notes">Notes / Observations</label>
+                    <textarea id="grooming-input-notes" rows="2" placeholder="e.g. Friendly behavior, skin checked clean."
+                        style="width: 100%; padding: 10px; border: 1.5px solid #D7A46D; border-radius: 8px; font-family: inherit; font-size: 0.95rem; outline: none; background: #FFF3E4; resize: vertical;"></textarea>
+                </div>
+
+                <div class="form-actions" style="margin-top: 18px;">
+                    <button type="button" id="btn-cancel-grooming-modal" class="btn btn-secondary">Cancel</button>
+                    <button type="submit" id="btn-submit-grooming" class="btn btn-primary">
+                        <span class="btn-text">Save Record</span>
+                        <span class="material-icons spinner hidden">autorenew</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add/Edit Vet Visit Modal -->
+    <div id="vet-visit-modal" class="modal-overlay hidden">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h2 id="vet-visit-modal-title">Log Veterinary Visit</h2>
+                <button id="btn-close-vet-visit-modal" class="btn-icon">
+                    <span class="material-icons">close</span>
+                </button>
+            </div>
+            <form id="vet-visit-form">
+                <input type="hidden" id="vet-visit-id" value="">
+                
+                <div class="form-group-row" style="display: flex; gap: 12px; margin-bottom: 12px;">
+                    <div class="form-group" style="flex: 1;">
+                        <label for="vet-visit-input-date">Visit Date <span class="required">*</span></label>
+                        <input type="date" id="vet-visit-input-date" required
+                            style="width: 100%; padding: 10px; border: 1.5px solid #D7A46D; border-radius: 8px; font-family: inherit; font-size: 0.95rem; outline: none; background: #FFF3E4;">
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label for="vet-visit-input-doctor">Veterinarian Doctor <span class="required">*</span></label>
+                        <input type="text" id="vet-visit-input-doctor" required placeholder="e.g. Dr. Priya Kumar"
+                            style="width: 100%; padding: 10px; border: 1.5px solid #D7A46D; border-radius: 8px; font-family: inherit; font-size: 0.95rem; outline: none; background: #FFF3E4;">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="vet-visit-input-clinic">Clinic / Hospital Name</label>
+                    <input type="text" id="vet-visit-input-clinic" placeholder="e.g. Happy Tails Veterinary Clinic"
+                        style="width: 100%; padding: 10px; border: 1.5px solid #D7A46D; border-radius: 8px; font-family: inherit; font-size: 0.95rem; outline: none; background: #FFF3E4;">
+                </div>
+
+                <div class="form-group">
+                    <label for="vet-visit-input-diagnosis">Diagnosis <span class="required">*</span></label>
+                    <input type="text" id="vet-visit-input-diagnosis" required placeholder="e.g. Seasonal Allergies, Ear Infection"
+                        style="width: 100%; padding: 10px; border: 1.5px solid #D7A46D; border-radius: 8px; font-family: inherit; font-size: 0.95rem; outline: none; background: #FFF3E4;">
+                </div>
+
+                <div class="form-group">
+                    <label for="vet-visit-input-treatment">Treatment Plan / Recommendation</label>
+                    <textarea id="vet-visit-input-treatment" rows="2" placeholder="e.g. Ear drops twice daily, keep ears dry."
+                        style="width: 100%; padding: 10px; border: 1.5px solid #D7A46D; border-radius: 8px; font-family: inherit; font-size: 0.95rem; outline: none; background: #FFF3E4; resize: vertical;"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="vet-visit-input-prescription">Prescriptions / Medications Prescribed</label>
+                    <textarea id="vet-visit-input-prescription" rows="2" placeholder="e.g. Otomax ear drops (5ml), Cetirizine (10mg)"
+                        style="width: 100%; padding: 10px; border: 1.5px solid #D7A46D; border-radius: 8px; font-family: inherit; font-size: 0.95rem; outline: none; background: #FFF3E4; resize: vertical;"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="vet-visit-input-attachment">Prescription Scan / Visit Report (Image/PDF)</label>
+                    <input type="file" id="vet-visit-input-attachment" accept="image/*,application/pdf"
+                        style="width: 100%; padding: 8px 10px; border: 1.5px solid #D7A46D; border-radius: 8px; font-family: inherit; font-size: 0.9rem; outline: none; background: #FFF3E4;">
+                    <div style="font-size: 0.76rem; color: var(--color-text-secondary); margin-top: 3px;">Max size 5MB (Base64). Selected files are stored securely in database records.</div>
+                </div>
+
+                <div class="form-actions" style="margin-top: 18px;">
+                    <button type="button" id="btn-cancel-vet-visit-modal" class="btn btn-secondary">Cancel</button>
+                    <button type="submit" id="btn-submit-vet-visit" class="btn btn-primary">
+                        <span class="btn-text">Save Visit Record</span>
+                        <span class="material-icons spinner hidden">autorenew</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Fullscreen Attachment Lightbox -->
+    <div id="vet-attachment-lightbox" class="modal-overlay hidden" style="background: rgba(0,0,0,0.85); z-index: 10000; display: flex; align-items: center; justify-content: center;">
+        <div style="position: relative; max-width: 90%; max-height: 90%; display: flex; flex-direction: column; align-items: center; width: 100%;">
+            <button id="btn-close-vet-lightbox" class="btn-icon" style="position: absolute; top: -45px; right: 0; color: #FFFFFF; font-size: 2.2rem; background: transparent; border: none; cursor: pointer;">
+                <span class="material-icons" style="font-size: 2.2rem;">close</span>
+            </button>
+            <div id="vet-lightbox-content" style="background: #FFFFFF; border-radius: 8px; overflow: hidden; padding: 10px; width: 100%; height: 75vh; display: flex; justify-content: center; align-items: center;">
+                <!-- Dynamically populated attachment view -->
+            </div>
+            <div id="vet-lightbox-caption" style="color: #FFFFFF; margin-top: 10px; font-weight: 600; font-size: 0.95rem; text-align: center;"></div>
+        </div>
+    </div>
+
+    <!-- PDF Generation Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+
+    <!-- Script loading -->
+    <script src="script.js"></script>
+    <!-- Petzi Assistant Bot Script -->
+    <script src="petzi-assistant.js"></script>
+</body>
+
+</html>

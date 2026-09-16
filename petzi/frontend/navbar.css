@@ -1,0 +1,1381 @@
+/* navbar.css - Unified responsive navigation for Petzi */
+
+/* Global Navbar Header Variables & Reset Styles */
+.petzi-global-header {
+    background: #4A2B1A !important;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1.5px solid rgba(215, 164, 109, 0.35);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    padding: 0.75rem 0;
+    box-shadow: 0 4px 24px rgba(74, 43, 26, 0.25);
+    height: auto !important;
+}
+
+.petzi-global-header .header-container {
+    width: 94%;
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+}
+
+.petzi-global-header .header-left {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+/* Hamburger Menu Icon styling (Global) */
+.hamburger-btn {
+    display: flex;
+    background: rgba(215, 164, 109, 0.15);
+    border: 1.5px solid rgba(215, 164, 109, 0.3);
+    color: #FFF3E4;
+    cursor: pointer;
+    padding: 7px 10px;
+    border-radius: 10px;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.hamburger-btn:hover {
+    background: #D7A46D;
+    color: #4A2B1A;
+    border-color: #D7A46D;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(215, 164, 109, 0.35);
+}
+
+.hamburger-btn .material-icons {
+    font-size: 1.5rem;
+}
+
+/* Logo */
+.petzi-global-header .app-title {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: #FFF3E4;
+    letter-spacing: -0.02em;
+    white-space: nowrap;
+    margin: 0;
+}
+
+.petzi-global-header .title-icon {
+    font-size: 1.35rem;
+    color: #4A2B1A;
+    background: #D7A46D;
+    padding: 6px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(215, 164, 109, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* App Desktop Nav Links styling */
+.petzi-global-header .app-nav {
+    display: flex;
+    gap: 0.35rem;
+    align-items: center;
+    flex-wrap: nowrap;
+}
+
+.petzi-global-header .nav-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    background: transparent;
+    border: 1.5px solid transparent;
+    color: #F0D5B3;
+    padding: 0.45rem 0.7rem;
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    border-radius: 999px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+    text-decoration: none;
+}
+
+/* Back button styling matching navbar theme */
+.back-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: 1.5px solid transparent;
+    color: #F0D5B3;
+    padding: 0.4rem 0.6rem;
+    font-size: 1rem;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.back-btn .material-icons {
+    font-size: 1.2rem;
+}
+.back-btn:hover {
+    color: #FFF3E4;
+    background: #A56A3E;
+    transform: translateY(-1px);
+}
+
+/* Updated modal header to Petzi theme */
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.1rem 1.4rem;
+    background: #4A2B1A; /* dark brown */
+    border-bottom: 1px solid rgba(215, 164, 109, 0.35);
+    border-radius: 10px;
+}
+
+.petzi-global-header .nav-btn .material-icons {
+    font-size: 1.05rem;
+}
+
+.petzi-global-header .nav-btn:hover {
+    color: #FFF3E4;
+    background: #A56A3E;
+    transform: translateY(-1px);
+}
+
+.petzi-global-header .nav-btn.active {
+    color: #4A2B1A !important;
+    background: #D7A46D !important;
+    font-weight: 700;
+    box-shadow: 0 4px 14px rgba(215, 164, 109, 0.35);
+}
+
+/* Pet Dropdown selector */
+.nav-pet-selector {
+    display: inline-flex;
+    align-items: center;
+    height: 34px;
+    min-width: 120px;
+    max-width: 165px;
+    background: #FFF8F0;
+    border: 1.5px solid #D7A46D;
+    color: #4A2B1A;
+    padding: 0 8px;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    outline: none;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(74, 43, 26, 0.05);
+    margin: 0 2px;
+}
+
+/* User Pill & Logout */
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+}
+
+.nav-user-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255, 243, 228, 0.1);
+    color: #FFF3E4;
+    padding: 5px 10px;
+    border-radius: 999px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    border: 1px solid rgba(255, 243, 228, 0.15);
+}
+
+.nav-logout-btn {
+    background: transparent;
+    border: 1px solid rgba(255, 243, 228, 0.2);
+    color: #FFF3E4;
+    padding: 6px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.nav-logout-btn:hover {
+    background: #EF4444;
+    border-color: #EF4444;
+    color: #FFFFFF;
+}
+
+/* Floating Popover Dropdown Menu directly positioned below hamburger button */
+.petzi-hamburger-dropdown {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    width: 260px;
+    max-height: 420px;
+    overflow-y: auto;
+    background: #4A2B1A;
+    border: 1.5px solid rgba(215, 164, 109, 0.35);
+    border-radius: 14px;
+    box-shadow: 0 10px 32px rgba(0, 0, 0, 0.5);
+    z-index: 2500;
+    padding: 0.6rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+
+    /* Smooth internal scrollbar */
+    scrollbar-width: thin;
+    scrollbar-color: rgba(215, 164, 109, 0.4) transparent;
+
+    /* Animation states */
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px) scale(0.97);
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: none;
+}
+
+.petzi-hamburger-dropdown::-webkit-scrollbar {
+    width: 5px;
+}
+
+.petzi-hamburger-dropdown::-webkit-scrollbar-thumb {
+    background: rgba(215, 164, 109, 0.4);
+    border-radius: 10px;
+}
+
+.petzi-hamburger-dropdown.open {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+}
+
+.dropdown-header {
+    padding: 0.3rem 0.2rem 0.6rem 0.2rem;
+    border-bottom: 1px solid rgba(215, 164, 109, 0.2);
+}
+
+.dropdown-divider {
+    font-size: 0.68rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #D7A46D;
+    padding: 0.4rem 0.5rem 0.2rem 0.5rem;
+    margin-top: 0.2rem;
+}
+
+.dropdown-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: #F0D5B3;
+    padding: 0.65rem 0.85rem;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.88rem;
+    transition: all 0.15s ease;
+}
+
+.dropdown-item:hover {
+    color: #FFF3E4;
+    background: rgba(215, 164, 109, 0.18);
+    transform: translateX(2px);
+}
+
+.dropdown-item.active {
+    color: #4A2B1A !important;
+    background: #D7A46D !important;
+    font-weight: 700;
+    box-shadow: 0 2px 10px rgba(215, 164, 109, 0.35);
+}
+
+.dropdown-user-section {
+    border-top: 1px solid rgba(215, 164, 109, 0.2);
+    padding-top: 0.5rem;
+    margin-top: 0.4rem;
+}
+
+.nav-logout-btn-full {
+    width: 100%;
+    background: rgba(239, 68, 68, 0.15);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #FCA5A5;
+    padding: 0.55rem 0.75rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.84rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: all 0.2s ease;
+}
+
+.nav-logout-btn-full:hover {
+    background: #EF4444;
+    color: #FFFFFF;
+    border-color: #EF4444;
+}
+
+.mobile-only {
+    display: none;
+}
+
+/* Responsive Breakpoints for Tablet & Mobile */
+@media (max-width: 1180px) {
+    .nav-btn[data-tab-name="feeding"] {
+        display: none !important;
+    }
+}
+
+@media (max-width: 950px) {
+    .nav-btn[data-tab-name="profile"],
+    .nav-btn[href*="pet.html"] {
+        display: none !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .mobile-only {
+        display: block;
+    }
+
+    .desktop-nav,
+    .desktop-only {
+        display: none !important;
+    }
+
+    .petzi-global-header .header-container {
+        justify-content: space-between;
+    }
+
+    .petzi-hamburger-dropdown {
+        width: 260px;
+        right: -10px;
+        max-width: 88vw;
+    }
+}
+
+/* Stock Status Badges */
+.supply-status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-left: 6px;
+    vertical-align: middle;
+}
+
+.supply-status-badge.normal-stock {
+    background: #E6F4EA;
+    color: #137333;
+}
+
+.supply-status-badge.low-stock {
+    background: #FFF0D4;
+    color: #B06000;
+}
+
+.supply-status-badge.nearly-empty {
+    background: #FCE8E6;
+    color: #C5221F;
+}
+
+.supply-status-badge.out-of-stock {
+    background: #FCE8E6;
+    color: #C5221F;
+    border: 1px solid #C5221F;
+}
+
+/* Stock Progress Bars */
+.supply-progress-fill.normal-stock-bar {
+    background: #1B5E20 !important; /* Green */
+}
+
+.supply-progress-fill.low-stock-bar {
+    background: #F59E0B !important; /* Orange/Yellow */
+}
+
+.supply-progress-fill.nearly-empty-bar {
+    background: #E65100 !important; /* Dark Orange */
+}
+
+.supply-progress-fill.out-of-stock-bar {
+    background: #D50000 !important; /* Red */
+    width: 0% !important;
+}
+
+/* ==========================================
+   NOTIFICATIONS & REMINDERS STYLING
+   ========================================== */
+
+/* Notification Bell Button */
+.nav-notification-btn {
+    position: relative;
+    display: flex;
+    background: rgba(215, 164, 109, 0.15);
+    border: 1.5px solid rgba(215, 164, 109, 0.3);
+    color: #FFF3E4;
+    cursor: pointer;
+    padding: 7px 9px;
+    border-radius: 10px;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.nav-notification-btn:hover {
+    background: #D7A46D;
+    color: #4A2B1A;
+    border-color: #D7A46D;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(215, 164, 109, 0.35);
+}
+
+.nav-notification-btn .material-icons {
+    font-size: 1.4rem;
+}
+
+/* Unread Notification Counter Badge */
+.notification-badge {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+    color: #FFFFFF;
+    font-size: 0.68rem;
+    font-weight: 800;
+    font-family: 'Outfit', sans-serif;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 4px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1.5px solid #4A2B1A;
+    box-shadow: 0 2px 6px rgba(239, 68, 68, 0.4);
+}
+
+.notification-badge.pulse {
+    animation: badgePulse 0.6s ease;
+}
+
+@keyframes badgePulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.35); box-shadow: 0 0 14px rgba(239, 68, 68, 0.8); }
+    100% { transform: scale(1); }
+}
+
+/* Notifications Popover Dropdown Panel */
+.petzi-notification-panel {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 50px;
+    width: 380px;
+    max-width: 92vw;
+    background: #4A2B1A;
+    border: 1.5px solid rgba(215, 164, 109, 0.35);
+    border-radius: 16px;
+    box-shadow: 0 14px 40px rgba(0, 0, 0, 0.55);
+    z-index: 2600;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+
+    /* Animation states */
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px) scale(0.97);
+    transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: none;
+}
+
+.petzi-notification-panel.open {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+}
+
+/* Panel Header */
+.notification-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.9rem 1.1rem;
+    background: rgba(45, 24, 12, 0.6);
+    border-bottom: 1px solid rgba(215, 164, 109, 0.2);
+}
+
+.header-title-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.header-title-group .header-icon {
+    font-size: 1.25rem;
+    color: #D7A46D;
+}
+
+.header-title-group .header-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #FFF3E4;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.panel-action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(215, 164, 109, 0.15);
+    border: 1px solid rgba(215, 164, 109, 0.25);
+    color: #F0D5B3;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.panel-action-btn.icon-only {
+    padding: 4px 6px;
+}
+
+.panel-action-btn:hover {
+    background: #D7A46D;
+    color: #4A2B1A;
+    border-color: #D7A46D;
+}
+
+.panel-action-btn .material-icons {
+    font-size: 0.95rem;
+}
+
+/* Filter Tabs */
+.notification-filter-tabs {
+    display: flex;
+    gap: 0.4rem;
+    padding: 0.5rem 1.1rem;
+    background: rgba(74, 43, 26, 0.4);
+    border-bottom: 1px solid rgba(215, 164, 109, 0.15);
+}
+
+.tab-filter {
+    background: transparent;
+    border: none;
+    color: #D7A46D;
+    font-size: 0.8rem;
+    font-weight: 600;
+    font-family: 'Outfit', sans-serif;
+    padding: 4px 10px;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.tab-filter:hover {
+    color: #FFF3E4;
+    background: rgba(215, 164, 109, 0.15);
+}
+
+.tab-filter.active {
+    background: #D7A46D;
+    color: #4A2B1A;
+    font-weight: 700;
+}
+
+/* Notifications List Container */
+.notification-list-container {
+    max-height: 380px;
+    overflow-y: auto;
+    padding: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(215, 164, 109, 0.4) transparent;
+}
+
+.notification-list-container::-webkit-scrollbar {
+    width: 5px;
+}
+
+.notification-list-container::-webkit-scrollbar-thumb {
+    background: rgba(215, 164, 109, 0.4);
+    border-radius: 10px;
+}
+
+/* Notification Card */
+.notification-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.75rem 0.85rem;
+    border-radius: 10px;
+    background: rgba(255, 243, 228, 0.04);
+    border: 1px solid rgba(215, 164, 109, 0.15);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    position: relative;
+}
+
+.notification-card:hover {
+    background: rgba(215, 164, 109, 0.14);
+    border-color: rgba(215, 164, 109, 0.35);
+    transform: translateX(2px);
+}
+
+.notification-card.unread {
+    background: rgba(215, 164, 109, 0.12);
+    border-color: rgba(215, 164, 109, 0.4);
+}
+
+.card-icon-wrapper {
+    width: 34px;
+    height: 34px;
+    min-width: 34px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.card-icon-wrapper .material-icons {
+    font-size: 1.15rem;
+}
+
+.card-icon-wrapper.type-appointment {
+    background: rgba(215, 164, 109, 0.25);
+    color: #FFF3E4;
+}
+
+.card-icon-wrapper.type-medication {
+    background: rgba(165, 106, 62, 0.35);
+    color: #F0D5B3;
+}
+
+.card-icon-wrapper.type-vaccination {
+    background: rgba(27, 94, 32, 0.4);
+    color: #A7F3D0;
+}
+
+.card-icon-wrapper.type-grooming {
+    background: rgba(123, 31, 162, 0.35);
+    color: #E9D5FF;
+}
+
+.card-icon-wrapper.type-supply {
+    background: rgba(230, 81, 0, 0.35);
+    color: #FED7AA;
+}
+
+.card-icon-wrapper.type-general {
+    background: rgba(255, 255, 255, 0.12);
+    color: #FFF3E4;
+}
+
+.card-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.card-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.4rem;
+    margin-bottom: 2px;
+}
+
+.card-title {
+    font-size: 0.86rem;
+    font-weight: 700;
+    color: #FFF3E4;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.unread-dot {
+    width: 8px;
+    height: 8px;
+    min-width: 8px;
+    background: #D7A46D;
+    border-radius: 50%;
+    box-shadow: 0 0 6px rgba(215, 164, 109, 0.8);
+}
+
+.card-message {
+    font-size: 0.79rem;
+    color: #D6C4B2;
+    margin: 0 0 5px 0;
+    line-height: 1.35;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.card-footer-row {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.card-time {
+    font-size: 0.72rem;
+    color: #A89582;
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.card-pet-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    background: rgba(215, 164, 109, 0.15);
+    color: #F0D5B3;
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 600;
+}
+
+.icon-tiny {
+    font-size: 0.8rem !important;
+}
+
+/* Card Mark Read Button */
+.btn-card-read {
+    background: transparent;
+    border: none;
+    color: #A89582;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s ease;
+}
+
+.btn-card-read:hover {
+    color: #10B981;
+    background: rgba(16, 185, 129, 0.15);
+}
+
+.btn-card-read .material-icons {
+    font-size: 1rem;
+}
+
+/* Empty State */
+.notification-empty {
+    text-align: center;
+    padding: 2.2rem 1.2rem;
+    color: #D6C4B2;
+}
+
+.empty-icon {
+    font-size: 2.8rem !important;
+    color: rgba(215, 164, 109, 0.4);
+    margin-bottom: 0.6rem;
+}
+
+.empty-title {
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: #FFF3E4;
+    margin: 0 0 4px 0;
+}
+
+.empty-subtitle {
+    font-size: 0.78rem;
+    color: #A89582;
+    margin: 0;
+}
+
+.notification-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 2rem 0;
+    color: #D7A46D;
+    font-size: 0.85rem;
+}
+
+.material-icons.spinning {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    100% { transform: rotate(360deg); }
+}
+
+/* Notification Preferences Modal */
+.petzi-modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(8px);
+    z-index: 3000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+
+.petzi-modal-card {
+    background: #4A2B1A;
+    border: 1.5px solid rgba(215, 164, 109, 0.35);
+    border-radius: 18px;
+    width: 100%;
+    max-width: 480px;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6);
+    overflow: hidden;
+    animation: modalIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modalIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 0.95rem 1.3rem;
+    background: #4A2B1A !important;
+    border-bottom: 1px solid rgba(215, 164, 109, 0.35);
+    border-radius: 10px;
+    box-sizing: border-box;
+}
+
+.modal-header h2,
+.modal-header h3,
+.modal-header .modal-title,
+.modal-title {
+    margin: 0;
+    padding: 0;
+    font-size: 1.2rem;
+    line-height: 1.3;
+    color: #FFF3E4 !important;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    flex: 1;
+    min-width: 0;
+}
+
+.modal-header h2 .material-icons,
+.modal-header h3 .material-icons,
+.modal-header .modal-title .material-icons {
+    color: #FFF3E4 !important;
+    font-size: 1.3rem;
+    line-height: 1;
+}
+
+/* Close button in modal headers - clean, subtle, properly aligned */
+.modal-header .btn-icon,
+.modal-header .btn-modal-close,
+.modal-header .modal-close-btn,
+.modal-close-btn,
+.modal-header button[id*="close"],
+.modal-header button[class*="close"] {
+    background: transparent !important;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    color: #FFF3E4 !important;
+    width: 32px !important;
+    height: 32px !important;
+    min-width: 32px !important;
+    min-height: 32px !important;
+    max-width: 32px !important;
+    max-height: 32px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border-radius: 50% !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    flex-shrink: 0 !important;
+    transition: background 0.2s ease, color 0.2s ease !important;
+    transform: none !important;
+    line-height: 1 !important;
+}
+
+.modal-header .btn-icon .material-icons,
+.modal-header .btn-modal-close .material-icons,
+.modal-header .modal-close-btn .material-icons,
+.modal-close-btn .material-icons,
+.modal-header button[id*="close"] .material-icons,
+.modal-header button[class*="close"] .material-icons {
+    font-size: 1.25rem !important;
+    line-height: 1 !important;
+    color: #FFF3E4 !important;
+    display: block !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    transition: color 0.2s ease !important;
+}
+
+.modal-header .btn-icon:hover,
+.modal-header .btn-modal-close:hover,
+.modal-header .modal-close-btn:hover,
+.modal-close-btn:hover,
+.modal-header button[id*="close"]:hover,
+.modal-header button[class*="close"]:hover {
+    background: rgba(255, 243, 228, 0.18) !important;
+    color: #FFF3E4 !important;
+    transform: none !important;
+}
+
+.modal-header .btn-icon:hover .material-icons,
+.modal-header .btn-modal-close:hover .material-icons,
+.modal-header .modal-close-btn:hover .material-icons,
+.modal-close-btn:hover .material-icons,
+.modal-header button[id*="close"]:hover .material-icons,
+.modal-header button[class*="close"]:hover .material-icons {
+    color: #FFF3E4 !important;
+}
+
+.modal-body {
+    padding: 1.2rem 1.4rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+.modal-subtitle {
+    font-size: 0.82rem;
+    color: #D6C4B2;
+    margin: 0 0 0.4rem 0;
+}
+
+.pref-toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.5rem 0;
+}
+
+.pref-label {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #FFF3E4;
+    display: block;
+    cursor: pointer;
+}
+
+.pref-desc {
+    font-size: 0.76rem;
+    color: #A89582;
+    margin-top: 1px;
+}
+
+.pref-divider {
+    height: 1px;
+    background: rgba(215, 164, 109, 0.15);
+    margin: 0.2rem 0;
+}
+
+/* Switch styling */
+.petzi-switch {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 42px;
+    height: 24px;
+    min-width: 42px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 999px;
+    position: relative;
+    cursor: pointer;
+    outline: none;
+    border: 1px solid rgba(215, 164, 109, 0.3);
+    transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.petzi-switch::before {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 18px;
+    height: 18px;
+    background: #FFF3E4;
+    border-radius: 50%;
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.petzi-switch:checked {
+    background: #D7A46D;
+    border-color: #D7A46D;
+}
+
+.petzi-switch:checked::before {
+    transform: translateX(18px);
+    background: #4A2B1A;
+}
+
+.modal-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    padding: 0.9rem 1.4rem;
+    background: #4A2B1A !important;
+    border-top: 1.5px solid rgba(215, 164, 109, 0.35) !important;
+}
+
+.btn-cancel {
+    background: transparent;
+    border: 1px solid rgba(215, 164, 109, 0.3);
+    color: #F0D5B3;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.btn-cancel:hover {
+    background: rgba(215, 164, 109, 0.15);
+    color: #FFF3E4;
+}
+
+.btn-save {
+    background: #D7A46D;
+    border: 1px solid #D7A46D;
+    color: #4A2B1A;
+    padding: 0.5rem 1.2rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.btn-save:hover {
+    background: #FFF3E4;
+    border-color: #FFF3E4;
+}
+
+/* Email Status Badges on Cards */
+.card-email-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-left: auto;
+}
+
+.card-email-badge.sent {
+    background: rgba(16, 185, 129, 0.15);
+    color: #34D399;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.card-email-badge.failed {
+    background: rgba(239, 68, 68, 0.15);
+    color: #F87171;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.card-email-badge.simulated {
+    background: rgba(59, 130, 246, 0.15);
+    color: #93C5FD;
+    border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.btn-retry-single-email {
+    background: rgba(239, 68, 68, 0.25);
+    border: 1px solid rgba(239, 68, 68, 0.4);
+    color: #FFF3E4;
+    font-size: 0.65rem;
+    font-weight: 700;
+    border-radius: 4px;
+    padding: 1px 5px;
+    cursor: pointer;
+    margin-left: 4px;
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    transition: all 0.15s ease;
+}
+
+.btn-retry-single-email:hover {
+    background: #EF4444;
+    color: #FFFFFF;
+}
+
+.icon-micro {
+    font-size: 0.72rem !important;
+}
+
+/* Email Diagnostic & Test Section in Modal */
+.email-test-section {
+    background: rgba(45, 24, 12, 0.5);
+    border: 1px solid rgba(215, 164, 109, 0.25);
+    border-radius: 10px;
+    padding: 0.85rem;
+    margin-top: 0.3rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.email-test-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+}
+
+.email-test-header-title {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #FFF3E4;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.email-test-actions {
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+}
+
+.btn-test-email, .btn-retry-all-emails {
+    background: rgba(215, 164, 109, 0.2);
+    border: 1px solid rgba(215, 164, 109, 0.4);
+    color: #FFF3E4;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 5px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.15s ease;
+}
+
+.btn-test-email:hover, .btn-retry-all-emails:hover {
+    background: #D7A46D;
+    color: #4A2B1A;
+}
+
+.email-status-box {
+    font-size: 0.76rem;
+    padding: 8px 10px;
+    border-radius: 6px;
+    line-height: 1.4;
+    display: none;
+}
+
+.email-status-box.success {
+    display: block;
+    background: rgba(16, 185, 129, 0.15);
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    color: #6EE7B7;
+}
+
+.email-status-box.error {
+    display: block;
+    background: rgba(239, 68, 68, 0.15);
+    border: 1px solid rgba(239, 68, 68, 0.4);
+    color: #FCA5A5;
+}
+
+.email-status-box.info {
+    display: block;
+    background: rgba(59, 130, 246, 0.15);
+    border: 1px solid rgba(59, 130, 246, 0.4);
+    color: #93C5FD;
+}
+
+/* Email Config Inputs & Controls */
+.email-config-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 0.3rem;
+}
+
+.email-mode-selector {
+    display: flex;
+    gap: 0.5rem;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 3px;
+    border-radius: 8px;
+    border: 1px solid rgba(215, 164, 109, 0.2);
+}
+
+.email-mode-btn {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: #D7A46D;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 0.76rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    transition: all 0.15s ease;
+}
+
+.email-mode-btn.active {
+    background: #D7A46D;
+    color: #4A2B1A;
+}
+
+.email-input-row {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.email-input-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #F0D5B3;
+}
+
+.email-input-field {
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(215, 164, 109, 0.3);
+    color: #FFF3E4;
+    padding: 7px 10px;
+    border-radius: 6px;
+    font-size: 0.82rem;
+    outline: none;
+    transition: border-color 0.15s ease;
+}
+
+.email-input-field:focus {
+    border-color: #D7A46D;
+    box-shadow: 0 0 8px rgba(215, 164, 109, 0.25);
+}
+
+.email-hint-text {
+    font-size: 0.7rem;
+    color: #A89582;
+    line-height: 1.35;
+}
+
+.email-hint-text a {
+    color: #D7A46D;
+    text-decoration: underline;
+}
+
+.btn-save-email-config {
+    background: #D7A46D;
+    border: 1px solid #D7A46D;
+    color: #4A2B1A;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    transition: all 0.15s ease;
+    align-self: flex-start;
+}
+
+.btn-save-email-config:hover {
+    background: #FFF3E4;
+    border-color: #FFF3E4;
+}
+
+.btn-preview-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    background: rgba(59, 130, 246, 0.2);
+    border: 1px solid rgba(59, 130, 246, 0.5);
+    color: #93C5FD;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-decoration: none;
+    margin-top: 4px;
+}
+
+.btn-preview-link:hover {
+    background: #3B82F6;
+    color: #FFFFFF;
+}
+
+/* Responsive adjustment for Mobile */
+@media (max-width: 768px) {
+    .petzi-notification-panel {
+        right: 10px;
+        width: calc(100vw - 20px);
+        max-width: 360px;
+    }
+}
+
+

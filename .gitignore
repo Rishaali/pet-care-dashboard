@@ -1,4 +1,7 @@
+<<<<<<< resha-petzi
 backend/node_modules/
+=======
+>>>>>>> main
 node_modules/
 .vscode/
 *.db

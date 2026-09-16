@@ -1,0 +1,380 @@
+/* ==========================================================================
+   PETZI ASSISTANT - Isolated Styling
+   Floating Dog Paw Button & Assistant Chat Window
+   ========================================================================== */
+
+/* Floating Paw Button */
+#petzi-bot-fab {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    width: 62px;
+    height: 62px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #A56A3E 0%, #D7A46D 100%);
+    color: #FFF3E4;
+    border: 3px solid #FFF3E4;
+    box-shadow: 0 10px 28px rgba(74, 43, 26, 0.35), 0 2px 8px rgba(0, 0, 0, 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 99999;
+    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease;
+    user-select: none;
+    outline: none;
+    padding: 0;
+    margin: 0;
+    animation: fabPulse 3s infinite ease-in-out;
+}
+
+@keyframes fabPulse {
+    0%, 100% {
+        box-shadow: 0 10px 28px rgba(74, 43, 26, 0.35), 0 0 0 0 rgba(165, 106, 62, 0.35);
+    }
+    50% {
+        box-shadow: 0 12px 32px rgba(74, 43, 26, 0.45), 0 0 0 12px rgba(165, 106, 62, 0);
+    }
+}
+
+#petzi-bot-fab:hover {
+    transform: scale(1.12) rotate(-6deg);
+    box-shadow: 0 14px 34px rgba(74, 43, 26, 0.5), 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+#petzi-bot-fab:active {
+    transform: scale(0.95);
+}
+
+#petzi-bot-fab .bot-paw-icon {
+    font-size: 30px;
+    line-height: 1;
+    display: inline-block;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15));
+    transition: transform 0.3s ease;
+}
+
+#petzi-bot-fab:hover .bot-paw-icon {
+    transform: scale(1.1);
+}
+
+/* Chat Window Container */
+#petzi-chat-widget {
+    position: fixed;
+    bottom: 96px;
+    right: 24px;
+    width: 380px;
+    max-width: calc(100vw - 32px);
+    height: 540px;
+    max-height: calc(100vh - 120px);
+    background: #FFFFFF;
+    border-radius: 24px;
+    box-shadow: 0 20px 50px rgba(74, 43, 26, 0.20), 0 6px 16px rgba(0, 0, 0, 0.06);
+    border: 1px solid #F0D5B3;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    z-index: 99998;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(20px) scale(0.94);
+    transform-origin: bottom right;
+    transition: opacity 0.28s ease, transform 0.28s cubic-bezier(0.34, 1.4, 0.64, 1), visibility 0.28s;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+#petzi-chat-widget.active {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0) scale(1);
+}
+
+/* Header */
+.petzi-chat-header {
+    background: #4A2B1A;
+    color: #FFF3E4;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 4px 14px rgba(74, 43, 26, 0.25);
+}
+
+.petzi-chat-header-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.petzi-chat-avatar {
+    width: 36px;
+    height: 36px;
+    background: rgba(255, 243, 228, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    border: 1.5px solid #D7A46D;
+}
+
+.petzi-chat-title-wrap {
+    display: flex;
+    flex-direction: column;
+}
+
+.petzi-chat-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.2;
+    color: #FFF3E4;
+}
+
+.petzi-chat-pet-badge {
+    font-size: 11px;
+    font-weight: 500;
+    color: #F5E6D3;
+    background: rgba(215, 164, 109, 0.3);
+    padding: 2px 8px;
+    border-radius: 12px;
+    margin-top: 3px;
+    border: 1px solid rgba(215, 164, 109, 0.5);
+    display: inline-block;
+    max-width: 220px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Banner Styling */
+.petzi-emergency-banner {
+    background: #FFF0F0;
+    color: #D32F2F;
+    border-left: 4px solid #D32F2F;
+    padding: 10px 12px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    font-weight: 600;
+    font-size: 13.5px;
+}
+
+.petzi-warning-banner {
+    background: #FFF8E1;
+    color: #F57F17;
+    border-left: 4px solid #F57F17;
+    padding: 8px 12px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    font-weight: 600;
+    font-size: 13px;
+}
+
+.petzi-chat-close-btn {
+    background: rgba(255, 243, 228, 0.15);
+    border: none;
+    color: #FFF3E4;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s, transform 0.2s;
+}
+
+.petzi-chat-close-btn:hover {
+    background: rgba(255, 243, 228, 0.3);
+    transform: rotate(90deg);
+}
+
+/* Messages Area */
+.petzi-chat-body {
+    flex: 1;
+    padding: 16px;
+    overflow-y: auto;
+    background: #FFF3E4;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    scroll-behavior: smooth;
+}
+
+.petzi-chat-body::-webkit-scrollbar {
+    width: 5px;
+}
+.petzi-chat-body::-webkit-scrollbar-thumb {
+    background: #F0D5B3;
+    border-radius: 10px;
+}
+
+.petzi-msg {
+    display: flex;
+    flex-direction: column;
+    max-width: 84%;
+    animation: petziFadeIn 0.25s ease-out;
+}
+
+@keyframes petziFadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.petzi-msg.bot {
+    align-self: flex-start;
+}
+
+.petzi-msg.user {
+    align-self: flex-end;
+}
+
+.petzi-msg-bubble {
+    padding: 10px 14px;
+    font-size: 13px;
+    line-height: 1.5;
+    border-radius: 16px;
+    word-break: break-word;
+}
+
+.petzi-msg.bot .petzi-msg-bubble {
+    background: #F0D5B3;
+    color: #4A2B1A;
+    border: 1px solid #D7A46D;
+    border-bottom-left-radius: 4px;
+}
+
+.petzi-msg.user .petzi-msg-bubble {
+    background: #A56A3E;
+    color: #FFF3E4;
+    border-bottom-right-radius: 4px;
+    box-shadow: 0 3px 8px rgba(74, 43, 26, 0.2);
+}
+
+.petzi-msg-time {
+    font-size: 10px;
+    color: #795C48;
+    margin-top: 3px;
+    padding: 0 4px;
+}
+
+.petzi-msg.user .petzi-msg-time {
+    text-align: right;
+}
+
+/* Typing Indicator */
+.petzi-typing-bubble {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 10px 14px;
+    background: #F0D5B3;
+    border: 1px solid #D7A46D;
+    border-radius: 16px;
+    border-bottom-left-radius: 4px;
+    width: fit-content;
+}
+
+.petzi-typing-dot {
+    width: 6px;
+    height: 6px;
+    background: #A56A3E;
+    border-radius: 50%;
+    animation: petziBlink 1.4s infinite both;
+}
+
+.petzi-typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.petzi-typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes petziBlink {
+    0%, 80%, 100% { opacity: 0.3; transform: scale(0.8); }
+    40% { opacity: 1; transform: scale(1.2); }
+}
+
+/* Footer / Input Area */
+.petzi-chat-footer {
+    padding: 12px 14px;
+    background: #FFFFFF;
+    border-top: 1px solid #F0D5B3;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.petzi-chat-input {
+    flex: 1;
+    height: 40px;
+    border: 1.5px solid #D7A46D;
+    border-radius: 20px;
+    padding: 0 14px;
+    font-size: 13px;
+    color: #4A2B1A;
+    background: #FFF8F0;
+    outline: none;
+    transition: border-color 0.2s, background 0.2s;
+    font-family: inherit;
+}
+
+.petzi-chat-input:focus {
+    border-color: #A56A3E;
+    background: #FFFFFF;
+}
+
+.petzi-chat-input::placeholder {
+    color: #9A7B63;
+}
+
+.petzi-chat-send-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #4A2B1A;
+    border: none;
+    color: #FFF3E4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    outline: none;
+    flex-shrink: 0;
+    box-shadow: 0 3px 8px rgba(74, 43, 26, 0.25);
+}
+
+.petzi-chat-send-btn:hover {
+    background: #A56A3E;
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(74, 43, 26, 0.35);
+}
+
+.petzi-chat-send-btn:active {
+    transform: scale(0.95);
+}
+
+.petzi-chat-send-btn svg {
+    width: 18px;
+    height: 18px;
+    fill: currentColor;
+    margin-left: 2px;
+}
+
+/* Mobile Responsive */
+@media (max-width: 480px) {
+    #petzi-bot-fab {
+        bottom: 16px;
+        right: 16px;
+        width: 52px;
+        height: 52px;
+    }
+    #petzi-bot-fab .bot-paw-icon {
+        font-size: 26px;
+    }
+    #petzi-chat-widget {
+        bottom: 78px;
+        right: 12px;
+        width: calc(100vw - 24px);
+        height: calc(100vh - 100px);
+        border-radius: 16px;
+    }
+}
